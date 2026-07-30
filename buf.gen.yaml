@@ -1,15 +1,15 @@
 version: v1
 plugins:
-  - name: go
+  - plugin: buf.build/protocolbuffers/go:v1.31.0
     out: gen/go
     opt: paths=source_relative
-  - name: go-grpc
+  - plugin: buf.build/grpc/go:v1.3.0
     out: gen/go
     opt: paths=source_relative
-  - name: grpc-gateway
+  - plugin: buf.build/grpc-ecosystem/gateway:v2.18.1
     out: gen/go
     opt: paths=source_relative,generate_unbound_methods=true
-  - name: java
+  - plugin: buf.build/protocolbuffers/java:v25.1
     out: gen/java
-  - name: java-grpc
+  - plugin: buf.build/grpc/java:v1.60.0
     out: gen/java
