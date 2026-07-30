@@ -1,0 +1,89 @@
+name: Publish Stubs
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout gym-proto
+        uses: actions/checkout@v4
+
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Release Version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="0.0.1-SNAPSHOT"
+          fi
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Release version set to $VERSION"
+
+      - name: Generate Stubs
+        run: buf generate
+
+      # --- Publish Java Stubs to GitHub Packages ---
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish Java Package
+        run: gradle publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+
+      # --- Publish Go Stubs to proto-go repo ---
+      - name: Publish Go Stubs
+        env:
+          PROTO_GO_REPO: "github.com/gym-chain/proto-go"
+          GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clone target Go repository
+          git clone https://x-access-token:${GO_PUBLISH_TOKEN}@${PROTO_GO_REPO}.git proto-go-repo
+
+          # Clean old files (except .git, README, go.mod)
+          find proto-go-repo -mindepth 1 -maxdepth 1 -not -name ".git" -not -name "README.md" -not -name "go.mod" -exec rm -rf {} +
+
+          # Copy newly generated Go files
+          cp -r gen/go/* proto-go-repo/
+
+          cd proto-go-repo
+
+          # Commit changes
+          git add .
+          if git diff-index --quiet HEAD --; then
+            echo "No changes in Go stubs"
+          else
+            git commit -m "chore: update Go stubs to ${{ env.RELEASE_VERSION }}"
+            git push origin main
+
+            # Push tag if release tag triggered the workflow
+            if [[ $GITHUB_REF == refs/tags/v* ]]; then
+              TAG_NAME=${GITHUB_REF#refs/tags/}
+              git tag $TAG_NAME
+              git push origin $TAG_NAME
+            fi
+          fi
