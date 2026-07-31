@@ -57,7 +57,7 @@ jobs:
       # --- Publish Go Stubs to proto-go repo ---
       - name: Publish Go Stubs
         env:
-          PROTO_GO_REPO: "github.com/gym-chain/proto-go"
+          PROTO_GO_REPO: "github.com/pploc/proto-go"
           GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
