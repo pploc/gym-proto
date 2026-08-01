@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout gym-proto
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Buf
         uses: bufbuild/buf-setup-action@v1
@@ -27,10 +29,25 @@ jobs:
 
       - name: Set Release Version
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch --tags
+
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           else
-            VERSION="0.0.1-SNAPSHOT"
+            LATEST_TAG=$(git tag -l "v*" | sort -V | tail -n 1)
+            if [[ -z "$LATEST_TAG" ]]; then
+              LATEST_TAG="v1.0.0"
+            fi
+            BASE_VER=${LATEST_TAG#v}
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VER"
+            NEW_PATCH=$((PATCH + 1))
+            VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+            NEW_TAG="v${VERSION}"
+            echo "Auto-incrementing version from $LATEST_TAG to $NEW_TAG"
+            git tag "$NEW_TAG"
+            git push origin "$NEW_TAG" || true
           fi
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
           echo "Release version set to $VERSION"
@@ -82,10 +99,7 @@ jobs:
             git commit -m "chore: update Go stubs to ${{ env.RELEASE_VERSION }}"
             git push origin main
 
-            # Push tag if release tag triggered the workflow
-            if [[ $GITHUB_REF == refs/tags/v* ]]; then
-              TAG_NAME=${GITHUB_REF#refs/tags/}
-              git tag $TAG_NAME
-              git push origin $TAG_NAME
-            fi
+            TAG_NAME="v${{ env.RELEASE_VERSION }}"
+            git tag $TAG_NAME || true
+            git push origin $TAG_NAME || true
           fi
