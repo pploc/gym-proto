@@ -1,0 +1,93 @@
+{
+  "fixtureFormatVersion": 1,
+  "generatedBy": {
+    "tool": "gym-proto ConfluentFixtureGenerator",
+    "schemaRegistryClient": "7.7.1",
+    "schemaRegistryUrl": "http://localhost:8081",
+    "generatedAt": "2026-08-02T15:13:15.413881948Z"
+  },
+  "environment": {
+    "requireCleanRegistry": true,
+    "schemaType": "PROTOBUF",
+    "subjectNameStrategy": "TopicNameStrategy",
+    "compatibility": "BACKWARD",
+    "registrationMode": "fixture-generation-only"
+  },
+  "cases": [
+        {
+          "name": "user-registered",
+          "topic": "identity.user.registered.v1",
+          "keyUtf8": "identity-user-1",
+          "subject": "identity.user.registered.v1-value",
+          "eventType": "events.v1.UserRegisteredEvent",
+          "schema": {
+            "id": 1,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.UserRegisteredEvent",
+          "source": "identity-service",
+          "timestamp": "1700000000123",
+          "event-id": "fixture-user-registered-001"
+          },
+          "payloadHex": "0a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c46697874757265205573657222064d454d4245522a0767796d2d303031320850415353574f524438fbd095ffbc31",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000001",
+            "messageIndexesHex": "00",
+            "completeHex": "0000000001000a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c46697874757265205573657222064d454d4245522a0767796d2d303031320850415353574f524438fbd095ffbc31"
+          }
+        },
+        {
+          "name": "user-suspended",
+          "topic": "identity.user.suspended.v1",
+          "keyUtf8": "identity-user-2",
+          "subject": "identity.user.suspended.v1-value",
+          "eventType": "events.v1.UserSuspendedEvent",
+          "schema": {
+            "id": 1,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.UserSuspendedEvent",
+          "source": "identity-service",
+          "timestamp": "1700000000456",
+          "event-id": "fixture-user-suspended-002"
+          },
+          "payloadHex": "0a08757365722d30303212064d454d4245521a0767796d2d30303120c8d395ffbc31",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000001",
+            "messageIndexesHex": "0202",
+            "completeHex": "000000000102020a08757365722d30303212064d454d4245521a0767796d2d30303120c8d395ffbc31"
+          }
+        },
+        {
+          "name": "user-role-changed",
+          "topic": "identity.user.role-changed.v1",
+          "keyUtf8": "identity-user-3",
+          "subject": "identity.user.role-changed.v1-value",
+          "eventType": "events.v1.UserRoleChangedEvent",
+          "schema": {
+            "id": 1,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.UserRoleChangedEvent",
+          "source": "identity-service",
+          "timestamp": "1700000000789",
+          "event-id": "fixture-user-role-changed-003"
+          },
+          "payloadHex": "0a08757365722d30303312064d454d4245521a07545241494e4552220767796d2d3030322895d695ffbc31",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000001",
+            "messageIndexesHex": "0204",
+            "completeHex": "000000000102040a08757365722d30303312064d454d4245521a07545241494e4552220767796d2d3030322895d695ffbc31"
+          }
+        }
+  ]
+}

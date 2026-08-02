@@ -15,14 +15,9 @@ java {
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
-    implementation 'io.grpc:grpc-protobuf:1.60.0'
-    implementation 'io.grpc:grpc-stub:1.60.0'
-    implementation 'com.google.protobuf:protobuf-java:3.25.1'
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    maven {
+        url 'https://packages.confluent.io/maven/'
+    }
 }
 
 sourceSets {
@@ -31,6 +26,71 @@ sourceSets {
             srcDirs = ['gen/java']
         }
     }
+    fixtures {
+        java {
+            srcDirs = ['src/fixtures/java']
+        }
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    fixturesImplementation.extendsFrom implementation
+    fixturesRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+    implementation 'io.grpc:grpc-protobuf:1.60.0'
+    implementation 'io.grpc:grpc-stub:1.60.0'
+    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
+    fixturesImplementation 'io.confluent:kafka-protobuf-serializer:7.7.1'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('fixturesClasses')
+}
+
+tasks.register('generateConfluentFixtures', JavaExec) {
+    group = 'verification'
+    description = 'Generate Confluent Schema Registry 7.7.1 byte fixtures from a clean Registry.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.ConfluentFixtureGenerator'
+    args(
+            layout.projectDirectory.file('contracts/v1/kafka/confluent-7.7.1-fixtures.json').asFile.absolutePath,
+            providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get()
+    )
+}
+
+tasks.register('verifyConfluentFixtures', JavaExec) {
+    group = 'verification'
+    description = 'Verify committed Confluent Schema Registry 7.7.1 byte fixtures without mutation.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.ConfluentFixtureVerifier'
+    args(layout.projectDirectory.file('contracts/v1/kafka/confluent-7.7.1-fixtures.json').asFile.absolutePath)
+    if (project.hasProperty('schemaRegistryUrl')) {
+        args(project.property('schemaRegistryUrl'))
+    }
+}
+
+tasks.register('verifyConfluentBackwardCompatibility', JavaExec) {
+    group = 'verification'
+    description = 'Prove live Schema Registry BACKWARD compatibility positive and negative cases.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.ConfluentCompatibilityVerifier'
+    args(providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get())
 }
 
 publishing {

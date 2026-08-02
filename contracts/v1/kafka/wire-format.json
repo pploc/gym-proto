@@ -4,7 +4,10 @@
   "schema": {
     "subjectNameStrategy": "TopicNameStrategy",
     "subject": "<topic>-value",
-    "compatibility": "BACKWARD"
+    "compatibility": "BACKWARD",
+    "schemaId": "assigned by Schema Registry; fixture IDs are generated only from a clean disposable Registry",
+    "fixtureArtifact": "confluent-7.7.1-fixtures.json",
+    "fixtureProcedure": "README.md"
   },
   "headers": {
     "event-type": "fully-qualified-protobuf-message-name",

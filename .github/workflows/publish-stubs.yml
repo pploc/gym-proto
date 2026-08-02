@@ -1,113 +1,123 @@
-name: Publish Stubs
+name: Validate and Publish Stubs
 
 on:
+  pull_request:
+    branches: [develop]
   push:
-    branches:
-      - main
-      - develop
-      - 'feat/**'
-    tags:
-      - 'v*'
+    branches: [develop]
+    tags: ["v*"]
+
+permissions:
+  contents: read
 
 jobs:
-  publish:
+  validate:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-
     steps:
-      - name: Checkout gym-proto
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Buf
+      - name: Set up Buf
         uses: bufbuild/buf-setup-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set Release Version
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch --tags
-
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
-          else
-            LATEST_TAG=$(git tag -l "v*" | sort -V | tail -n 1)
-            if [[ -z "$LATEST_TAG" ]]; then
-              LATEST_TAG="v1.0.0"
-            fi
-            BASE_VER=${LATEST_TAG#v}
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VER"
-            NEW_PATCH=$((PATCH + 1))
-            VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-            NEW_TAG="v${VERSION}"
-            echo "Auto-incrementing version from $LATEST_TAG to $NEW_TAG"
-            git tag "$NEW_TAG"
-            git push origin "$NEW_TAG" || true
-          fi
-          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Release version set to $VERSION"
-
-      - name: Generate Stubs
+      - name: Generate stubs
         run: buf generate
 
-      # --- Publish Java Stubs to GitHub Packages ---
-      - name: Set up JDK 26
+      - name: Verify generated Java stubs compile
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '26'
+          distribution: temurin
+          java-version: "26"
 
-      - name: Setup Gradle
+      - name: Build Java stubs
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish Java Package
+      - run: gradle build
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Set release version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          test -n "$VERSION"
+          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Set up Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate stubs
+        run: buf generate
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "26"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish Java stubs
         run: gradle publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
 
-      # --- Publish Go Stubs to proto-go repo ---
-      - name: Publish Go Stubs
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          check-latest: true
+
+      - name: Publish Go stubs
         env:
-          PROTO_GO_REPO: "github.com/pploc/proto-go"
           GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
         run: |
+          test -n "$GO_PUBLISH_TOKEN"
+          target="https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git clone --branch main "$target" proto-go-repo
+          cd proto-go-repo
 
-          # Clone target Go repository
-          git clone https://x-access-token:${GO_PUBLISH_TOKEN}@${PROTO_GO_REPO}.git proto-go-repo
+          if git rev-parse -q --verify "refs/tags/v${RELEASE_VERSION}" >/dev/null; then
+            echo "proto-go v${RELEASE_VERSION} already exists" >&2
+            exit 1
+          fi
 
-          # Clean old generated files while preserving module metadata.
-          find proto-go-repo -mindepth 1 -maxdepth 1 -not -name ".git" -not -name "README.md" -not -name "go.mod" -exec rm -rf {} +
-
-          # The published target is a standalone, permanently importable Go module.
-          cat > proto-go-repo/go.mod <<'EOF'
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name .git ! -name README.md ! -name go.mod -exec rm -rf {} +
+          cp -R ../gen/go/. .
+          cat > go.mod <<'EOF'
           module github.com/pploc/proto-go
 
-          go 1.22
+          go 1.26
           EOF
-
-          # Copy generated packages whose go_package options target proto-go.
-          cp -r gen/go/* proto-go-repo/
-
-          cd proto-go-repo
           go mod tidy
+          go test ./...
 
-          # Commit and tag the exact generated-stub release.
-          git add .
-          if git diff-index --quiet HEAD --; then
-            echo "No changes in Go stubs"
-          else
-            git commit -m "chore: update Go stubs to ${{ env.RELEASE_VERSION }}"
-            git push origin develop
-
-            TAG_NAME="v${{ env.RELEASE_VERSION }}"
-            git tag "$TAG_NAME"
-            git push origin "$TAG_NAME"
+          git add --all
+          if git diff --cached --quiet; then
+            echo "generated proto-go output is unchanged; refusing an empty release" >&2
+            exit 1
           fi
+          git commit -m "chore: publish Go stubs v${RELEASE_VERSION}"
+          git push origin HEAD:main
+          git tag "v${RELEASE_VERSION}"
+          git push origin "v${RELEASE_VERSION}"
