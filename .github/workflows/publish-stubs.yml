@@ -104,6 +104,7 @@ jobs:
           find . -mindepth 1 -maxdepth 1 \
             ! -name .git ! -name README.md ! -name go.mod -exec rm -rf {} +
           cp -R ../gen/go/. .
+          cp -R ../contracts/v1/kafka contracts/v1/kafka
           cat > go.mod <<'EOF'
           module github.com/pploc/proto-go
 
