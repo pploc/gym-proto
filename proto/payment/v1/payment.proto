@@ -4,7 +4,7 @@ package payment.v1;
 
 import "common/v1/common.proto";
 
-option go_package = "github.com/gym-chain/proto-go/payment/v1;paymentv1";
+option go_package = "github.com/pploc/proto-go/payment/v1;paymentv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.payment.v1";
 

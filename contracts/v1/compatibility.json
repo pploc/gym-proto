@@ -1,0 +1,8 @@
+{
+  "contractVersion": "v1",
+  "go": "must-pass-auth-error-kafka-dlq-fixtures",
+  "java": "must-pass-auth-error-kafka-dlq-fixtures",
+  "protobuf": "generated-go-imports-github.com/pploc/proto-go",
+  "schemaRegistry": "BACKWARD-compatibility-positive-and-negative-cases",
+  "gateway": "proves-trusted-header-stripping-and-injection"
+}

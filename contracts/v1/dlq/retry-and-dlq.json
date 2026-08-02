@@ -1,0 +1,17 @@
+{
+  "delivery": "idempotent-producer-manual-commit-at-least-once-handler",
+  "attempts": {
+    "initial": 1,
+    "retryDelaysSeconds": [2, 4, 8],
+    "dlqAfterFailedRetry": 3
+  },
+  "dlqTopic": "{topic}.DLQ",
+  "commitOriginalOffsetAfter": ["handler-success", "confirmed-dlq-publication"],
+  "preserves": ["key", "framed-value", "original-headers"],
+  "addedHeaders": {
+    "x-original-topic": "utf8-topic",
+    "x-exception-message": "client-safe-diagnostic",
+    "x-failed-at": "decimal-unix-epoch-milliseconds",
+    "x-retry-count": "decimal-attempt-count"
+  }
+}

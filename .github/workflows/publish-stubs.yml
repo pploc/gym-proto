@@ -83,23 +83,31 @@ jobs:
           # Clone target Go repository
           git clone https://x-access-token:${GO_PUBLISH_TOKEN}@${PROTO_GO_REPO}.git proto-go-repo
 
-          # Clean old files (except .git, README, go.mod)
+          # Clean old generated files while preserving module metadata.
           find proto-go-repo -mindepth 1 -maxdepth 1 -not -name ".git" -not -name "README.md" -not -name "go.mod" -exec rm -rf {} +
 
-          # Copy newly generated Go files
+          # The published target is a standalone, permanently importable Go module.
+          cat > proto-go-repo/go.mod <<'EOF'
+          module github.com/pploc/proto-go
+
+          go 1.22
+          EOF
+
+          # Copy generated packages whose go_package options target proto-go.
           cp -r gen/go/* proto-go-repo/
 
           cd proto-go-repo
+          go mod tidy
 
-          # Commit changes
+          # Commit and tag the exact generated-stub release.
           git add .
           if git diff-index --quiet HEAD --; then
             echo "No changes in Go stubs"
           else
             git commit -m "chore: update Go stubs to ${{ env.RELEASE_VERSION }}"
-            git push origin main
+            git push origin develop
 
             TAG_NAME="v${{ env.RELEASE_VERSION }}"
-            git tag $TAG_NAME || true
-            git push origin $TAG_NAME || true
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
           fi

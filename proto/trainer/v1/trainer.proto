@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package trainer.v1;
 
-option go_package = "github.com/gym-chain/proto-go/trainer/v1;trainerv1";
+option go_package = "github.com/pploc/proto-go/trainer/v1;trainerv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.trainer.v1";
 

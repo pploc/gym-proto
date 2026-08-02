@@ -4,7 +4,7 @@ package workout.v1;
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/gym-chain/proto-go/workout/v1;workoutv1";
+option go_package = "github.com/pploc/proto-go/workout/v1;workoutv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.workout.v1";
 

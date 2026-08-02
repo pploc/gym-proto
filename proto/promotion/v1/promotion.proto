@@ -4,7 +4,7 @@ package promotion.v1;
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/gym-chain/proto-go/promotion/v1;promotionv1";
+option go_package = "github.com/pploc/proto-go/promotion/v1;promotionv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.promotion.v1";
 

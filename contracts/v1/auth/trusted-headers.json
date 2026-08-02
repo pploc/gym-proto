@@ -1,0 +1,21 @@
+{
+  "trustedHeaders": [
+    "x-user-id",
+    "x-user-role",
+    "x-gym-id",
+    "x-membership-status",
+    "x-trace-id"
+  ],
+  "gateway": {
+    "validatesJwt": true,
+    "stripsClientSuppliedCopies": true
+  },
+  "membership": {
+    "missingOrMalformedFailsClosedWhenRequired": true
+  },
+  "tracing": {
+    "canonical": ["traceparent", "tracestate"],
+    "fallback": "x-trace-id",
+    "precedence": "valid-w3c-context-over-x-trace-id"
+  }
+}

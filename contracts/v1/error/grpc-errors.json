@@ -1,0 +1,17 @@
+{
+  "trailer": "x-error-code",
+  "internalDescription": "Internal server error",
+  "mappings": {
+    "VALIDATION": "INVALID_ARGUMENT",
+    "UNAUTHORIZED": "UNAUTHENTICATED",
+    "FORBIDDEN": "PERMISSION_DENIED",
+    "NOT_FOUND": "NOT_FOUND",
+    "CONFLICT": "ALREADY_EXISTS",
+    "UNSUPPORTED": "UNIMPLEMENTED",
+    "UNPROCESSABLE": "FAILED_PRECONDITION",
+    "RATE_LIMITED": "RESOURCE_EXHAUSTED",
+    "UNAVAILABLE": "UNAVAILABLE",
+    "INTERNAL": "INTERNAL",
+    "UNKNOWN": "INTERNAL"
+  }
+}

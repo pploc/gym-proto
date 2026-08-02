@@ -1,0 +1,24 @@
+{
+  "key": "domain-ordering-key-as-bytes-or-utf8",
+  "value": "confluent-schema-registry-framed-concrete-protobuf",
+  "schema": {
+    "subjectNameStrategy": "TopicNameStrategy",
+    "subject": "<topic>-value",
+    "compatibility": "BACKWARD"
+  },
+  "headers": {
+    "event-type": "fully-qualified-protobuf-message-name",
+    "source": "producing-service-name",
+    "timestamp": "decimal-unix-epoch-milliseconds",
+    "event-id": "immutable-producer-event-id",
+    "traceparent": "w3c-trace-context",
+    "tracestate": "optional-w3c-trace-state",
+    "x-trace-id": "compatibility-fallback-only"
+  },
+  "legacyHeaders": {
+    "x-event-type": "read-only-during-explicit-migration",
+    "x-source": "read-only-during-explicit-migration",
+    "x-timestamp": "read-only-during-explicit-migration",
+    "x-event-id": "read-only-during-explicit-migration"
+  }
+}

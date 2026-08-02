@@ -1,0 +1,25 @@
+{
+  "contractVersion": "v1",
+  "status": "pending-owner-approval",
+  "versions": {
+    "gymProto": "unreleased",
+    "protoGo": "unreleased",
+    "commonGo": "unreleased",
+    "commonJava": "unreleased",
+    "schemaRegistry": "Confluent Schema Registry Protobuf / BACKWARD"
+  },
+  "owners": {
+    "go": "pending",
+    "java": "pending",
+    "protobuf": "pending",
+    "kafkaSchemaRegistry": "pending",
+    "gateway": "pending"
+  },
+  "requiredEvidence": [
+    "tagged proto-go external import without replace",
+    "Go fixture suite",
+    "Java fixture suite",
+    "Schema Registry BACKWARD compatibility check",
+    "Kong trusted-header stripping and injection test"
+  ]
+}
