@@ -3,8 +3,7 @@
   "generatedBy": {
     "tool": "gym-proto ConfluentFixtureGenerator",
     "schemaRegistryClient": "7.7.1",
-    "schemaRegistryUrl": "http://localhost:8081",
-    "generatedAt": "2026-08-02T15:13:15.413881948Z"
+    "schemaRegistryUrl": "http://localhost:8081"
   },
   "environment": {
     "requireCleanRegistry": true,
@@ -17,7 +16,7 @@
         {
           "name": "user-registered",
           "topic": "identity.user.registered.v1",
-          "keyUtf8": "identity-user-1",
+          "keyUtf8": "user-001",
           "subject": "identity.user.registered.v1-value",
           "eventType": "events.v1.UserRegisteredEvent",
           "schema": {
@@ -27,22 +26,23 @@
           },
           "headers": {
           "event-type": "events.v1.UserRegisteredEvent",
-          "source": "identity-service",
+          "source": "ms-gym-identifier",
           "timestamp": "1700000000123",
-          "event-id": "fixture-user-registered-001"
+          "event-id": "fixture-user-registered-001",
+          "traceparent": "00-00000000000000000000000000000001-0000000000000001-01"
           },
-          "payloadHex": "0a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c46697874757265205573657222064d454d4245522a0767796d2d303031320850415353574f524438fbd095ffbc31",
+          "payloadHex": "0a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722208435553544f4d45522a0767796d2d303031320850415353574f524438fbd095ffbc31",
           "frame": {
             "magicByteHex": "00",
             "schemaIdBigEndianHex": "00000001",
             "messageIndexesHex": "00",
-            "completeHex": "0000000001000a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c46697874757265205573657222064d454d4245522a0767796d2d303031320850415353574f524438fbd095ffbc31"
+            "completeHex": "0000000001000a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722208435553544f4d45522a0767796d2d303031320850415353574f524438fbd095ffbc31"
           }
         },
         {
           "name": "user-suspended",
           "topic": "identity.user.suspended.v1",
-          "keyUtf8": "identity-user-2",
+          "keyUtf8": "user-002",
           "subject": "identity.user.suspended.v1-value",
           "eventType": "events.v1.UserSuspendedEvent",
           "schema": {
@@ -52,22 +52,23 @@
           },
           "headers": {
           "event-type": "events.v1.UserSuspendedEvent",
-          "source": "identity-service",
+          "source": "ms-gym-identifier",
           "timestamp": "1700000000456",
-          "event-id": "fixture-user-suspended-002"
+          "event-id": "fixture-user-suspended-002",
+          "traceparent": "00-00000000000000000000000000000002-0000000000000002-01"
           },
-          "payloadHex": "0a08757365722d30303212064d454d4245521a0767796d2d30303120c8d395ffbc31",
+          "payloadHex": "0a08757365722d3030321208435553544f4d45521a0767796d2d30303120c8d395ffbc31",
           "frame": {
             "magicByteHex": "00",
             "schemaIdBigEndianHex": "00000001",
             "messageIndexesHex": "0202",
-            "completeHex": "000000000102020a08757365722d30303212064d454d4245521a0767796d2d30303120c8d395ffbc31"
+            "completeHex": "000000000102020a08757365722d3030321208435553544f4d45521a0767796d2d30303120c8d395ffbc31"
           }
         },
         {
           "name": "user-role-changed",
           "topic": "identity.user.role-changed.v1",
-          "keyUtf8": "identity-user-3",
+          "keyUtf8": "user-003",
           "subject": "identity.user.role-changed.v1-value",
           "eventType": "events.v1.UserRoleChangedEvent",
           "schema": {
@@ -77,16 +78,173 @@
           },
           "headers": {
           "event-type": "events.v1.UserRoleChangedEvent",
-          "source": "identity-service",
+          "source": "ms-gym-identifier",
           "timestamp": "1700000000789",
-          "event-id": "fixture-user-role-changed-003"
+          "event-id": "fixture-user-role-changed-003",
+          "traceparent": "00-00000000000000000000000000000003-0000000000000003-01"
           },
-          "payloadHex": "0a08757365722d30303312064d454d4245521a07545241494e4552220767796d2d3030322895d695ffbc31",
+          "payloadHex": "0a08757365722d3030331208435553544f4d45521a07545241494e4552220767796d2d3030322895d695ffbc31",
           "frame": {
             "magicByteHex": "00",
             "schemaIdBigEndianHex": "00000001",
             "messageIndexesHex": "0204",
-            "completeHex": "000000000102040a08757365722d30303312064d454d4245521a07545241494e4552220767796d2d3030322895d695ffbc31"
+            "completeHex": "000000000102040a08757365722d3030331208435553544f4d45521a07545241494e4552220767796d2d3030322895d695ffbc31"
+          }
+        },
+        {
+          "name": "payment-completed",
+          "topic": "payment.completed.v1",
+          "keyUtf8": "user-004",
+          "subject": "payment.completed.v1-value",
+          "eventType": "events.v1.PaymentCompletedEvent",
+          "schema": {
+            "id": 2,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.PaymentCompletedEvent",
+          "source": "ms-gym-payment",
+          "timestamp": "1700000001000",
+          "event-id": "fixture-payment-completed-004",
+          "traceparent": "00-00000000000000000000000000000004-0000000000000004-01"
+          },
+          "payloadHex": "0a0b7061796d656e742d3030341208757365722d3030341a0a4d454d424552534849502210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000002",
+            "messageIndexesHex": "00",
+            "completeHex": "0000000002000a0b7061796d656e742d3030341208757365722d3030341a0a4d454d424552534849502210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31"
+          }
+        },
+        {
+          "name": "membership-activated",
+          "topic": "membership.activated.v1",
+          "keyUtf8": "member-005",
+          "subject": "membership.activated.v1-value",
+          "eventType": "events.v1.MembershipActivatedEvent",
+          "schema": {
+            "id": 3,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.MembershipActivatedEvent",
+          "source": "ms-gym-member",
+          "timestamp": "1700000001234",
+          "event-id": "fixture-membership-activated-005",
+          "traceparent": "00-00000000000000000000000000000005-0000000000000005-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d3030351208757365722d3030351a074d4f4e54484c59220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000003",
+            "messageIndexesHex": "00",
+            "completeHex": "0000000003000a0a6d656d6265722d3030351208757365722d3030351a074d4f4e54484c59220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31"
+          }
+        },
+        {
+          "name": "membership-paused",
+          "topic": "membership.paused.v1",
+          "keyUtf8": "member-006",
+          "subject": "membership.paused.v1-value",
+          "eventType": "events.v1.MembershipPausedEvent",
+          "schema": {
+            "id": 3,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.MembershipPausedEvent",
+          "source": "ms-gym-member",
+          "timestamp": "1700000001456",
+          "event-id": "fixture-membership-paused-006",
+          "traceparent": "00-00000000000000000000000000000006-0000000000000006-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d30303610b0db95ffbc311814220767796d2d303032",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000003",
+            "messageIndexesHex": "0202",
+            "completeHex": "000000000302020a0a6d656d6265722d30303610b0db95ffbc311814220767796d2d303032"
+          }
+        },
+        {
+          "name": "membership-resumed",
+          "topic": "membership.resumed.v1",
+          "keyUtf8": "member-007",
+          "subject": "membership.resumed.v1-value",
+          "eventType": "events.v1.MembershipResumedEvent",
+          "schema": {
+            "id": 3,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.MembershipResumedEvent",
+          "source": "ms-gym-member",
+          "timestamp": "1700000001678",
+          "event-id": "fixture-membership-resumed-007",
+          "traceparent": "00-00000000000000000000000000000007-0000000000000007-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d303037120a323032332d31322d33311a0767796d2d303032",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000003",
+            "messageIndexesHex": "0204",
+            "completeHex": "000000000302040a0a6d656d6265722d303037120a323032332d31322d33311a0767796d2d303032"
+          }
+        },
+        {
+          "name": "membership-expiring-soon",
+          "topic": "membership.expiring-soon.v1",
+          "keyUtf8": "member-008",
+          "subject": "membership.expiring-soon.v1-value",
+          "eventType": "events.v1.MembershipExpiringSoonEvent",
+          "schema": {
+            "id": 3,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.MembershipExpiringSoonEvent",
+          "source": "ms-gym-member",
+          "timestamp": "1700000001890",
+          "event-id": "fixture-membership-expiring-soon-008",
+          "traceparent": "00-00000000000000000000000000000008-0000000000000008-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d303038120a323032332d31312d32311a06594541524c59220767796d2d303033",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000003",
+            "messageIndexesHex": "0206",
+            "completeHex": "000000000302060a0a6d656d6265722d303038120a323032332d31312d32311a06594541524c59220767796d2d303033"
+          }
+        },
+        {
+          "name": "membership-expired",
+          "topic": "membership.expired.v1",
+          "keyUtf8": "member-009",
+          "subject": "membership.expired.v1-value",
+          "eventType": "events.v1.MembershipExpiredEvent",
+          "schema": {
+            "id": 3,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.MembershipExpiredEvent",
+          "source": "ms-gym-member",
+          "timestamp": "1700000002000",
+          "event-id": "fixture-membership-expired-009",
+          "traceparent": "00-00000000000000000000000000000009-0000000000000009-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d30303910d0df95ffbc311a0767796d2d303033",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000003",
+            "messageIndexesHex": "0208",
+            "completeHex": "000000000302080a0a6d656d6265722d30303910d0df95ffbc311a0767796d2d303033"
           }
         }
   ]

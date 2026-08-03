@@ -8,8 +8,8 @@ option java_package = "com.gym.proto.common.v1";
 
 message Money {
   string currency_code = 1; // "VND"
-  int64 units = 2;          // amount in integer
-  int32 nanos = 3;          // fraction of a unit
+  int64 units = 2; // amount in integer
+  int32 nanos = 3; // fraction of a unit
 }
 
 message PaginationRequest {

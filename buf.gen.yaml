@@ -1,15 +1,21 @@
-version: v1
+version: v2
 plugins:
-  - plugin: buf.build/protocolbuffers/go:v1.31.0
+  - remote: buf.build/protocolbuffers/go:v1.31.0
     out: gen/go
     opt: paths=source_relative
-  - plugin: buf.build/grpc/go:v1.3.0
+  - remote: buf.build/grpc/go:v1.3.0
     out: gen/go
     opt: paths=source_relative
-  - plugin: buf.build/grpc-ecosystem/gateway:v2.18.1
+  - local:
+      - go
+      - run
+      - github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.18.1
     out: gen/go
-    opt: paths=source_relative,generate_unbound_methods=true
-  - plugin: buf.build/protocolbuffers/java:v25.1
+    strategy: all
+    opt:
+      - paths=source_relative
+      - grpc_api_configuration=proto/http.yaml
+  - remote: buf.build/protocolbuffers/java:v25.1
     out: gen/java
-  - plugin: buf.build/grpc/java:v1.60.0
+  - remote: buf.build/grpc/java:v1.60.0
     out: gen/java

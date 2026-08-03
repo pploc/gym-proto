@@ -10,35 +10,176 @@ on:
 permissions:
   contents: read
 
+env:
+  STABLE_PROTO_TAG: v1.0.6
+  PHASE1_BASE_SHA: 246053eb7b2b49fb6c8875830d44a9141d210d3d
+  RELEASE_TARGET: v1.1.0
+  SCHEMA_REGISTRY_URL: http://localhost:8081
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    services:
+      kafka:
+        image: confluentinc/cp-kafka:7.7.1
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_NODE_ID: "1"
+          KAFKA_PROCESS_ROLES: broker,controller
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+          KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+          KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+          CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      schema-registry:
+        image: confluentinc/cp-schema-registry:7.7.1
+        ports:
+          - 8081:8081
+        env:
+          SCHEMA_REGISTRY_HOST_NAME: schema-registry
+          SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+          SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Buf
         uses: bufbuild/buf-setup-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate stubs
-        run: buf generate
+      - name: Set up Go for grpc-gateway generation
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          check-latest: true
 
-      - name: Verify generated Java stubs compile
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "26"
 
-      - name: Build Java stubs
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - run: gradle build
+      - name: Verify release target
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(jq -r '.versions.gymProto.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
+          test "$(jq -r '.versions.protoGo.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
+          test "v$(jq -r '.versions.gymProtoJava.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            test "${GITHUB_REF#refs/tags/}" = "$RELEASE_TARGET"
+          fi
+
+      - name: Verify Protobuf format, lint, and compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          buf format -d --exit-code proto
+          buf lint proto
+          # v1.0.6 contains a removed QR RPC that develop intentionally moved to
+          # Check-in before this phase. Gate every unaffected schema against the
+          # stable tag, and gate Member against the exact Phase 1 base commit.
+          buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" \
+            --exclude-path proto/member/v1/member.proto
+          buf breaking . --against ".git#ref=${PHASE1_BASE_SHA}" \
+            --path proto/member/v1/member.proto
+
+      - name: Generate stubs and verify routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check PyYAML==6.0.2
+          ./scripts/verify-http-config.py
+          rm -rf gen
+          buf generate
+          ./scripts/verify-generated-routes.sh
+
+      - name: Verify generated output is deterministic
+        shell: bash
+        run: |
+          set -euo pipefail
+          find gen -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/generated-before.sha256
+          rm -rf gen
+          buf generate
+          find gen -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/generated-after.sha256
+          diff -u /tmp/generated-before.sha256 /tmp/generated-after.sha256
+
+      - name: Wait for Schema Registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in {1..60}; do
+            curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects" >/dev/null && exit 0
+            sleep 2
+          done
+          echo "Schema Registry did not become ready" >&2
+          exit 1
+
+      - name: Generate and verify nine Confluent fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp contracts/v1/kafka/confluent-7.7.1-fixtures.json /tmp/committed-fixtures.json
+          ./gradlew generateConfluentFixtures \
+            -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          committed = json.loads(Path('/tmp/committed-fixtures.json').read_text())
+          generated = json.loads(Path('contracts/v1/kafka/confluent-7.7.1-fixtures.json').read_text())
+          committed['generatedBy']['schemaRegistryUrl'] = '<registry-url>'
+          generated['generatedBy']['schemaRegistryUrl'] = '<registry-url>'
+          if committed != generated:
+              raise SystemExit('generated Confluent fixtures differ from the committed artifact')
+          PY
+          ./gradlew check \
+            -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
+          ./gradlew verifyConfluentBackwardCompatibility \
+            -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
+          test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects" | jq length)" -eq 9
+          for subject in $(jq -r '.cases[].subject' contracts/v1/kafka/confluent-7.7.1-fixtures.json); do
+            test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/config/$subject" | jq -r '.compatibilityLevel')" = BACKWARD
+          done
+
+      - name: Create verification checksums and report
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p evidence
+          sha256sum contracts/v1/kafka/confluent-7.7.1-fixtures.json > evidence/fixture.sha256
+          if [[ -d gen ]]; then
+            find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
+          fi
+          jq '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, stableProtoTag: env.STABLE_PROTO_TAG, releaseTarget: env.RELEASE_TARGET}' \
+            > evidence/validation-report.json
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gym-proto-validation-${{ github.sha }}
+          path: evidence/
+          if-no-files-found: error
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: validate
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
       packages: write
@@ -50,9 +191,12 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: Set release version
+        shell: bash
         run: |
+          set -euo pipefail
           VERSION="${GITHUB_REF#refs/tags/v}"
           test -n "$VERSION"
+          test "v${VERSION}" = "$RELEASE_TARGET"
           echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Set up Buf
@@ -60,8 +204,11 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate stubs
-        run: buf generate
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          check-latest: true
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -72,40 +219,56 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish Java stubs
-        run: gradle publish
+      - name: Refuse conflicting release artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GO_PUBLISH_TOKEN"
+          if git ls-remote --exit-code --tags \
+            "https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git" \
+            "refs/tags/v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "proto-go v${RELEASE_VERSION} already exists" >&2
+            exit 1
+          fi
+          if gh release view "v${RELEASE_VERSION}" >/dev/null 2>&1; then
+            echo "gym-proto release v${RELEASE_VERSION} already exists" >&2
+            exit 1
+          fi
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.26.x"
-          check-latest: true
+      - name: Generate release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf gen evidence
+          buf generate
+          ./scripts/verify-generated-routes.sh
+          ./gradlew check --no-daemon
+          mkdir -p evidence
+          sha256sum contracts/v1/kafka/confluent-7.7.1-fixtures.json > evidence/fixture.sha256
+          find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
+          jq --arg version "$RELEASE_VERSION" \
+            '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, releaseVersion: $version}' \
+            > evidence/release-report.json
 
-      - name: Publish Go stubs
+      - name: Prepare immutable Go release commit
         env:
           GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
-          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+        shell: bash
         run: |
-          test -n "$GO_PUBLISH_TOKEN"
+          set -euo pipefail
           target="https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git clone --branch main "$target" proto-go-repo
           cd proto-go-repo
-
-          if git rev-parse -q --verify "refs/tags/v${RELEASE_VERSION}" >/dev/null; then
-            echo "proto-go v${RELEASE_VERSION} already exists" >&2
-            exit 1
-          fi
-
           find . -mindepth 1 -maxdepth 1 \
             ! -name .git ! -name README.md ! -name go.mod -exec rm -rf {} +
           cp -R ../gen/go/. .
-          mkdir -p contracts/v1
-          cp -R ../contracts/v1/kafka contracts/v1/kafka
+          cp -R ../contracts .
+          cp -R ../evidence .
           cat > go.mod <<'EOF'
           module github.com/pploc/proto-go
 
@@ -113,13 +276,43 @@ jobs:
           EOF
           go mod tidy
           go test ./...
-
           git add --all
           if git diff --cached --quiet; then
             echo "generated proto-go output is unchanged; refusing an empty release" >&2
             exit 1
           fi
           git commit -m "chore: publish Go stubs v${RELEASE_VERSION}"
-          git push origin HEAD:main
-          git tag "v${RELEASE_VERSION}"
-          git push origin "v${RELEASE_VERSION}"
+          git tag -a "v${RELEASE_VERSION}" -m "proto-go v${RELEASE_VERSION}"
+          git bundle create ../proto-go-release.bundle "v${RELEASE_VERSION}"
+          git rev-parse "v${RELEASE_VERSION}^{commit}" > ../evidence/proto-go-commit.txt
+          cd ..
+          sha256sum proto-go-release.bundle >> evidence/release-assets.sha256
+
+      - name: Publish Java stubs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+        run: ./gradlew publish --no-daemon
+
+      - name: Publish Go tag before updating main
+        env:
+          GO_PUBLISH_TOKEN: ${{ secrets.GO_PUBLISH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd proto-go-repo
+          target="https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git"
+          git push "$target" "refs/tags/v${RELEASE_VERSION}"
+          git push "$target" "v${RELEASE_VERSION}^{commit}:refs/heads/main"
+
+      - name: Publish release evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "v${RELEASE_VERSION}" \
+            evidence/* proto-go-release.bundle \
+            --verify-tag \
+            --title "gym-proto v${RELEASE_VERSION}" \
+            --notes "Source SHA: ${GITHUB_SHA}"

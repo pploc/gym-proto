@@ -29,7 +29,7 @@ message CreatePromotionRequest {
   string code = 3;
   int32 discount_percentage = 4;
   string start_date = 5; // "2024-12-01"
-  string end_date = 6;   // "2024-12-31"
+  string end_date = 6; // "2024-12-31"
   int32 max_usage = 7;
   int32 per_user_limit = 8;
   repeated string target_gym_ids = 9;

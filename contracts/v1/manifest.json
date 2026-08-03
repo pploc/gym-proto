@@ -2,11 +2,24 @@
   "contractVersion": "v1",
   "status": "pending-owner-approval",
   "versions": {
-    "gymProto": "unreleased",
-    "protoGo": "unreleased",
-    "commonGo": "unreleased",
-    "commonJava": "unreleased",
-    "schemaRegistry": "Confluent Schema Registry Protobuf / BACKWARD"
+    "gymProto": {
+      "currentStable": "v1.0.6",
+      "releaseTarget": "v1.1.0",
+      "status": "unreleased"
+    },
+    "protoGo": {
+      "currentStable": "v1.0.6",
+      "releaseTarget": "v1.1.0",
+      "status": "unreleased"
+    },
+    "gymProtoJava": {
+      "coordinates": "com.gym.proto:gym-proto-java",
+      "releaseTarget": "1.1.0",
+      "status": "unreleased"
+    },
+    "commonGo": "not-in-phase-1-release-scope",
+    "commonJava": "not-in-phase-1-release-scope",
+    "schemaRegistry": "Confluent Schema Registry 7.7.1 / Protobuf / BACKWARD"
   },
   "owners": {
     "go": "pending",
@@ -20,9 +33,16 @@
     "compatibility.json",
     "jwt-profile.json",
     "routes.json",
+    "semantic-compatibility.md",
+    "release-evidence.md",
     "kafka/wire-format.json",
     "dlq/retry-and-dlq.json"
   ],
+  "technicalEvidence": {
+    "localPhase1": "contracts/v1/release-evidence.md",
+    "fixtureSha256": "e5a5d0944229c9e0c97dc5e872f01e7597993e5732f2014b7d8e5efdf965a27e",
+    "publication": "pending"
+  },
   "requiredEvidence": [
     "tagged proto-go external import without replace",
     "Go fixture suite",

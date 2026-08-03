@@ -23,7 +23,7 @@ message InitiatePaymentRequest {
   string gym_id = 1;
   string payment_type = 2; // MEMBERSHIP, TRAINER_BOOKING
   string reference_id = 3; // plan_id or booking_id
-  string provider = 4;     // MOMO, ZALOPAY, VNPAY
+  string provider = 4; // MOMO, ZALOPAY, VNPAY
   string discount_code = 5;
 }
 

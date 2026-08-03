@@ -50,8 +50,17 @@ dependencies {
     fixturesImplementation 'io.confluent:kafka-protobuf-serializer:7.7.1'
 }
 
-tasks.named('check') {
-    dependsOn tasks.named('fixturesClasses')
+tasks.register('verifyHttpConfig', Exec) {
+    group = 'verification'
+    description = 'Verify the consolidated HTTP configuration preserves all intentional mappings.'
+    commandLine 'python3', layout.projectDirectory.file('scripts/verify-http-config.py').asFile.absolutePath
+}
+
+tasks.register('verifyGeneratedRoutes', Exec) {
+    group = 'verification'
+    description = 'Verify generated Identifier and Member routes match the frozen external surface.'
+    dependsOn tasks.named('compileJava')
+    commandLine 'bash', layout.projectDirectory.file('scripts/verify-generated-routes.sh').asFile.absolutePath
 }
 
 tasks.register('generateConfluentFixtures', JavaExec) {
@@ -91,6 +100,12 @@ tasks.register('verifyConfluentBackwardCompatibility', JavaExec) {
     classpath = sourceSets.fixtures.runtimeClasspath
     mainClass = 'com.gym.proto.fixtures.ConfluentCompatibilityVerifier'
     args(providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get())
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyHttpConfig')
+    dependsOn tasks.named('verifyGeneratedRoutes')
+    dependsOn tasks.named('verifyConfluentFixtures')
 }
 
 publishing {

@@ -15,24 +15,29 @@ until curl --fail --silent http://localhost:8081/subjects >/dev/null; do sleep 2
 ```
 - The checked-out schema source is the exact candidate being released.
 - The Java fixture harness compiles with the repository's Java 26 target.
+- Use the repository Gradle wrapper (`./gradlew`); Gradle provisions the Java 26 toolchain when needed.
 
 ## Generate
 
 Run against a new Registry:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-23-amazon-corretto \
-  gradle generateConfluentFixtures \
+./gradlew generateConfluentFixtures \
   -PschemaRegistryUrl=http://localhost:8081 \
   --no-daemon
 ```
+
+The generator writes the Registry URL used for generation, but omits wall-clock
+time so a clean Registry produces deterministic contract content. CI normalizes only
+the environment-specific URL before comparing the generated document with the
+committed artifact.
 
 The generator:
 
 1. sets subject compatibility to `BACKWARD`;
 2. uses `TopicNameStrategy`, yielding `<topic>-value` subjects;
 3. registers concrete Protobuf schemas only for this fixture-generation operation;
-4. serializes fixed `events.v1` identity messages through Confluent's `kafka-protobuf-serializer:7.7.1`;
+4. serializes the nine fixed `events.v1` Identity, Payment, and Membership messages through Confluent's `kafka-protobuf-serializer:7.7.1`;
 5. records the complete Confluent frame, magic byte, big-endian Registry schema ID, Protobuf message-index bytes, raw payload, metadata, topic/key, and canonical headers.
 
 Production clients must set `auto.register.schemas=false`. Generation is the sole controlled exception.
@@ -42,20 +47,17 @@ Production clients must set `auto.register.schemas=false`. Generation is the sol
 After reviewing and committing the generated artifact:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-23-amazon-corretto \
-  gradle verifyConfluentFixtures --no-daemon
+./gradlew verifyConfluentFixtures --no-daemon
 ```
 
 For release evidence, verify again against the seeded Registry:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-23-amazon-corretto \
-  gradle verifyConfluentFixtures \
+./gradlew verifyConfluentFixtures \
   -PschemaRegistryUrl=http://localhost:8081 \
   --no-daemon
 
-JAVA_HOME=/usr/lib/jvm/java-23-amazon-corretto \
-  gradle verifyConfluentBackwardCompatibility \
+./gradlew verifyConfluentBackwardCompatibility \
   -PschemaRegistryUrl=http://localhost:8081 \
   --no-daemon
 ```

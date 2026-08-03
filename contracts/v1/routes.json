@@ -11,9 +11,10 @@
   },
   "httpMappingSourceOfTruth": {
     "format": "google.api.Service",
-    "files": "proto/*/v1/*_http.yaml",
+    "file": "proto/http.yaml",
     "generationOption": "grpc_api_configuration",
-    "unboundMethods": false
+    "unboundMethods": false,
+    "generatedRouteAssertion": "scripts/verify-generated-routes.sh"
   },
   "identity": {
     "public": [

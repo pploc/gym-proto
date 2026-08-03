@@ -8,9 +8,11 @@
   "java": "must-pass-auth-error-kafka-dlq-fixtures",
   "protobuf": {
     "generatedGoImports": "github.com/pploc/proto-go",
-    "additiveRpc": "minor-release",
+    "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "semanticReviewRequired": true
+    "semanticReviewRequired": true,
+    "semanticReviewChecklist": "semantic-compatibility.md",
+    "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number"
   },
   "schemaRegistry": {
     "subjectNameStrategy": "TopicNameStrategy",

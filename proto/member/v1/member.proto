@@ -17,6 +17,10 @@ service MemberService {
   rpc ResumeMembership(ResumeMembershipRequest) returns (MembershipResponse);
   rpc GetMembershipStatus(GetMembershipStatusRequest) returns (MembershipResponse);
 
+  // Internal only. Requires the verified ms-gym-identifier workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
+  rpc GetMembershipStatusByUserId(GetMembershipStatusByUserIdRequest) returns (MembershipResponse);
+
   rpc CreateGymLocation(CreateGymLocationRequest) returns (GymLocationResponse);
   rpc UpdateGymLocation(UpdateGymLocationRequest) returns (GymLocationResponse);
   rpc ListGymLocations(ListGymLocationsRequest) returns (GymLocationsResponse);
@@ -99,6 +103,10 @@ message ResumeMembershipRequest {
 
 message GetMembershipStatusRequest {
   string member_id = 1;
+}
+
+message GetMembershipStatusByUserIdRequest {
+  string user_id = 1;
 }
 
 message MembershipResponse {

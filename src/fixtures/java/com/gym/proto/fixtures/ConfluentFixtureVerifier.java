@@ -128,6 +128,9 @@ public final class ConfluentFixtureVerifier {
                     "Registry schema version differs from fixture for " + expected.subject());
             require(FixtureSupport.SCHEMA_TYPE.equals(metadata.getSchemaType()),
                     "Registry schema type differs from fixture for " + expected.subject());
+            require(FixtureSupport.COMPATIBILITY.equals(
+                            registry.getConfig(expected.subject()).getCompatibilityLevel()),
+                    "Registry compatibility differs from fixture for " + expected.subject());
             require(expected.subject().equals(fixture.path("subject").asText()),
                     "Registry subject differs from fixture");
         } finally {

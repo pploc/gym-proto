@@ -1,0 +1,189 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: identity.v1.IdentityService.Register
+      post: /api/v1/auth/register
+      body: "*"
+    - selector: identity.v1.IdentityService.Login
+      post: /api/v1/auth/login
+      body: "*"
+    - selector: identity.v1.IdentityService.LoginWithGoogle
+      post: /api/v1/auth/oauth/google
+      body: "*"
+    - selector: identity.v1.IdentityService.RefreshToken
+      post: /api/v1/auth/refresh
+      body: "*"
+    - selector: identity.v1.IdentityService.Logout
+      post: /api/v1/auth/logout
+      body: "*"
+    - selector: identity.v1.IdentityService.GetCurrentUser
+      get: /api/v1/users/me
+    - selector: identity.v1.IdentityService.ChangePassword
+      post: /api/v1/users/password
+      body: "*"
+
+    - selector: member.v1.MemberService.GetMember
+      get: /api/v1/members/{member_id}
+    - selector: member.v1.MemberService.UpdateProfile
+      put: /api/v1/members/{member_id}
+      body: "*"
+    - selector: member.v1.MemberService.ListMembers
+      get: /api/v1/members
+    - selector: member.v1.MemberService.GetPlans
+      get: /api/v1/memberships/plans
+    - selector: member.v1.MemberService.PurchaseMembership
+      post: /api/v1/memberships/purchase
+      body: "*"
+    - selector: member.v1.MemberService.PauseMembership
+      post: /api/v1/memberships/pause
+      body: "*"
+    - selector: member.v1.MemberService.ResumeMembership
+      post: /api/v1/memberships/resume
+      body: "*"
+    - selector: member.v1.MemberService.GetMembershipStatus
+      get: /api/v1/memberships/status/{member_id}
+    - selector: member.v1.MemberService.CreateGymLocation
+      post: /api/v1/gyms
+      body: "*"
+    - selector: member.v1.MemberService.UpdateGymLocation
+      put: /api/v1/gyms/{id}
+      body: "*"
+    - selector: member.v1.MemberService.ListGymLocations
+      get: /api/v1/gyms
+    - selector: member.v1.MemberService.GetGymLocation
+      get: /api/v1/gyms/{id}
+
+    - selector: payment.v1.PaymentService.InitiatePayment
+      post: /api/v1/payments/initiate
+      body: "*"
+    - selector: payment.v1.PaymentService.GetPaymentStatus
+      get: /api/v1/payments/{payment_id}
+    - selector: payment.v1.PaymentService.GetSpendingHistory
+      get: /api/v1/payments/history/{user_id}
+
+    - selector: workout.v1.WorkoutService.LogWorkout
+      post: /api/v1/workouts/log
+      body: "*"
+    - selector: workout.v1.WorkoutService.GetWorkout
+      get: /api/v1/workouts/{workout_id}
+    - selector: workout.v1.WorkoutService.GetWorkoutHistory
+      get: /api/v1/workouts/history/{user_id}
+    - selector: workout.v1.WorkoutService.DeleteWorkout
+      delete: /api/v1/workouts/{workout_id}
+    - selector: workout.v1.WorkoutService.CreateTemplate
+      post: /api/v1/templates
+      body: "*"
+    - selector: workout.v1.WorkoutService.UpdateTemplate
+      put: /api/v1/templates/{template_id}
+      body: "*"
+    - selector: workout.v1.WorkoutService.DeleteTemplate
+      delete: /api/v1/templates/{template_id}
+    - selector: workout.v1.WorkoutService.ListTemplates
+      get: /api/v1/templates
+    - selector: workout.v1.WorkoutService.GetTemplate
+      get: /api/v1/templates/{template_id}
+    - selector: workout.v1.WorkoutService.GetPersonalRecords
+      get: /api/v1/workouts/prs/{user_id}
+
+    - selector: trainer.v1.TrainerService.SearchTrainers
+      get: /api/v1/trainers
+    - selector: trainer.v1.TrainerService.GetTrainerProfile
+      get: /api/v1/trainers/{id}
+    - selector: trainer.v1.TrainerService.GetAvailableSlots
+      get: /api/v1/trainers/slots
+    - selector: trainer.v1.TrainerService.CreateBooking
+      post: /api/v1/bookings
+      body: "*"
+    - selector: trainer.v1.TrainerService.CancelBooking
+      post: /api/v1/bookings/cancel
+      body: "*"
+    - selector: trainer.v1.TrainerService.GetMyBookings
+      get: /api/v1/bookings/my
+    - selector: trainer.v1.TrainerService.UpdateMyProfile
+      put: /api/v1/trainers/profile
+      body: "*"
+    - selector: trainer.v1.TrainerService.SetAvailability
+      post: /api/v1/trainers/availability
+      body: "*"
+    - selector: trainer.v1.TrainerService.AcceptBooking
+      post: /api/v1/bookings/accept
+      body: "*"
+    - selector: trainer.v1.TrainerService.RejectBooking
+      post: /api/v1/bookings/reject
+      body: "*"
+    - selector: trainer.v1.TrainerService.CompleteBooking
+      post: /api/v1/bookings/complete
+      body: "*"
+    - selector: trainer.v1.TrainerService.GetCoachingHistory
+      get: /api/v1/trainers/coaching/history
+
+    - selector: checkin.v1.CheckInService.ProcessScan
+      post: /api/v1/checkin/scan
+      body: "*"
+    - selector: checkin.v1.CheckInService.GetCheckInHistory
+      get: /api/v1/checkin/history/{member_id}
+    - selector: checkin.v1.CheckInService.GetDailyCount
+      get: /api/v1/checkin/daily-count
+    - selector: checkin.v1.CheckInService.RegisterDevice
+      post: /api/v1/checkin/devices
+      body: "*"
+    - selector: checkin.v1.CheckInService.GetDisplayQrPayload
+      get: /api/v1/checkin/display/qr
+    - selector: checkin.v1.CheckInService.RevokeDevice
+      delete: /api/v1/checkin/devices/{device_id}
+    - selector: checkin.v1.CheckInService.RotateGymQrRootKey
+      post: /api/v1/checkin/gyms/{gym_id}/qr-root-key:rotate
+      body: "*"
+
+    - selector: notification.v1.NotificationService.GetMyNotifications
+      get: /api/v1/notifications
+    - selector: notification.v1.NotificationService.MarkAsRead
+      post: /api/v1/notifications/{notification_id}/read
+    - selector: notification.v1.NotificationService.GetPreferences
+      get: /api/v1/notifications/preferences
+    - selector: notification.v1.NotificationService.UpdatePreferences
+      put: /api/v1/notifications/preferences
+      body: "*"
+    - selector: notification.v1.NotificationService.RegisterDevice
+      post: /api/v1/notifications/devices
+      body: "*"
+    - selector: notification.v1.NotificationService.UnregisterDevice
+      delete: /api/v1/notifications/devices/{device_id}
+
+    - selector: analytics.v1.AnalyticsService.GetDashboardSummary
+      get: /api/v1/analytics/dashboard
+    - selector: analytics.v1.AnalyticsService.GetDailyAttendance
+      get: /api/v1/analytics/attendance
+    - selector: analytics.v1.AnalyticsService.GetAttendanceTrend
+      get: /api/v1/analytics/attendance/trend
+    - selector: analytics.v1.AnalyticsService.GetMembershipStats
+      get: /api/v1/analytics/membership-stats
+    - selector: analytics.v1.AnalyticsService.GetInactiveMembers
+      get: /api/v1/analytics/inactive-members
+    - selector: analytics.v1.AnalyticsService.GetRevenueReport
+      get: /api/v1/analytics/revenue
+    - selector: analytics.v1.AnalyticsService.GetRevenueComparison
+      get: /api/v1/analytics/revenue/comparison
+    - selector: analytics.v1.AnalyticsService.GetTrainerUtilization
+      get: /api/v1/analytics/trainer-utilization/{trainer_id}
+
+    - selector: promotion.v1.PromotionService.CreatePromotion
+      post: /api/v1/promotions
+      body: "*"
+    - selector: promotion.v1.PromotionService.UpdatePromotion
+      put: /api/v1/promotions/{promotion_id}
+      body: "*"
+    - selector: promotion.v1.PromotionService.DisablePromotion
+      post: /api/v1/promotions/{promotion_id}/disable
+      body: "*"
+    - selector: promotion.v1.PromotionService.PublishPromotion
+      post: /api/v1/promotions/{promotion_id}/publish
+      body: "*"
+    - selector: promotion.v1.PromotionService.ListPromotions
+      get: /api/v1/promotions
+    - selector: promotion.v1.PromotionService.GetPromotionStats
+      get: /api/v1/promotions/{promotion_id}/stats
+    - selector: promotion.v1.PromotionService.CheckDiscountCode
+      get: /api/v1/promotions/check/{code}

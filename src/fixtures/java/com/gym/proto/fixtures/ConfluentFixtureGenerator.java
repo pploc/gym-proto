@@ -8,7 +8,6 @@ import io.confluent.kafka.schemaregistry.client.rest.entities.Config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,8 +46,7 @@ public final class ConfluentFixtureGenerator {
                       "generatedBy": {
                         "tool": "gym-proto ConfluentFixtureGenerator",
                         "schemaRegistryClient": "7.7.1",
-                        "schemaRegistryUrl": "%s",
-                        "generatedAt": "%s"
+                        "schemaRegistryUrl": "%s"
                       },
                       "environment": {
                         "requireCleanRegistry": true,
@@ -63,7 +61,6 @@ public final class ConfluentFixtureGenerator {
                     }
                     """.formatted(
                     escape(schemaRegistryUrl),
-                    Instant.now().toString(),
                     FixtureSupport.SCHEMA_TYPE,
                     FixtureSupport.COMPATIBILITY,
                     casesJson.toString()

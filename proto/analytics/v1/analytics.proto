@@ -20,7 +20,7 @@ service AnalyticsService {
 message AttendanceRequest {
   string gym_id = 1;
   string start_date = 2; // "2024-12-01"
-  string end_date = 3;   // "2024-12-07"
+  string end_date = 3; // "2024-12-07"
 }
 
 message DailyAttendance {
