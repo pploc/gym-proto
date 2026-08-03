@@ -6,16 +6,35 @@
     "x-membership-status",
     "x-trace-id"
   ],
+  "roles": ["CUSTOMER", "TRAINER", "ADMIN", "SUPER_ADMIN"],
+  "publicRegistrationRole": "CUSTOMER",
+  "elevatedRoleProvisioning": "protected-administration-or-controlled-out-of-band-only",
+  "workloadIdentity": {
+    "separateFromUserRole": true,
+    "initialMechanism": "mtls",
+    "identifierPeerIdentity": "certificate-san-identifies-ms-gym-identifier",
+    "observabilityMetadataDoesNotEstablishTrust": true
+  },
   "gateway": {
     "validatesJwt": true,
-    "stripsClientSuppliedCopies": true
+    "stripsClientSuppliedCopies": true,
+    "claimTrustRequiresAuthenticatedBoundary": true
+  },
+  "downstream": {
+    "trimsAndNormalizes": true,
+    "rejectsConflictingDuplicates": true
   },
   "membership": {
-    "missingOrMalformedFailsClosedWhenRequired": true
+    "statuses": ["NONE", "ACTIVE", "PAUSED", "EXPIRED"],
+    "defaultForNewCustomersAndNonCustomerRoles": "NONE",
+    "ordinaryAuthenticatedMethodsAcceptAnyKnownStatus": true,
+    "requiredStatusForMembershipGatedMethods": "ACTIVE",
+    "missingBlankMalformedConflictingOrUnknownFailsClosedWhenRequired": true
   },
   "tracing": {
     "canonical": ["traceparent", "tracestate"],
     "fallback": "x-trace-id",
-    "precedence": "valid-w3c-context-over-x-trace-id"
+    "precedence": "valid-w3c-context-over-x-trace-id",
+    "fallbackDoesNotCreateOpenTelemetryParent": true
   }
 }

@@ -1,0 +1,32 @@
+{
+  "algorithm": "RS256",
+  "issuer": "gym-identifier",
+  "audience": "gym-api",
+  "requiredClaims": ["sub", "iss", "aud", "iat", "exp", "jti", "kid"],
+  "applicationClaims": ["role", "gym_id", "membership_status"],
+  "roles": ["CUSTOMER", "TRAINER", "ADMIN", "SUPER_ADMIN"],
+  "membershipStatuses": ["NONE", "ACTIVE", "PAUSED", "EXPIRED"],
+  "publicMethods": ["Register", "Login", "LoginWithGoogle", "RefreshToken"],
+  "protectedByDefault": true,
+  "logoutIsProtected": true,
+  "keyRotation": {
+    "acceptedPublicKeys": ["current", "previous"],
+    "minimumOverlap": "max-access-token-ttl"
+  },
+  "testing": {
+    "committedPublicKeyFixture": true,
+    "committedTestOnlySignerPrivateKey": true
+  },
+  "production": {
+    "keySource": "secret-manager",
+    "privateKeysCommitted": false
+  },
+  "gatewayValidation": [
+    "algorithm",
+    "signature",
+    "issuer",
+    "audience",
+    "expiry",
+    "key-id"
+  ]
+}

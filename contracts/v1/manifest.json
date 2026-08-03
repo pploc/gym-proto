@@ -15,6 +15,14 @@
     "kafkaSchemaRegistry": "pending",
     "gateway": "pending"
   },
+  "contractArtifacts": [
+    "auth/trusted-headers.json",
+    "compatibility.json",
+    "jwt-profile.json",
+    "routes.json",
+    "kafka/wire-format.json",
+    "dlq/retry-and-dlq.json"
+  ],
   "requiredEvidence": [
     "tagged proto-go external import without replace",
     "Go fixture suite",

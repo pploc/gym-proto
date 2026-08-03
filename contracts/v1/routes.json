@@ -1,0 +1,46 @@
+{
+  "listeners": {
+    "nativeInternalGrpc": 50051,
+    "serviceLocalGrpcGatewayHttpJson": 8080
+  },
+  "externalRouting": {
+    "gateway": "Kong",
+    "target": "service-local-grpc-gateway-http-json",
+    "port": 8080,
+    "rawGrpcPathRoutingDoesNotTranscodeRest": true
+  },
+  "httpMappingSourceOfTruth": {
+    "format": "google.api.Service",
+    "files": "proto/*/v1/*_http.yaml",
+    "generationOption": "grpc_api_configuration",
+    "unboundMethods": false
+  },
+  "identity": {
+    "public": [
+      "identity.v1.IdentityService/Register",
+      "identity.v1.IdentityService/Login",
+      "identity.v1.IdentityService/LoginWithGoogle",
+      "identity.v1.IdentityService/RefreshToken"
+    ],
+    "protected": [
+      "identity.v1.IdentityService/Logout",
+      "identity.v1.IdentityService/GetCurrentUser",
+      "identity.v1.IdentityService/ChangePassword",
+      "identity.v1.IdentityService/CreateTrainerAccount",
+      "identity.v1.IdentityService/SuspendUser",
+      "identity.v1.IdentityService/ListUsers"
+    ]
+  },
+  "member": {
+    "internal": [
+      "member.v1.MemberService/GetMembershipStatusByUserId",
+      "member.v1.MemberService/ValidateMembership",
+      "member.v1.MemberService/ListMembersByStatus"
+    ],
+    "identifierLookupAuthorization": {
+      "mechanism": "mtls",
+      "requiredPeer": "ms-gym-identifier",
+      "networkPolicy": "identifier-to-member-50051-only"
+    }
+  }
+}
