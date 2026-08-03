@@ -249,7 +249,7 @@ jobs:
           mkdir -p evidence
           sha256sum contracts/v1/kafka/confluent-7.7.1-fixtures.json > evidence/fixture.sha256
           find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
-          jq --arg version "$RELEASE_VERSION" \
+          jq -n --arg version "$RELEASE_VERSION" \
             '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, releaseVersion: $version}' \
             > evidence/release-report.json
 
@@ -316,3 +316,74 @@ jobs:
             --verify-tag \
             --title "gym-proto v${RELEASE_VERSION}" \
             --notes "Source SHA: ${GITHUB_SHA}"
+
+      - name: Upload recoverable release evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gym-proto-release-${{ github.sha }}
+          path: |
+            evidence/
+            proto-go-release.bundle
+          if-no-files-found: error
+          retention-days: 90
+
+  recover-v1-1-0-release-evidence:
+    if: >-
+      github.ref == 'refs/heads/develop' &&
+      github.event.head_commit.message == 'fix: recover v1.1.0 release evidence'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout immutable release tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: v1.1.0
+
+      - name: Set up Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          check-latest: true
+          cache: false
+
+      - name: Rebuild release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf gen evidence proto-go-repo
+          buf generate
+          ./scripts/verify-generated-routes.sh
+          mkdir -p evidence
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          sha256sum contracts/v1/kafka/confluent-7.7.1-fixtures.json > evidence/fixture.sha256
+          find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
+          git clone https://github.com/pploc/proto-go.git proto-go-repo
+          git -C proto-go-repo bundle create ../proto-go-release.bundle refs/tags/v1.1.0
+          PROTO_GO_SHA="$(git -C proto-go-repo rev-parse 'v1.1.0^{commit}')"
+          jq -n \
+            --arg sourceSha "$SOURCE_SHA" \
+            --arg protoGoSha "$PROTO_GO_SHA" \
+            '{sourceSha: $sourceSha, sourceRef: "refs/tags/v1.1.0", releaseVersion: "1.1.0", protoGoCommit: $protoGoSha, recovery: true}' \
+            > evidence/release-report.json
+          sha256sum proto-go-release.bundle > evidence/release-assets.sha256
+
+      - name: Publish recovered release evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create v1.1.0 \
+            evidence/* proto-go-release.bundle \
+            --verify-tag \
+            --title "gym-proto v1.1.0" \
+            --notes "Source SHA: 740e476915117ab594a6e7ee3677e6a2c39c3c80. Java and Go artifacts were published by the original tag workflow; this job recovered the release evidence after its final step failed."
