@@ -11,12 +11,17 @@ service CheckInService {
   rpc GetCheckInHistory(GetCheckInHistoryRequest) returns (CheckInHistoryResponse);
   rpc GetDailyCount(GetDailyCountRequest) returns (DailyCountResponse);
   rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
+  rpc GetDisplayQrPayload(GetDisplayQrPayloadRequest) returns (GetDisplayQrPayloadResponse);
+  rpc RevokeDevice(RevokeDeviceRequest) returns (RevokeDeviceResponse);
+  rpc RotateGymQrRootKey(RotateGymQrRootKeyRequest) returns (RotateGymQrRootKeyResponse);
 }
 
 message ProcessScanRequest {
   string member_id = 1;
   string gym_id = 2;
-  string qr_payload = 3; // base64(gym_id:daily_token)
+  // Signed payload: v1.<gym_id>.<key_version>.<device_id>.<utc_slot>.<mac_base64url>.
+  // The service rejects a gym_id that differs from the signed payload.
+  string qr_payload = 3;
 }
 
 message ProcessScanResponse {
@@ -53,6 +58,7 @@ message DailyCountResponse {
   int32 count = 3;
 }
 
+// Registers a display kiosk after Check-in verifies the gym through Member.GetGymLocation.
 message RegisterDeviceRequest {
   string gym_id = 1;
   string device_name = 2;
@@ -60,5 +66,47 @@ message RegisterDeviceRequest {
 
 message RegisterDeviceResponse {
   string device_id = 1;
+  // One-time credential. Check-in persists only its password hash.
   string api_secret = 2;
+}
+
+message GetDisplayQrPayloadRequest {
+  // Bound to the presented device credential and used as an explicit lookup key.
+  string device_id = 1;
+}
+
+message SignedQrPayload {
+  string qr_payload = 1;
+  int64 active_at = 2; // UTC Unix seconds, inclusive.
+  int64 expires_at = 3; // UTC Unix seconds, exclusive.
+}
+
+message GetDisplayQrPayloadResponse {
+  string gym_id = 1;
+  string device_id = 2;
+  SignedQrPayload current = 3;
+  // Prefetched so the kiosk can switch at the next UTC slot boundary.
+  SignedQrPayload next = 4;
+  int32 slot_duration_seconds = 5;
+}
+
+message RevokeDeviceRequest {
+  string device_id = 1;
+}
+
+message RevokeDeviceResponse {
+  string device_id = 1;
+  bool revoked = 2;
+}
+
+message RotateGymQrRootKeyRequest {
+  string gym_id = 1;
+  // Emergency rotation retires the previous key immediately.
+  bool emergency = 2;
+}
+
+message RotateGymQrRootKeyResponse {
+  string gym_id = 1;
+  uint64 key_version = 2;
+  int64 activated_at = 3; // UTC Unix seconds.
 }

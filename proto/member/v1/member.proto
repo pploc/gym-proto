@@ -23,7 +23,6 @@ service MemberService {
   rpc GetGymLocation(GetGymLocationRequest) returns (GymLocationResponse);
 
   rpc ValidateMembership(ValidateMembershipRequest) returns (ValidateMembershipResponse);
-  rpc GetGymDailySecret(GetGymDailySecretRequest) returns (GymDailySecretResponse);
   rpc ListMembersByStatus(ListMembersByStatusRequest) returns (ListMembersByStatusResponse);
 }
 
@@ -154,14 +153,6 @@ message ValidateMembershipRequest {
 message ValidateMembershipResponse {
   bool valid = 1;
   string status = 2;
-}
-
-message GetGymDailySecretRequest {
-  string gym_id = 1;
-}
-
-message GymDailySecretResponse {
-  string daily_secret = 1;
 }
 
 message ListMembersByStatusRequest {
