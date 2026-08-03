@@ -387,3 +387,28 @@ jobs:
             --verify-tag \
             --title "gym-proto v1.1.0" \
             --notes "Source SHA: 740e476915117ab594a6e7ee3677e6a2c39c3c80. Java and Go artifacts were published by the original tag workflow; this job recovered the release evidence after its final step failed."
+
+  reconcile-v1-1-0-deployment:
+    if: >-
+      github.ref == 'refs/heads/develop' &&
+      github.event.head_commit.message == 'fix: reconcile v1.1.0 release deployment'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+      - name: Reconcile verified release deployment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/deployments/5721148368/statuses" \
+            -f state=success \
+            -f environment=release \
+            -f description='v1.1.0 artifacts and recovered release evidence verified' \
+            -f log_url='https://github.com/pploc/gym-proto/actions/runs/30786709517' \
+            -f environment_url='https://github.com/pploc/gym-proto/releases/tag/v1.1.0' \
+            -F auto_inactive=false
