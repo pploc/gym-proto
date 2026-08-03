@@ -3,19 +3,19 @@
   "status": "pending-owner-approval",
   "versions": {
     "gymProto": {
-      "currentStable": "v1.0.6",
+      "currentStable": "v1.1.0",
       "releaseTarget": "v1.1.0",
-      "status": "unreleased"
+      "status": "released"
     },
     "protoGo": {
-      "currentStable": "v1.0.6",
+      "currentStable": "v1.1.0",
       "releaseTarget": "v1.1.0",
-      "status": "unreleased"
+      "status": "released"
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
       "releaseTarget": "1.1.0",
-      "status": "unreleased"
+      "status": "released"
     },
     "commonGo": "not-in-phase-1-release-scope",
     "commonJava": "not-in-phase-1-release-scope",
@@ -41,7 +41,10 @@
   "technicalEvidence": {
     "localPhase1": "contracts/v1/release-evidence.md",
     "fixtureSha256": "e5a5d0944229c9e0c97dc5e872f01e7597993e5732f2014b7d8e5efdf965a27e",
-    "publication": "pending"
+    "sourceRelease": "https://github.com/pploc/gym-proto/releases/tag/v1.1.0",
+    "sourceSha": "740e476915117ab594a6e7ee3677e6a2c39c3c80",
+    "protoGoSha": "6f070d25f8361e6550e0bd9a309a738d2a0dbd21",
+    "publication": "complete"
   },
   "requiredEvidence": [
     "tagged proto-go external import without replace",

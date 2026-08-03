@@ -45,16 +45,32 @@ Fixture SHA-256:
 e5a5d0944229c9e0c97dc5e872f01e7597993e5732f2014b7d8e5efdf965a27e
 ```
 
-## Evidence still unavailable
+## Published artifact verification
 
-These G1 requirements depend on immutable external artifacts and therefore remain
-pending until an authorized tag publication runs:
+Publication was authorized and completed on 2026-08-03:
 
-- Java external-resolution smoke test for version `1.1.0`
-- Go external-resolution smoke test for tag `v1.1.0` without `replace`
-- published source/package/tag/checksum matrix
-- accountable owner approvals
+- `gym-proto` source tag `v1.1.0` resolves to source commit
+  `740e476915117ab594a6e7ee3677e6a2c39c3c80`.
+- `github.com/pploc/proto-go@v1.1.0` resolves without `replace` to commit
+  `6f070d25f8361e6550e0bd9a309a738d2a0dbd21`.
+- A clean Go module compiled representative Identity, Member, Payment, and
+  Membership event types and found the published fixture contract.
+- `com.gym.proto:gym-proto-java:1.1.0` resolved from GitHub Packages using
+  consumer credentials. A clean Java 26 compilation imported representative
+  Identity, Member, Payment, and Membership event classes.
+- The GitHub release is available at
+  `https://github.com/pploc/gym-proto/releases/tag/v1.1.0` with fixture,
+  generated-output, source, and proto-go bundle evidence.
 
+The original tag workflow published both language artifacts successfully but its
+final GitHub release step failed because `release-report.json` was empty. Commit
+`93cda9f` fixed the missing `jq -n` input and added recoverable evidence handling;
+workflow run `30786709517` rebuilt the immutable-tag evidence and published the
+release successfully without replacing either release tag.
+
+## Human approvals still unavailable
+
+Accountable owner approvals remain pending. Technical G1 evidence is complete, but
+this document does not infer human approval or production promotion authorization.
 The workflow publishes only from the protected target tag and attaches source SHA,
-fixture checksum, generated checksums, and release reports. This document must not
-be interpreted as approval to push, tag, or publish.
+fixture checksum, generated checksums, and release reports.
