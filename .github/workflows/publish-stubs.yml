@@ -274,6 +274,12 @@ jobs:
           cp -R ../gen/go/. .
           cp -R ../contracts .
           cp -R ../evidence .
+          # Go semantic import versioning: major >= 2 requires /vN module path.
+          major="${RELEASE_VERSION%%.*}"
+          if [[ "$major" =~ ^[0-9]+$ ]] && (( major >= 2 )); then
+            echo "refusing major version ${RELEASE_VERSION}: go_package still uses github.com/pploc/proto-go (no /v${major}). Retag as v1.x or migrate protos to /v${major}." >&2
+            exit 1
+          fi
           cat > go.mod <<'EOF'
           module github.com/pploc/proto-go
 
