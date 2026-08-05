@@ -1,24 +1,24 @@
 {
-  "contractVersion": "v1",
-  "status": "pending-owner-approval",
+  "contractVersion": "v2",
+  "status": "candidate",
   "versions": {
     "gymProto": {
       "currentStable": "v1.1.0",
-      "releaseTarget": "v1.1.0",
-      "status": "released"
+      "releaseTarget": "v2.0.0",
+      "status": "candidate"
     },
     "protoGo": {
       "currentStable": "v1.1.0",
-      "releaseTarget": "v1.1.0",
-      "status": "released"
+      "releaseTarget": "v2.0.0",
+      "status": "candidate"
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "releaseTarget": "1.1.0",
-      "status": "released"
+      "releaseTarget": "2.0.0",
+      "status": "candidate"
     },
-    "commonGo": "not-in-phase-1-release-scope",
-    "commonJava": "not-in-phase-1-release-scope",
+    "commonGo": "v0.3.0",
+    "commonJava": "2.0.0",
     "schemaRegistry": "Confluent Schema Registry 7.7.1 / Protobuf / BACKWARD"
   },
   "owners": {
@@ -39,12 +39,10 @@
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "localPhase1": "contracts/v1/release-evidence.md",
-    "fixtureSha256": "e5a5d0944229c9e0c97dc5e872f01e7597993e5732f2014b7d8e5efdf965a27e",
-    "sourceRelease": "https://github.com/pploc/gym-proto/releases/tag/v1.1.0",
-    "sourceSha": "740e476915117ab594a6e7ee3677e6a2c39c3c80",
-    "protoGoSha": "6f070d25f8361e6550e0bd9a309a738d2a0dbd21",
-    "publication": "complete"
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v1.1.0",
+    "previousStableSourceSha": "740e476915117ab594a6e7ee3677e6a2c39c3c80",
+    "previousStableProtoGoSha": "6f070d25f8361e6550e0bd9a309a738d2a0dbd21",
+    "publication": "pending"
   },
   "requiredEvidence": [
     "tagged proto-go external import without replace",

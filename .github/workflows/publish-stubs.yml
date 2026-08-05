@@ -5,15 +5,14 @@ on:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v*"]
+    tags: ["v2.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v1.0.6
-  PHASE1_BASE_SHA: 246053eb7b2b49fb6c8875830d44a9141d210d3d
-  RELEASE_TARGET: v1.1.0
+  STABLE_PROTO_TAG: v1.1.0
+  RELEASE_TARGET: v2.0.0
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -83,19 +82,25 @@ jobs:
             test "${GITHUB_REF#refs/tags/}" = "$RELEASE_TARGET"
           fi
 
-      - name: Verify Protobuf format, lint, and compatibility
+      - name: Verify Protobuf format, lint, and declared major break
         shell: bash
         run: |
           set -euo pipefail
           buf format -d --exit-code proto
           buf lint proto
-          # v1.0.6 contains a removed QR RPC that develop intentionally moved to
-          # Check-in before this phase. Gate every unaffected schema against the
-          # stable tag, and gate Member against the exact Phase 1 base commit.
-          buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" \
-            --exclude-path proto/member/v1/member.proto
-          buf breaking . --against ".git#ref=${PHASE1_BASE_SHA}" \
-            --path proto/member/v1/member.proto
+          if buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" > /tmp/breaking.txt 2>&1; then
+            echo "v2.0.0 must contain the declared single-gym contract break" >&2
+            exit 1
+          fi
+          grep -Fq 'RegisterRequest' /tmp/breaking.txt
+          grep -Fq 'UserResponse' /tmp/breaking.txt
+          grep -Fq 'MemberResponse' /tmp/breaking.txt
+          grep -Fq 'UserRegisteredEvent' /tmp/breaking.txt
+          if grep -Eq 'field number 2 named gym_id|GetMembershipStatusByUserIdRequest' /tmp/breaking.txt; then
+            echo "additive selected-gym lookup unexpectedly broke wire compatibility" >&2
+            cat /tmp/breaking.txt >&2
+            exit 1
+          fi
 
       - name: Generate stubs and verify routes
         shell: bash

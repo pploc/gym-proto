@@ -37,7 +37,6 @@ final class FixtureSupport {
                         .setEmail("user-001@example.test")
                         .setFullName("Fixture User")
                         .setRole("CUSTOMER")
-                        .setGymId("gym-001")
                         .setAuthProvider("PASSWORD")
                         .setTimestamp(1_700_000_000_123L)
                         .build(),
@@ -56,7 +55,6 @@ final class FixtureSupport {
                 UserSuspendedEvent.newBuilder()
                         .setUserId("user-002")
                         .setRole("CUSTOMER")
-                        .setGymId("gym-001")
                         .setTimestamp(1_700_000_000_456L)
                         .build(),
                 canonicalHeaders(
@@ -75,7 +73,6 @@ final class FixtureSupport {
                         .setUserId("user-003")
                         .setOldRole("CUSTOMER")
                         .setNewRole("TRAINER")
-                        .setGymId("gym-002")
                         .setTimestamp(1_700_000_000_789L)
                         .build(),
                 canonicalHeaders(

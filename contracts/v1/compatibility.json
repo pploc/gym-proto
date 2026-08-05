@@ -10,6 +10,7 @@
     "generatedGoImports": "github.com/pploc/proto-go",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
+    "currentReleaseClassification": "major-contract-change: remove single-gym identity/profile fields",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number"

@@ -21,12 +21,15 @@
       "identity.v1.IdentityService/Register",
       "identity.v1.IdentityService/Login",
       "identity.v1.IdentityService/LoginWithGoogle",
-      "identity.v1.IdentityService/RefreshToken"
+      "identity.v1.IdentityService/RefreshToken",
+      "identity.v1.IdentityService/VerifyEmail",
+      "identity.v1.IdentityService/ResendEmailVerification"
     ],
     "protected": [
       "identity.v1.IdentityService/Logout",
       "identity.v1.IdentityService/GetCurrentUser",
       "identity.v1.IdentityService/ChangePassword",
+      "identity.v1.IdentityService/SelectGym",
       "identity.v1.IdentityService/CreateTrainerAccount",
       "identity.v1.IdentityService/SuspendUser",
       "identity.v1.IdentityService/ListUsers"

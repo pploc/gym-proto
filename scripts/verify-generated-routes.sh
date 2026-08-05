@@ -36,6 +36,11 @@ reject_method() {
 
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/Register" "/api/v1/auth/register"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/RefreshToken" "/api/v1/auth/refresh"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/VerifyEmail" "/api/v1/auth/email/verify"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/SelectGym" "/api/v1/auth/gym"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/CreateTrainerAccount" "/api/v1/admin/trainers"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/SuspendUser" "/api/v1/admin/users/{user_id}/suspend"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/ListUsers" "/api/v1/admin/users"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/GetMember" "/api/v1/members/{member_id}"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/GetMembershipStatus" "/api/v1/memberships/status/{member_id}"
 

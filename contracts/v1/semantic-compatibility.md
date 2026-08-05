@@ -41,3 +41,20 @@ Every Protobuf change must answer and record the following before release:
       evaluates source, JSON, and domain semantics that binary checks cannot detect.
 - [ ] Generated Java and Go outputs derive from the same candidate source SHA and
       release version.
+
+## v2.0.0 semantic review
+
+- [x] `RegisterRequest.role` and `RegisterRequest.gym_id` are removed and reserved;
+      self-registration is always a chain-wide customer registration.
+- [x] `UserResponse.gym_id` and `MemberResponse.gym_id` are removed and reserved;
+      identity and member profiles are chain-wide.
+- [x] Identity events remove and reserve chain-wide `gym_id` fields. Gym-specific
+      lifecycle events continue carrying `gym_id`.
+- [x] `GetMembershipStatusByUserIdRequest.gym_id` is additive and qualifies `NONE`,
+      `ACTIVE`, `PAUSED`, and `EXPIRED` for one selected gym.
+- [x] `SelectGym`, email-verification RPCs, and admin HTTP routes are additive.
+- [x] Removed fields make this a deliberate major contract change. Existing field
+      numbers are reserved and never reused.
+- [x] Kafka topics, keys, framing, headers, subject strategy, retry policy, and DLQ
+      contract remain unchanged. Identity event schemas require a new clean Registry
+      generation because removed fields are intentionally not BACKWARD compatible.
