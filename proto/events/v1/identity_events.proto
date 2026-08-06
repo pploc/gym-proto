@@ -33,3 +33,17 @@ message UserRoleChangedEvent {
   reserved "gym_id";
   int64 timestamp = 5;
 }
+
+// Topic: identity.email.verification-requested.v1
+// Key: user_id
+// Emitted on local Register and ResendEmailVerification when a new token is minted.
+// verification_url is secret material (frontend deep link with raw token). Restrict
+// topic ACLs; Notification must not log this field.
+message EmailVerificationRequestedEvent {
+  string user_id = 1;
+  string email = 2;
+  string full_name = 3;
+  string verification_url = 4;
+  int64 expires_at = 5; // unix epoch seconds
+  int64 timestamp = 6; // unix epoch seconds
+}

@@ -1,6 +1,7 @@
 package com.gym.proto.fixtures;
 
 import com.google.protobuf.Message;
+import com.gym.proto.events.v1.EmailVerificationRequestedEvent;
 import com.gym.proto.events.v1.MembershipActivatedEvent;
 import com.gym.proto.events.v1.MembershipExpiredEvent;
 import com.gym.proto.events.v1.MembershipExpiringSoonEvent;
@@ -197,6 +198,26 @@ final class FixtureSupport {
                         "1700000002000",
                         "fixture-membership-expired-009",
                         "00-00000000000000000000000000000009-0000000000000009-01"
+                )
+        ));
+        fixtures.put("email-verification-requested", new FixtureCase(
+                "identity.email.verification-requested.v1",
+                "user-010",
+                "events.v1.EmailVerificationRequestedEvent",
+                EmailVerificationRequestedEvent.newBuilder()
+                        .setUserId("user-010")
+                        .setEmail("user-010@example.test")
+                        .setFullName("Fixture User")
+                        .setVerificationUrl("http://localhost:3000/verify-email?token=fixture-token-010")
+                        .setExpiresAt(1_700_008_640_000L)
+                        .setTimestamp(1_700_000_002_100L)
+                        .build(),
+                canonicalHeaders(
+                        "events.v1.EmailVerificationRequestedEvent",
+                        "ms-gym-identifier",
+                        "1700000002100",
+                        "fixture-email-verification-requested-010",
+                        "00-0000000000000000000000000000000a-000000000000000a-01"
                 )
         ));
         return fixtures;
