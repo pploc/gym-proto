@@ -42,6 +42,8 @@
     "issuer",
     "audience",
     "expiry",
+    "issued-at",
+    "jwt-id",
     "key-id"
   ]
 }

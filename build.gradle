@@ -77,6 +77,51 @@ tasks.register('generateConfluentFixtures', JavaExec) {
     )
 }
 
+tasks.register('seedConfluentSchemas', JavaExec) {
+    group = 'verification'
+    description = 'Seed frozen Confluent schemas in a disposable Schema Registry.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.ConfluentSchemaSeeder'
+    args(providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get())
+}
+
+tasks.register('captureEmailVerificationToken', JavaExec) {
+    group = 'verification'
+    description = 'Capture one disposable email-verification token without logging its URL.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.EmailVerificationTokenCapture'
+    doFirst {
+        if (!project.hasProperty('email') || !project.hasProperty('outputPath')) {
+            throw new GradleException('email and outputPath are required')
+        }
+    }
+    args(
+            providers.gradleProperty('kafkaBrokers').orElse('localhost:9092').get(),
+            providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get(),
+            providers.gradleProperty('email').orElse('').get(),
+            providers.gradleProperty('timeoutSeconds').orElse('60').get(),
+            providers.gradleProperty('outputPath').orElse('').get()
+    )
+}
+
+tasks.register('verifyEmailVerificationTokenCapture', JavaExec) {
+    group = 'verification'
+    description = 'Verify email-verification token extraction without Kafka.'
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(26)
+    }
+    classpath = sourceSets.fixtures.runtimeClasspath
+    mainClass = 'com.gym.proto.fixtures.EmailVerificationTokenCapture'
+    jvmArgs '-ea'
+    args '--self-check'
+}
+
 tasks.register('verifyConfluentFixtures', JavaExec) {
     group = 'verification'
     description = 'Verify committed Confluent Schema Registry 7.7.1 byte fixtures without mutation.'
@@ -106,6 +151,7 @@ tasks.named('check') {
     dependsOn tasks.named('verifyHttpConfig')
     dependsOn tasks.named('verifyGeneratedRoutes')
     dependsOn tasks.named('verifyConfluentFixtures')
+    dependsOn tasks.named('verifyEmailVerificationTokenCapture')
 }
 
 publishing {
