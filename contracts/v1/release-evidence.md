@@ -146,6 +146,17 @@ ten-subject inventory are refreshed so CI can match a disposable Registry.
 
 Owner authorized tagging/publishing. First `v3.0.0` tag attempt on `7c4e194` failed
 validation because the committed fixture still carried non-clean schema IDs and the
-workflow hard-coded nine subjects. The failed tag is moved to the fixed candidate
-commit after local fixture regeneration and subject-count correction. Existing
-historical evidence above is preserved and not rewritten.
+workflow hard-coded nine subjects. The failed tag was moved to the fixed candidate
+commit after local fixture regeneration and subject-count correction.
+
+Publication completed on 2026-08-08 from workflow run `31258506342`:
+
+- Source tag `v3.0.0` resolves to commit `ea00953ca803a12741d6d1ca1f45ab4cadac66a8`.
+- GitHub release: `https://github.com/pploc/gym-proto/releases/tag/v3.0.0`
+- Fixture SHA-256: `8a767863aa47842144729fc40d5033b3b56760dab1b51eff3ea8ca84eec310d5`
+- Generated tree aggregate SHA-256: `f3d2266c241af498dc7279a358f944b9d53636218d0949caf8ac149839dd17f5`
+- `github.com/pploc/proto-go/v3@v3.0.0` resolves without `replace` to commit
+  `4e88408e271c430e5cdbe19a4bf2652c6e935171` and includes `plans/v1`.
+- `com.gym.proto:gym-proto-java:3.0.0` resolves from GitHub Packages.
+
+Existing historical evidence above is preserved and not rewritten.
