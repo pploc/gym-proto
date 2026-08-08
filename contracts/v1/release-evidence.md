@@ -122,7 +122,10 @@ tree:
 6. generated Java compile via `./gradlew clean compileJava compileFixturesJava`
 7. temporary Go module `github.com/pploc/proto-go/v3` built with `go test ./...`
 8. deterministic generation checksum comparison
-9. `./gradlew check -x verifyConfluentFixtures`
+9. live clean Schema Registry 7.7.1 fixture regeneration and committed-artifact match
+10. `./gradlew check` including offline fixture verification
+11. `./gradlew verifyConfluentBackwardCompatibility` with all ten subjects reporting
+    `BACKWARD`
 
 Generated tree aggregate SHA-256 over sorted file digests:
 
@@ -130,17 +133,19 @@ Generated tree aggregate SHA-256 over sorted file digests:
 f3d2266c241af498dc7279a358f944b9d53636218d0949caf8ac149839dd17f5
 ```
 
-Fixture artifact remains:
+Fixture artifact regenerated from a disposable clean Registry (schema IDs start at 1):
 
 ```text
-642834f75620bb46cec2ff7acb758db5a5855eef6a32837e84d1c80a8f04489f  contracts/v1/kafka/confluent-7.7.1-fixtures.json
+8a767863aa47842144729fc40d5033b3b56760dab1b51eff3ea8ca84eec310d5  contracts/v1/kafka/confluent-7.7.1-fixtures.json
 ```
 
-Live Schema Registry fixture regeneration and BACKWARD matrix were not re-run in
-this local candidate pass because Kafka event wire schemas are unchanged.
+Kafka event wire schemas remain unchanged; only clean-registry schema IDs and the
+ten-subject inventory are refreshed so CI can match a disposable Registry.
 
 ## Publication and owner approval
 
-Tagging `v3.0.0`, publishing Java/Go packages, and creating a GitHub release remain
-blocked until an explicit owner authorization is supplied. Existing historical
-evidence above is preserved and not rewritten.
+Owner authorized tagging/publishing. First `v3.0.0` tag attempt on `7c4e194` failed
+validation because the committed fixture still carried non-clean schema IDs and the
+workflow hard-coded nine subjects. The failed tag is moved to the fixed candidate
+commit after local fixture regeneration and subject-count correction. Existing
+historical evidence above is preserved and not rewritten.

@@ -133,7 +133,7 @@ jobs:
           echo "Schema Registry did not become ready" >&2
           exit 1
 
-      - name: Generate and verify nine Confluent fixtures
+      - name: Generate and verify Confluent fixtures
         shell: bash
         run: |
           set -euo pipefail
@@ -155,7 +155,8 @@ jobs:
             -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
           ./gradlew verifyConfluentBackwardCompatibility \
             -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
-          test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects" | jq length)" -eq 9
+          expected_subjects="$(jq -r '[.cases[].subject] | unique | length' contracts/v1/kafka/confluent-7.7.1-fixtures.json)"
+          test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects" | jq length)" -eq "$expected_subjects"
           for subject in $(jq -r '.cases[].subject' contracts/v1/kafka/confluent-7.7.1-fixtures.json); do
             test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/config/$subject" | jq -r '.compatibilityLevel')" = BACKWARD
           done
