@@ -74,3 +74,73 @@ Accountable owner approvals remain pending. Technical G1 evidence is complete, b
 this document does not infer human approval or production promotion authorization.
 The workflow publishes only from the protected target tag and attaches source SHA,
 fixture checksum, generated checksums, and release reports.
+
+---
+
+# Phase 6 candidate release evidence
+
+## Candidate
+
+- Source branch: `develop`
+- Last stable `gym-proto` tag: `v2.0.0`
+- Candidate source release: `v3.0.0`
+- Candidate Java artifact: `com.gym.proto:gym-proto-java:3.0.0`
+- Candidate Go module: `github.com/pploc/proto-go/v3@v3.0.0`
+- Publication status: not published
+- Human approval status: pending
+
+## Ownership and contract change
+
+- Plans becomes sole owner of gym locations and membership-plan catalog.
+- Member loses location and catalog RPCs and keeps profiles, purchase, lifecycle,
+  membership lookup, validation, and list-by-status.
+- Payment initiation gains additive `user_id` and `amount_vnd`. Membership
+  `reference_id` is Member-owned `purchase_id`.
+- All generated Go packages move under `github.com/pploc/proto-go/v3`.
+
+## Expected source break against `v2.0.0`
+
+- All `go_package` options change to the `/v3` module prefix.
+- Member deletes `GetPlans` and all gym-location RPCs plus related messages.
+- Plans adds public catalog and location RPCs plus internal `GetActiveGym` and
+  `ResolvePurchasablePlan`.
+- Payment request fields `user_id` and `amount_vnd` are additive and do not alter
+  existing field numbers.
+
+## Local technical verification
+
+Local G6 validation on the candidate tree completed on 2026-08-08 against source
+commit `f12efd0c3628db3f758b4d8f2df29929199dbfb7` plus the uncommitted G6 working
+tree:
+
+1. `buf format -d --exit-code proto`
+2. `buf lint proto`
+3. `buf breaking` against `v2.0.0` contained only planned `/v3` go_package moves and
+   Member location/catalog symbol removals
+4. `python3 scripts/verify-http-config.py`
+5. clean generation and `scripts/verify-generated-routes.sh`
+6. generated Java compile via `./gradlew clean compileJava compileFixturesJava`
+7. temporary Go module `github.com/pploc/proto-go/v3` built with `go test ./...`
+8. deterministic generation checksum comparison
+9. `./gradlew check -x verifyConfluentFixtures`
+
+Generated tree aggregate SHA-256 over sorted file digests:
+
+```text
+f3d2266c241af498dc7279a358f944b9d53636218d0949caf8ac149839dd17f5
+```
+
+Fixture artifact remains:
+
+```text
+642834f75620bb46cec2ff7acb758db5a5855eef6a32837e84d1c80a8f04489f  contracts/v1/kafka/confluent-7.7.1-fixtures.json
+```
+
+Live Schema Registry fixture regeneration and BACKWARD matrix were not re-run in
+this local candidate pass because Kafka event wire schemas are unchanged.
+
+## Publication and owner approval
+
+Tagging `v3.0.0`, publishing Java/Go packages, and creating a GitHub release remain
+blocked until an explicit owner authorization is supplied. Existing historical
+evidence above is preserved and not rewritten.

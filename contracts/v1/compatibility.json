@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v1",
+  "contractVersion": "v3",
   "identityVocabulary": {
     "roles": ["CUSTOMER", "TRAINER", "ADMIN", "SUPER_ADMIN"],
     "membershipStatuses": ["NONE", "ACTIVE", "PAUSED", "EXPIRED"]
@@ -7,13 +7,23 @@
   "go": "must-pass-auth-error-kafka-dlq-fixtures",
   "java": "must-pass-auth-error-kafka-dlq-fixtures",
   "protobuf": {
-    "generatedGoImports": "github.com/pploc/proto-go",
+    "generatedGoImports": "github.com/pploc/proto-go/v3",
+    "goModulePath": "github.com/pploc/proto-go/v3",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "major-contract-change: remove single-gym identity/profile fields",
+    "currentReleaseClassification": "major-contract-change: relocate gym locations and membership plans from Member to Plans; move Go imports to /v3",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
-    "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number"
+    "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
+    "expectedSourceBreak": [
+      "member.v1.MemberService.GetPlans removed",
+      "member.v1.MemberService.CreateGymLocation removed",
+      "member.v1.MemberService.UpdateGymLocation removed",
+      "member.v1.MemberService.ListGymLocations removed",
+      "member.v1.MemberService.GetGymLocation removed",
+      "all go_package options move under github.com/pploc/proto-go/v3",
+      "payment.v1.InitiatePaymentRequest gains additive user_id and amount_vnd"
+    ]
   },
   "schemaRegistry": {
     "subjectNameStrategy": "TopicNameStrategy",

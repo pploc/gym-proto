@@ -4,7 +4,7 @@ package identity.v1;
 
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/pploc/proto-go/identity/v1;identityv1";
+option go_package = "github.com/pploc/proto-go/v3/identity/v1;identityv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.identity.v1";
 

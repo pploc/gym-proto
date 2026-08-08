@@ -5,14 +5,14 @@ on:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v2.0.0"]
+    tags: ["v3.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v1.1.0
-  RELEASE_TARGET: v2.0.0
+  STABLE_PROTO_TAG: v2.0.0
+  RELEASE_TARGET: v3.0.0
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -89,15 +89,15 @@ jobs:
           buf format -d --exit-code proto
           buf lint proto
           if buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" > /tmp/breaking.txt 2>&1; then
-            echo "v2.0.0 must contain the declared single-gym contract break" >&2
+            echo "v3.0.0 must contain the declared Member-to-Plans source break" >&2
             exit 1
           fi
-          grep -Fq 'RegisterRequest' /tmp/breaking.txt
-          grep -Fq 'UserResponse' /tmp/breaking.txt
-          grep -Fq 'MemberResponse' /tmp/breaking.txt
-          grep -Fq 'UserRegisteredEvent' /tmp/breaking.txt
-          if grep -Eq 'field number 2 named gym_id|GetMembershipStatusByUserIdRequest' /tmp/breaking.txt; then
-            echo "additive selected-gym lookup unexpectedly broke wire compatibility" >&2
+          grep -Fq 'go_package' /tmp/breaking.txt
+          grep -Fq 'GetPlans' /tmp/breaking.txt
+          grep -Fq 'CreateGymLocation' /tmp/breaking.txt
+          grep -Fq 'GetGymLocation' /tmp/breaking.txt
+          if grep -Eq 'PaymentCompletedEvent|field number 1 named payment_id' /tmp/breaking.txt; then
+            echo "payment completion event unexpectedly broke wire compatibility" >&2
             cat /tmp/breaking.txt >&2
             exit 1
           fi
@@ -276,15 +276,21 @@ jobs:
           cp -R ../evidence .
           # Go semantic import versioning: major >= 2 requires /vN module path.
           major="${RELEASE_VERSION%%.*}"
+          module_path="github.com/pploc/proto-go"
           if [[ "$major" =~ ^[0-9]+$ ]] && (( major >= 2 )); then
-            echo "refusing major version ${RELEASE_VERSION}: go_package still uses github.com/pploc/proto-go (no /v${major}). Retag as v1.x or migrate protos to /v${major}." >&2
-            exit 1
+            module_path="github.com/pploc/proto-go/v${major}"
+            if ! grep -R --include='*.go' -Fq "${module_path}/" .; then
+              echo "refusing major version ${RELEASE_VERSION}: generated Go stubs do not import ${module_path}" >&2
+              exit 1
+            fi
+            if grep -R --include='*.go' -E 'github.com/pploc/proto-go/[^v]' . >/dev/null 2>&1; then
+              echo "refusing major version ${RELEASE_VERSION}: generated Go stubs still import non-/v${major} paths" >&2
+              exit 1
+            fi
           fi
-          cat > go.mod <<'EOF'
-          module github.com/pploc/proto-go
-
-          go 1.26
-          EOF
+          {
+            printf 'module %s\n\ngo 1.26\n' "${module_path}"
+          } > go.mod
           go mod tidy
           go test ./...
           git add --all

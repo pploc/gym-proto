@@ -48,8 +48,6 @@ http:
       body: "*"
     - selector: member.v1.MemberService.ListMembers
       get: /api/v1/members
-    - selector: member.v1.MemberService.GetPlans
-      get: /api/v1/memberships/plans
     - selector: member.v1.MemberService.PurchaseMembership
       post: /api/v1/memberships/purchase
       body: "*"
@@ -61,16 +59,26 @@ http:
       body: "*"
     - selector: member.v1.MemberService.GetMembershipStatus
       get: /api/v1/memberships/status/{member_id}
-    - selector: member.v1.MemberService.CreateGymLocation
+    - selector: plans.v1.PlansService.CreateGymLocation
       post: /api/v1/gyms
       body: "*"
-    - selector: member.v1.MemberService.UpdateGymLocation
+    - selector: plans.v1.PlansService.UpdateGymLocation
       put: /api/v1/gyms/{id}
       body: "*"
-    - selector: member.v1.MemberService.ListGymLocations
-      get: /api/v1/gyms
-    - selector: member.v1.MemberService.GetGymLocation
+    - selector: plans.v1.PlansService.GetGymLocation
       get: /api/v1/gyms/{id}
+    - selector: plans.v1.PlansService.ListGymLocations
+      get: /api/v1/gyms
+    - selector: plans.v1.PlansService.CreateMembershipPlan
+      post: /api/v1/gyms/{gym_id}/plans
+      body: "*"
+    - selector: plans.v1.PlansService.UpdateMembershipPlan
+      put: /api/v1/plans/{id}
+      body: "*"
+    - selector: plans.v1.PlansService.GetMembershipPlan
+      get: /api/v1/plans/{id}
+    - selector: plans.v1.PlansService.ListMembershipPlans
+      get: /api/v1/gyms/{gym_id}/plans
 
     - selector: payment.v1.PaymentService.InitiatePayment
       post: /api/v1/payments/initiate

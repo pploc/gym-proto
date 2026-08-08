@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package analytics.v1;
 
-option go_package = "github.com/pploc/proto-go/analytics/v1;analyticsv1";
+option go_package = "github.com/pploc/proto-go/v3/analytics/v1;analyticsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.analytics.v1";
 

@@ -58,3 +58,28 @@ Every Protobuf change must answer and record the following before release:
 - [x] Kafka topics, keys, framing, headers, subject strategy, retry policy, and DLQ
       contract remain unchanged. Identity event schemas require a new clean Registry
       generation because removed fields are intentionally not BACKWARD compatible.
+
+## v3.0.0 semantic review
+
+- [x] Gym location and membership-plan catalog ownership relocates from
+      `member.v1.MemberService` to new `plans.v1.PlansService`.
+- [x] Removed Member RPCs and messages: `GetPlans`, `CreateGymLocation`,
+      `UpdateGymLocation`, `ListGymLocations`, `GetGymLocation`, and their request
+      and response types. No field numbers are reused.
+- [x] Plans public HTTP surface owns `/api/v1/gyms` and `/api/v1/plans` routes.
+      Plans internal RPCs `GetActiveGym` and `ResolvePurchasablePlan` have no HTTP
+      mapping and no Kong route.
+- [x] Workload callers are exact: Identifier may call only Plans `GetActiveGym`;
+      Member may call only Plans `ResolvePurchasablePlan`; Identifier may call only
+      Member `GetMembershipStatusByUserId`.
+- [x] Membership Payment initiation is additive only: `InitiatePaymentRequest`
+      gains `user_id = 6` and `amount_vnd = 7`. Membership `reference_id` now means
+      Member-owned `purchase_id`; trainer booking remains `booking_id`.
+- [x] Frozen `PaymentCompletedEvent` field numbers and names are unchanged.
+- [x] All Protobuf `go_package` options move under `github.com/pploc/proto-go/v3`.
+      Protobuf API packages remain `*.v1`. Generated Go consumers must import the
+      `/v3` module path.
+- [x] Plans V1 has no Kafka producer, consumer, topic, outbox, or Schema Registry
+      dependency. Released nine-topic Kafka inventory is unchanged.
+- [x] This is a deliberate major source break. Immutable `v2.0.0` artifacts remain
+      the previous stable baseline and must not be rewritten.

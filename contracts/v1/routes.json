@@ -44,7 +44,57 @@
     "identifierLookupAuthorization": {
       "mechanism": "mtls",
       "requiredPeer": "ms-gym-identifier",
+      "allowedMethods": [
+        "member.v1.MemberService/GetMembershipStatusByUserId"
+      ],
       "networkPolicy": "identifier-to-member-50051-only"
-    }
+    },
+    "removedExternalMethods": [
+      "member.v1.MemberService/GetPlans",
+      "member.v1.MemberService/CreateGymLocation",
+      "member.v1.MemberService/UpdateGymLocation",
+      "member.v1.MemberService/ListGymLocations",
+      "member.v1.MemberService/GetGymLocation"
+    ]
+  },
+  "plans": {
+    "public": [
+      "plans.v1.PlansService/CreateGymLocation",
+      "plans.v1.PlansService/UpdateGymLocation",
+      "plans.v1.PlansService/GetGymLocation",
+      "plans.v1.PlansService/ListGymLocations",
+      "plans.v1.PlansService/CreateMembershipPlan",
+      "plans.v1.PlansService/UpdateMembershipPlan",
+      "plans.v1.PlansService/GetMembershipPlan",
+      "plans.v1.PlansService/ListMembershipPlans"
+    ],
+    "internal": [
+      "plans.v1.PlansService/GetActiveGym",
+      "plans.v1.PlansService/ResolvePurchasablePlan"
+    ],
+    "httpRoutes": {
+      "plans.v1.PlansService/CreateGymLocation": "POST /api/v1/gyms",
+      "plans.v1.PlansService/UpdateGymLocation": "PUT /api/v1/gyms/{id}",
+      "plans.v1.PlansService/GetGymLocation": "GET /api/v1/gyms/{id}",
+      "plans.v1.PlansService/ListGymLocations": "GET /api/v1/gyms",
+      "plans.v1.PlansService/CreateMembershipPlan": "POST /api/v1/gyms/{gym_id}/plans",
+      "plans.v1.PlansService/UpdateMembershipPlan": "PUT /api/v1/plans/{id}",
+      "plans.v1.PlansService/GetMembershipPlan": "GET /api/v1/plans/{id}",
+      "plans.v1.PlansService/ListMembershipPlans": "GET /api/v1/gyms/{gym_id}/plans"
+    },
+    "workloadAuthorization": [
+      {
+        "caller": "ms-gym-identifier",
+        "allowedMethods": [
+          "plans.v1.PlansService/GetActiveGym"
+        ]
+      },
+      {
+        "caller": "ms-gym-member",
+        "allowedMethods": [
+          "plans.v1.PlansService/ResolvePurchasablePlan"
+        ]
+      }
+    ]
   }
 }

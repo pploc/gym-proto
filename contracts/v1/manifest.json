@@ -1,20 +1,22 @@
 {
-  "contractVersion": "v2",
+  "contractVersion": "v3",
   "status": "candidate",
   "versions": {
     "gymProto": {
-      "currentStable": "v1.1.0",
-      "releaseTarget": "v2.0.0",
+      "currentStable": "v2.0.0",
+      "releaseTarget": "v3.0.0",
       "status": "candidate"
     },
     "protoGo": {
-      "currentStable": "v1.1.0",
-      "releaseTarget": "v2.0.0",
+      "currentStable": "v2.0.0",
+      "releaseTarget": "v3.0.0",
+      "modulePath": "github.com/pploc/proto-go/v3",
       "status": "candidate"
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "releaseTarget": "2.0.0",
+      "currentStable": "2.0.0",
+      "releaseTarget": "3.0.0",
       "status": "candidate"
     },
     "commonGo": "v0.3.0",
@@ -39,13 +41,12 @@
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v1.1.0",
-    "previousStableSourceSha": "740e476915117ab594a6e7ee3677e6a2c39c3c80",
-    "previousStableProtoGoSha": "6f070d25f8361e6550e0bd9a309a738d2a0dbd21",
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v2.0.0",
+    "previousStableSourceSha": "25e52f5f3ec871369cada67099a5fd2e9f26673f",
     "publication": "pending"
   },
   "requiredEvidence": [
-    "tagged proto-go external import without replace",
+    "tagged proto-go external import without replace under github.com/pploc/proto-go/v3",
     "Go fixture suite",
     "Java fixture suite",
     "Schema Registry BACKWARD compatibility check",

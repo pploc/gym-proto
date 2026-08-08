@@ -10,8 +10,6 @@ http:
       body: "*"
     - selector: member.v1.MemberService.ListMembers
       get: /api/v1/members
-    - selector: member.v1.MemberService.GetPlans
-      get: /api/v1/memberships/plans
     - selector: member.v1.MemberService.PurchaseMembership
       post: /api/v1/memberships/purchase
       body: "*"
@@ -23,13 +21,3 @@ http:
       body: "*"
     - selector: member.v1.MemberService.GetMembershipStatus
       get: /api/v1/memberships/status/{member_id}
-    - selector: member.v1.MemberService.CreateGymLocation
-      post: /api/v1/gyms
-      body: "*"
-    - selector: member.v1.MemberService.UpdateGymLocation
-      put: /api/v1/gyms/{id}
-      body: "*"
-    - selector: member.v1.MemberService.ListGymLocations
-      get: /api/v1/gyms
-    - selector: member.v1.MemberService.GetGymLocation
-      get: /api/v1/gyms/{id}

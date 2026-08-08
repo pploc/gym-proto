@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package plans.v1;
+
+option go_package = "github.com/pploc/proto-go/v3/plans/v1;plansv1";
+option java_multiple_files = true;
+option java_package = "com.gym.proto.plans.v1";
+
+service PlansService {
+  rpc CreateGymLocation(CreateGymLocationRequest) returns (GymLocationResponse);
+  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (GymLocationResponse);
+  rpc GetGymLocation(GetGymLocationRequest) returns (GymLocationResponse);
+  rpc ListGymLocations(ListGymLocationsRequest) returns (GymLocationsResponse);
+
+  rpc CreateMembershipPlan(CreateMembershipPlanRequest) returns (MembershipPlanResponse);
+  rpc UpdateMembershipPlan(UpdateMembershipPlanRequest) returns (MembershipPlanResponse);
+  rpc GetMembershipPlan(GetMembershipPlanRequest) returns (MembershipPlanResponse);
+  rpc ListMembershipPlans(ListMembershipPlansRequest) returns (MembershipPlansResponse);
+
+  // Internal only. Requires the verified ms-gym-identifier workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
+  rpc GetActiveGym(GetActiveGymRequest) returns (GymLocationResponse);
+
+  // Internal only. Requires the verified ms-gym-member workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
+  rpc ResolvePurchasablePlan(ResolvePurchasablePlanRequest) returns (ResolvedPlanResponse);
+}
+
+message CreateGymLocationRequest {
+  string chain_id = 1;
+  string name = 2;
+  string address = 3;
+  string city = 4;
+}
+
+message UpdateGymLocationRequest {
+  string id = 1;
+  string chain_id = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  string status = 6; // ACTIVE, CLOSED
+}
+
+message GetGymLocationRequest {
+  string id = 1;
+}
+
+message ListGymLocationsRequest {
+  string chain_id = 1;
+  string city = 2;
+  string status = 3; // ACTIVE, CLOSED
+}
+
+message GymLocationResponse {
+  string id = 1;
+  string chain_id = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  string status = 6; // ACTIVE, CLOSED
+}
+
+message GymLocationsResponse {
+  repeated GymLocationResponse locations = 1;
+}
+
+message CreateMembershipPlanRequest {
+  string gym_id = 1;
+  string name = 2;
+  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
+  optional int32 duration_days = 4;
+  int64 price_vnd = 5;
+  string description = 6;
+  optional bool active = 7; // Defaults to true when absent.
+}
+
+message UpdateMembershipPlanRequest {
+  string id = 1;
+  string name = 2;
+  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
+  optional int32 duration_days = 4;
+  int64 price_vnd = 5;
+  string description = 6;
+  bool active = 7;
+}
+
+message GetMembershipPlanRequest {
+  string id = 1;
+}
+
+message ListMembershipPlansRequest {
+  string gym_id = 1;
+  string plan_type = 2; // MONTHLY, YEARLY, LIFETIME
+  optional bool active = 3;
+}
+
+message MembershipPlanResponse {
+  string id = 1;
+  string gym_id = 2;
+  string name = 3;
+  string plan_type = 4; // MONTHLY, YEARLY, LIFETIME
+  optional int32 duration_days = 5;
+  int64 price_vnd = 6;
+  string description = 7;
+  bool active = 8;
+}
+
+message MembershipPlansResponse {
+  repeated MembershipPlanResponse plans = 1;
+}
+
+message GetActiveGymRequest {
+  string gym_id = 1;
+}
+
+message ResolvePurchasablePlanRequest {
+  string plan_id = 1;
+  string gym_id = 2;
+}
+
+message ResolvedPlanResponse {
+  string plan_id = 1;
+  string gym_id = 2;
+  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
+  optional int32 duration_days = 4;
+  int64 price_vnd = 5;
+}

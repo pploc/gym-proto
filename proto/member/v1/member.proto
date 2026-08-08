@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package member.v1;
 
-option go_package = "github.com/pploc/proto-go/member/v1;memberv1";
+option go_package = "github.com/pploc/proto-go/v3/member/v1;memberv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.member.v1";
 
@@ -11,7 +11,6 @@ service MemberService {
   rpc UpdateProfile(UpdateProfileRequest) returns (MemberResponse);
   rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
 
-  rpc GetPlans(GetPlansRequest) returns (PlansResponse);
   rpc PurchaseMembership(PurchaseMembershipRequest) returns (PurchaseResponse);
   rpc PauseMembership(PauseMembershipRequest) returns (MembershipResponse);
   rpc ResumeMembership(ResumeMembershipRequest) returns (MembershipResponse);
@@ -20,11 +19,6 @@ service MemberService {
   // Internal only. Requires the verified ms-gym-identifier workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
   rpc GetMembershipStatusByUserId(GetMembershipStatusByUserIdRequest) returns (MembershipResponse);
-
-  rpc CreateGymLocation(CreateGymLocationRequest) returns (GymLocationResponse);
-  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (GymLocationResponse);
-  rpc ListGymLocations(ListGymLocationsRequest) returns (GymLocationsResponse);
-  rpc GetGymLocation(GetGymLocationRequest) returns (GymLocationResponse);
 
   rpc ValidateMembership(ValidateMembershipRequest) returns (ValidateMembershipResponse);
   rpc ListMembersByStatus(ListMembersByStatusRequest) returns (ListMembersByStatusResponse);
@@ -65,24 +59,6 @@ message ListMembersResponse {
   int32 total = 2;
 }
 
-message GetPlansRequest {
-  string gym_id = 1;
-}
-
-message Plan {
-  string id = 1;
-  string name = 2;
-  string plan_type = 3;
-  int32 duration_days = 4;
-  int64 price_vnd = 5;
-  string description = 6;
-  bool active = 7;
-}
-
-message PlansResponse {
-  repeated Plan plans = 1;
-}
-
 message PurchaseMembershipRequest {
   string plan_id = 1;
   string provider = 2; // MOMO, ZALOPAY, VNPAY
@@ -117,42 +93,6 @@ message MembershipResponse {
   string start_date = 3;
   string end_date = 4;
   int32 remaining_days = 5;
-}
-
-message CreateGymLocationRequest {
-  string chain_id = 1;
-  string name = 2;
-  string address = 3;
-  string city = 4;
-}
-
-message GymLocationResponse {
-  string id = 1;
-  string chain_id = 2;
-  string name = 3;
-  string address = 4;
-  string city = 5;
-  string status = 6;
-}
-
-message UpdateGymLocationRequest {
-  string id = 1;
-  string name = 2;
-  string address = 3;
-  string city = 4;
-  string status = 5;
-}
-
-message ListGymLocationsRequest {
-  string chain_id = 1;
-}
-
-message GymLocationsResponse {
-  repeated GymLocationResponse locations = 1;
-}
-
-message GetGymLocationRequest {
-  string id = 1;
 }
 
 message ValidateMembershipRequest {

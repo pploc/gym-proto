@@ -4,7 +4,7 @@ package payment.v1;
 
 import "common/v1/common.proto";
 
-option go_package = "github.com/pploc/proto-go/payment/v1;paymentv1";
+option go_package = "github.com/pploc/proto-go/v3/payment/v1;paymentv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.payment.v1";
 
@@ -22,9 +22,11 @@ service PaymentService {
 message InitiatePaymentRequest {
   string gym_id = 1;
   string payment_type = 2; // MEMBERSHIP, TRAINER_BOOKING
-  string reference_id = 3; // plan_id or booking_id
+  string reference_id = 3; // membership purchase_id or trainer booking_id
   string provider = 4; // MOMO, ZALOPAY, VNPAY
   string discount_code = 5;
+  string user_id = 6;
+  int64 amount_vnd = 7;
 }
 
 message InitiatePaymentResponse {
