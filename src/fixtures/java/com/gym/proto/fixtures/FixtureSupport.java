@@ -1,6 +1,10 @@
 package com.gym.proto.fixtures;
 
 import com.google.protobuf.Message;
+import com.gym.proto.common.v1.AuthProvider;
+import com.gym.proto.common.v1.PaymentType;
+import com.gym.proto.common.v1.PlanType;
+import com.gym.proto.common.v1.Role;
 import com.gym.proto.events.v1.EmailVerificationRequestedEvent;
 import com.gym.proto.events.v1.MembershipActivatedEvent;
 import com.gym.proto.events.v1.MembershipExpiredEvent;
@@ -37,8 +41,8 @@ final class FixtureSupport {
                         .setUserId("user-001")
                         .setEmail("user-001@example.test")
                         .setFullName("Fixture User")
-                        .setRole("CUSTOMER")
-                        .setAuthProvider("PASSWORD")
+                        .setRole(Role.ROLE_CUSTOMER)
+                        .setAuthProvider(AuthProvider.AUTH_PROVIDER_LOCAL)
                         .setTimestamp(1_700_000_000_123L)
                         .build(),
                 canonicalHeaders(
@@ -55,7 +59,7 @@ final class FixtureSupport {
                 "events.v1.UserSuspendedEvent",
                 UserSuspendedEvent.newBuilder()
                         .setUserId("user-002")
-                        .setRole("CUSTOMER")
+                        .setRole(Role.ROLE_CUSTOMER)
                         .setTimestamp(1_700_000_000_456L)
                         .build(),
                 canonicalHeaders(
@@ -72,8 +76,8 @@ final class FixtureSupport {
                 "events.v1.UserRoleChangedEvent",
                 UserRoleChangedEvent.newBuilder()
                         .setUserId("user-003")
-                        .setOldRole("CUSTOMER")
-                        .setNewRole("TRAINER")
+                        .setOldRole(Role.ROLE_CUSTOMER)
+                        .setNewRole(Role.ROLE_TRAINER)
                         .setTimestamp(1_700_000_000_789L)
                         .build(),
                 canonicalHeaders(
@@ -91,7 +95,7 @@ final class FixtureSupport {
                 PaymentCompletedEvent.newBuilder()
                         .setPaymentId("payment-004")
                         .setUserId("user-004")
-                        .setType("MEMBERSHIP")
+                        .setType(PaymentType.PAYMENT_TYPE_MEMBERSHIP)
                         .setReferenceId("plan-monthly-001")
                         .setAmountVnd(500_000L)
                         .setProvider("VNPAY")
@@ -115,7 +119,7 @@ final class FixtureSupport {
                 MembershipActivatedEvent.newBuilder()
                         .setMemberId("member-005")
                         .setUserId("user-005")
-                        .setPlanType("MONTHLY")
+                        .setPlanType(PlanType.PLAN_TYPE_MONTHLY)
                         .setStartDate("2023-11-14")
                         .setEndDate("2023-12-14")
                         .setGymId("gym-001")
@@ -172,7 +176,7 @@ final class FixtureSupport {
                 MembershipExpiringSoonEvent.newBuilder()
                         .setMemberId("member-008")
                         .setEndDate("2023-11-21")
-                        .setPlanType("YEARLY")
+                        .setPlanType(PlanType.PLAN_TYPE_YEARLY)
                         .setGymId("gym-003")
                         .build(),
                 canonicalHeaders(

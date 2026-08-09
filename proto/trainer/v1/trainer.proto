@@ -2,36 +2,69 @@ syntax = "proto3";
 
 package trainer.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/trainer/v1;trainerv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/trainer/v1;trainerv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.trainer.v1";
 
+enum TrainerStatus {
+  TRAINER_STATUS_UNSPECIFIED = 0;
+  TRAINER_STATUS_ACTIVE = 1;
+  TRAINER_STATUS_SUSPENDED = 2;
+  TRAINER_STATUS_INACTIVE = 3;
+}
+
+enum BookingStatus {
+  BOOKING_STATUS_UNSPECIFIED = 0;
+  BOOKING_STATUS_PENDING_PAYMENT = 1;
+  BOOKING_STATUS_REQUESTED = 2;
+  BOOKING_STATUS_ACCEPTED = 3;
+  BOOKING_STATUS_REJECTED = 4;
+  BOOKING_STATUS_COMPLETED = 5;
+  BOOKING_STATUS_CANCELLED = 6;
+}
+
 service TrainerService {
-  rpc SearchTrainers(SearchTrainersRequest) returns (TrainersResponse);
-  rpc GetTrainerProfile(GetTrainerProfileRequest) returns (TrainerResponse);
-  rpc GetAvailableSlots(GetSlotsRequest) returns (SlotsResponse);
-  rpc CreateBooking(CreateBookingRequest) returns (BookingResponse);
-  rpc CancelBooking(CancelBookingRequest) returns (BookingResponse);
-  rpc GetMyBookings(GetMyBookingsRequest) returns (BookingsResponse);
+  rpc SearchTrainers(SearchTrainersRequest) returns (SearchTrainersResponse);
+  rpc GetTrainerProfile(GetTrainerProfileRequest) returns (GetTrainerProfileResponse);
+  rpc GetAvailableSlots(GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse);
+  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
+  rpc CancelBooking(CancelBookingRequest) returns (CancelBookingResponse);
+  rpc GetMyBookings(GetMyBookingsRequest) returns (GetMyBookingsResponse);
 
-  rpc UpdateMyProfile(UpdateTrainerProfileRequest) returns (TrainerResponse);
-  rpc SetAvailability(SetAvailabilityRequest) returns (AvailabilityResponse);
-  rpc AcceptBooking(AcceptBookingRequest) returns (BookingResponse);
-  rpc RejectBooking(RejectBookingRequest) returns (BookingResponse);
-  rpc CompleteBooking(CompleteBookingRequest) returns (BookingResponse);
-  rpc GetCoachingHistory(GetCoachingHistoryRequest) returns (BookingsResponse);
+  rpc UpdateMyProfile(UpdateMyProfileRequest) returns (UpdateMyProfileResponse);
+  rpc SetAvailability(SetAvailabilityRequest) returns (SetAvailabilityResponse);
+  rpc AcceptBooking(AcceptBookingRequest) returns (AcceptBookingResponse);
+  rpc RejectBooking(RejectBookingRequest) returns (RejectBookingResponse);
+  rpc CompleteBooking(CompleteBookingRequest) returns (CompleteBookingResponse);
+  rpc GetCoachingHistory(GetCoachingHistoryRequest) returns (GetCoachingHistoryResponse);
 
-  rpc CreateTrainer(CreateTrainerRequest) returns (TrainerResponse);
+  rpc CreateTrainer(CreateTrainerRequest) returns (CreateTrainerResponse);
   rpc SuspendTrainer(SuspendTrainerRequest) returns (SuspendTrainerResponse);
-  rpc ListTrainers(ListTrainersRequest) returns (TrainersResponse);
+  rpc ListTrainers(ListTrainersRequest) returns (ListTrainersResponse);
 }
 
 message SearchTrainersRequest {
-  string gym_id = 1;
-  string specialty = 2; // strength, cardio, yoga, etc.
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string specialty = 2 [(buf.validate.field).string = {max_len: 100}];
 }
 
-message TrainerResponse {
+message SearchTrainersResponse {
+  repeated GetTrainerProfileResponse trainers = 1;
+}
+
+message GetTrainerProfileRequest {
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message GetTrainerProfileResponse {
   string id = 1;
   string user_id = 2;
   string gym_id = 3;
@@ -41,40 +74,45 @@ message TrainerResponse {
   repeated string specialties = 7;
   repeated string certifications = 8;
   int64 hourly_rate_vnd = 9;
-  string status = 10; // ACTIVE, SUSPENDED, INACTIVE
+  TrainerStatus status = 10;
 }
 
-message TrainersResponse {
-  repeated TrainerResponse trainers = 1;
+message GetAvailableSlotsRequest {
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
 }
 
-message GetTrainerProfileRequest {
-  string id = 1;
-}
-
-message GetSlotsRequest {
-  string trainer_id = 1;
-  string date = 2; // ISO date "2024-12-15"
-}
-
-message SlotsResponse {
-  repeated string available_slots = 1; // "09:00", "10:00", etc.
+message GetAvailableSlotsResponse {
+  repeated string available_slots = 1;
 }
 
 message CreateBookingRequest {
-  string trainer_id = 1;
-  string slot = 2; // "2024-12-15T14:00:00Z"
-  string notes = 3;
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string slot = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  string notes = 3 [(buf.validate.field).string = {max_len: 1000}];
 }
 
-message BookingResponse {
+message CreateBookingResponse {
   string booking_id = 1;
   string customer_id = 2;
   string trainer_id = 3;
   string scheduled_at = 4;
   int32 duration_minutes = 5;
   int64 price_vnd = 6;
-  string status = 7; // PENDING_PAYMENT, REQUESTED, ACCEPTED, REJECTED, COMPLETED, CANCELLED
+  BookingStatus status = 7;
   string payment_id = 8;
   string customer_notes = 9;
   string trainer_notes = 10;
@@ -82,70 +120,235 @@ message BookingResponse {
 }
 
 message CancelBookingRequest {
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string reason = 2 [(buf.validate.field).string = {max_len: 500}];
+}
+
+message CancelBookingResponse {
   string booking_id = 1;
-  string reason = 2;
+  string customer_id = 2;
+  string trainer_id = 3;
+  string scheduled_at = 4;
+  int32 duration_minutes = 5;
+  int64 price_vnd = 6;
+  BookingStatus status = 7;
+  string payment_id = 8;
+  string customer_notes = 9;
+  string trainer_notes = 10;
+  string rejection_reason = 11;
 }
 
 message GetMyBookingsRequest {
-  string customer_id = 1;
+  string customer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message BookingsResponse {
-  repeated BookingResponse bookings = 1;
+message GetMyBookingsResponse {
+  repeated CreateBookingResponse bookings = 1;
 }
 
-message UpdateTrainerProfileRequest {
-  string display_name = 1;
-  string avatar_url = 2;
-  string bio = 3;
-  repeated string specialties = 4;
-  repeated string certifications = 5;
+message UpdateMyProfileRequest {
+  string display_name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string avatar_url = 2 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {
+      max_len: 2048
+      uri: true
+    }
+  }];
+  string bio = 3 [(buf.validate.field).string = {max_len: 2000}];
+  repeated string specialties = 4 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {max_len: 100}
+    }
+  }];
+  repeated string certifications = 5 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {max_len: 200}
+    }
+  }];
+}
+
+message UpdateMyProfileResponse {
+  string id = 1;
+  string user_id = 2;
+  string gym_id = 3;
+  string display_name = 4;
+  string avatar_url = 5;
+  string bio = 6;
+  repeated string specialties = 7;
+  repeated string certifications = 8;
+  int64 hourly_rate_vnd = 9;
+  TrainerStatus status = 10;
 }
 
 message AvailabilitySlot {
-  int32 day_of_week = 1;
-  string start_time = 2; // "08:00"
-  string end_time = 3; // "17:00"
+  int32 day_of_week = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 6
+  }];
+  string start_time = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 8
+    pattern: "^\\d{2}:\\d{2}$"
+  }];
+  string end_time = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 8
+    pattern: "^\\d{2}:\\d{2}$"
+  }];
   bool is_recurring = 4;
-  string specific_date = 5; // "2024-12-15"
+  string specific_date = 5 [(buf.validate.field).string = {
+    max_len: 32
+    pattern: "^$|^\\d{4}-\\d{2}-\\d{2}$"
+  }];
   bool is_blocked = 6;
+  option (buf.validate.message).cel = {
+    id: "availability_window"
+    message: "end_time must be after start_time; non-recurring slots require specific_date"
+    expression: "this.start_time < this.end_time && (this.is_recurring || this.specific_date.size() > 0)"
+  };
 }
 
 message SetAvailabilityRequest {
-  repeated AvailabilitySlot slots = 1;
+  repeated AvailabilitySlot slots = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+  }];
 }
 
-message AvailabilityResponse {
+message SetAvailabilityResponse {
   repeated AvailabilitySlot slots = 1;
 }
 
 message AcceptBookingRequest {
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message AcceptBookingResponse {
   string booking_id = 1;
+  string customer_id = 2;
+  string trainer_id = 3;
+  string scheduled_at = 4;
+  int32 duration_minutes = 5;
+  int64 price_vnd = 6;
+  BookingStatus status = 7;
+  string payment_id = 8;
+  string customer_notes = 9;
+  string trainer_notes = 10;
+  string rejection_reason = 11;
 }
 
 message RejectBookingRequest {
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string reason = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 500
+  }];
+}
+
+message RejectBookingResponse {
   string booking_id = 1;
-  string reason = 2;
+  string customer_id = 2;
+  string trainer_id = 3;
+  string scheduled_at = 4;
+  int32 duration_minutes = 5;
+  int64 price_vnd = 6;
+  BookingStatus status = 7;
+  string payment_id = 8;
+  string customer_notes = 9;
+  string trainer_notes = 10;
+  string rejection_reason = 11;
 }
 
 message CompleteBookingRequest {
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string notes = 2 [(buf.validate.field).string = {max_len: 1000}];
+}
+
+message CompleteBookingResponse {
   string booking_id = 1;
-  string notes = 2;
+  string customer_id = 2;
+  string trainer_id = 3;
+  string scheduled_at = 4;
+  int32 duration_minutes = 5;
+  int64 price_vnd = 6;
+  BookingStatus status = 7;
+  string payment_id = 8;
+  string customer_notes = 9;
+  string trainer_notes = 10;
+  string rejection_reason = 11;
 }
 
 message GetCoachingHistoryRequest {
-  string trainer_id = 1;
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message GetCoachingHistoryResponse {
+  repeated CreateBookingResponse bookings = 1;
 }
 
 message CreateTrainerRequest {
-  string user_id = 1;
-  string gym_id = 2;
-  repeated string specialties = 3;
-  int64 hourly_rate = 4;
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  repeated string specialties = 3 [(buf.validate.field).repeated = {
+    max_items: 50
+    items: {
+      string: {max_len: 100}
+    }
+  }];
+  int64 hourly_rate = 4 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
+}
+
+message CreateTrainerResponse {
+  string id = 1;
+  string user_id = 2;
+  string gym_id = 3;
+  string display_name = 4;
+  string avatar_url = 5;
+  string bio = 6;
+  repeated string specialties = 7;
+  repeated string certifications = 8;
+  int64 hourly_rate_vnd = 9;
+  TrainerStatus status = 10;
 }
 
 message SuspendTrainerRequest {
-  string trainer_id = 1;
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message SuspendTrainerResponse {
@@ -154,5 +357,9 @@ message SuspendTrainerResponse {
 }
 
 message ListTrainersRequest {
-  string gym_id = 1;
+  string gym_id = 1 [(buf.validate.field).string = {max_len: 128}];
+}
+
+message ListTrainersResponse {
+  repeated GetTrainerProfileResponse trainers = 1;
 }

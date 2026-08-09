@@ -5,14 +5,16 @@ on:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v3.0.0"]
+    tags: ["v4.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v2.0.0
-  RELEASE_TARGET: v3.0.0
+  STABLE_PROTO_TAG: v3.0.0
+  RELEASE_TARGET: v4.0.0
+  # Go module stays github.com/pploc/proto-go (no /v4). Tag overwrites the v1 line.
+  PROTO_GO_RELEASE_TARGET: v1.4.0
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -76,7 +78,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(jq -r '.versions.gymProto.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
-          test "$(jq -r '.versions.protoGo.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
+          test "$(jq -r '.versions.protoGo.releaseTarget' contracts/v1/manifest.json)" = "$PROTO_GO_RELEASE_TARGET"
+          test "$(jq -r '.versions.protoGo.modulePath' contracts/v1/manifest.json)" = "github.com/pploc/proto-go"
           test "v$(jq -r '.versions.gymProtoJava.releaseTarget' contracts/v1/manifest.json)" = "$RELEASE_TARGET"
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             test "${GITHUB_REF#refs/tags/}" = "$RELEASE_TARGET"
@@ -89,18 +92,12 @@ jobs:
           buf format -d --exit-code proto
           buf lint proto
           if buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" > /tmp/breaking.txt 2>&1; then
-            echo "v3.0.0 must contain the declared Member-to-Plans source break" >&2
+            echo "v4.0.0 must contain the declared contract cleanup break against v3.0.0" >&2
             exit 1
           fi
           grep -Fq 'go_package' /tmp/breaking.txt
-          grep -Fq 'GetPlans' /tmp/breaking.txt
-          grep -Fq 'CreateGymLocation' /tmp/breaking.txt
-          grep -Fq 'GetGymLocation' /tmp/breaking.txt
-          if grep -Eq 'PaymentCompletedEvent|field number 1 named payment_id' /tmp/breaking.txt; then
-            echo "payment completion event unexpectedly broke wire compatibility" >&2
-            cat /tmp/breaking.txt >&2
-            exit 1
-          fi
+          grep -Eq 'AuthResponse|MemberResponse|GymLocationResponse|MembershipPlanResponse|google.protobuf.Empty' /tmp/breaking.txt
+          grep -Eq 'Role|UserStatus|AuthProvider|MembershipStatus|PlanType|PaymentType' /tmp/breaking.txt || true
 
       - name: Generate stubs and verify routes
         shell: bash
@@ -235,8 +232,8 @@ jobs:
           test -n "$GO_PUBLISH_TOKEN"
           if git ls-remote --exit-code --tags \
             "https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git" \
-            "refs/tags/v${RELEASE_VERSION}" >/dev/null 2>&1; then
-            echo "proto-go v${RELEASE_VERSION} already exists" >&2
+            "refs/tags/${PROTO_GO_RELEASE_TARGET}" >/dev/null 2>&1; then
+            echo "proto-go ${PROTO_GO_RELEASE_TARGET} already exists" >&2
             exit 1
           fi
           if gh release view "v${RELEASE_VERSION}" >/dev/null 2>&1; then
@@ -265,6 +262,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Overwrite github.com/pploc/proto-go in place. Never introduce /vN path segment.
+          PROTO_GO_VERSION="${PROTO_GO_RELEASE_TARGET#v}"
+          test -n "$PROTO_GO_VERSION"
+          module_path="github.com/pploc/proto-go"
           target="https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -275,19 +276,9 @@ jobs:
           cp -R ../gen/go/. .
           cp -R ../contracts .
           cp -R ../evidence .
-          # Go semantic import versioning: major >= 2 requires /vN module path.
-          major="${RELEASE_VERSION%%.*}"
-          module_path="github.com/pploc/proto-go"
-          if [[ "$major" =~ ^[0-9]+$ ]] && (( major >= 2 )); then
-            module_path="github.com/pploc/proto-go/v${major}"
-            if ! grep -R --include='*.go' -Fq "${module_path}/" .; then
-              echo "refusing major version ${RELEASE_VERSION}: generated Go stubs do not import ${module_path}" >&2
-              exit 1
-            fi
-            if grep -R --include='*.go' -E 'github.com/pploc/proto-go/[^v]' . >/dev/null 2>&1; then
-              echo "refusing major version ${RELEASE_VERSION}: generated Go stubs still import non-/v${major} paths" >&2
-              exit 1
-            fi
+          if grep -R --include='*.go' -E 'github.com/pploc/proto-go/v[0-9]+/' . >/dev/null 2>&1; then
+            echo "refusing publish: generated stubs import /vN module path; keep github.com/pploc/proto-go only" >&2
+            exit 1
           fi
           {
             printf 'module %s\n\ngo 1.26\n' "${module_path}"
@@ -299,10 +290,11 @@ jobs:
             echo "generated proto-go output is unchanged; refusing an empty release" >&2
             exit 1
           fi
-          git commit -m "chore: publish Go stubs v${RELEASE_VERSION}"
-          git tag -a "v${RELEASE_VERSION}" -m "proto-go v${RELEASE_VERSION}"
-          git bundle create ../proto-go-release.bundle "v${RELEASE_VERSION}"
-          git rev-parse "v${RELEASE_VERSION}^{commit}" > ../evidence/proto-go-commit.txt
+          git commit -m "chore: publish Go stubs v${PROTO_GO_VERSION}"
+          git tag -a "v${PROTO_GO_VERSION}" -m "proto-go v${PROTO_GO_VERSION}"
+          git bundle create ../proto-go-release.bundle "v${PROTO_GO_VERSION}"
+          git rev-parse "v${PROTO_GO_VERSION}^{commit}" > ../evidence/proto-go-commit.txt
+          printf '%s\n' "$PROTO_GO_VERSION" > ../evidence/proto-go-version.txt
           cd ..
           sha256sum proto-go-release.bundle >> evidence/release-assets.sha256
 
@@ -320,8 +312,8 @@ jobs:
           set -euo pipefail
           cd proto-go-repo
           target="https://x-access-token:${GO_PUBLISH_TOKEN}@github.com/pploc/proto-go.git"
-          git push "$target" "refs/tags/v${RELEASE_VERSION}"
-          git push "$target" "v${RELEASE_VERSION}^{commit}:refs/heads/main"
+          git push "$target" "refs/tags/${PROTO_GO_RELEASE_TARGET}"
+          git push "$target" "${PROTO_GO_RELEASE_TARGET}^{commit}:refs/heads/main"
 
       - name: Publish release evidence
         env:
@@ -333,7 +325,7 @@ jobs:
             evidence/* proto-go-release.bundle \
             --verify-tag \
             --title "gym-proto v${RELEASE_VERSION}" \
-            --notes "Source SHA: ${GITHUB_SHA}"
+            --notes "Source SHA: ${GITHUB_SHA}. Java gym-proto-java:${RELEASE_VERSION}. Go module github.com/pploc/proto-go@${PROTO_GO_RELEASE_TARGET} (no /vN path; overwrite v1 line)."
 
       - name: Upload recoverable release evidence
         if: failure()

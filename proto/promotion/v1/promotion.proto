@@ -2,40 +2,84 @@ syntax = "proto3";
 
 package promotion.v1;
 
-import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
-option go_package = "github.com/pploc/proto-go/v3/promotion/v1;promotionv1";
+option go_package = "github.com/pploc/proto-go/promotion/v1;promotionv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.promotion.v1";
 
+enum PromotionStatus {
+  PROMOTION_STATUS_UNSPECIFIED = 0;
+  PROMOTION_STATUS_DRAFT = 1;
+  PROMOTION_STATUS_ACTIVE = 2;
+  PROMOTION_STATUS_EXPIRED = 3;
+  PROMOTION_STATUS_DISABLED = 4;
+}
+
 service PromotionService {
-  rpc CreatePromotion(CreatePromotionRequest) returns (PromotionResponse);
-  rpc UpdatePromotion(UpdatePromotionRequest) returns (PromotionResponse);
-  rpc DisablePromotion(DisablePromotionRequest) returns (PromotionResponse);
-  rpc PublishPromotion(PublishPromotionRequest) returns (google.protobuf.Empty);
-  rpc ListPromotions(ListPromotionsRequest) returns (PromotionsResponse);
-  rpc GetPromotionStats(GetPromotionStatsRequest) returns (PromotionStatsResponse);
+  rpc CreatePromotion(CreatePromotionRequest) returns (CreatePromotionResponse);
+  rpc UpdatePromotion(UpdatePromotionRequest) returns (UpdatePromotionResponse);
+  rpc DisablePromotion(DisablePromotionRequest) returns (DisablePromotionResponse);
+  rpc PublishPromotion(PublishPromotionRequest) returns (PublishPromotionResponse);
+  rpc ListPromotions(ListPromotionsRequest) returns (ListPromotionsResponse);
+  rpc GetPromotionStats(GetPromotionStatsRequest) returns (GetPromotionStatsResponse);
 
   rpc ValidateAndReserve(ValidateAndReserveRequest) returns (ValidateAndReserveResponse);
-  rpc ConfirmReservation(ConfirmReservationRequest) returns (google.protobuf.Empty);
-  rpc ReleaseReservation(ReleaseReservationRequest) returns (google.protobuf.Empty);
+  rpc ConfirmReservation(ConfirmReservationRequest) returns (ConfirmReservationResponse);
+  rpc ReleaseReservation(ReleaseReservationRequest) returns (ReleaseReservationResponse);
 
-  rpc CheckDiscountCode(CheckDiscountCodeRequest) returns (DiscountInfoResponse);
+  rpc CheckDiscountCode(CheckDiscountCodeRequest) returns (CheckDiscountCodeResponse);
 }
 
 message CreatePromotionRequest {
-  string name = 1;
-  string description = 2;
-  string code = 3;
-  int32 discount_percentage = 4;
-  string start_date = 5; // "2024-12-01"
-  string end_date = 6; // "2024-12-31"
-  int32 max_usage = 7;
-  int32 per_user_limit = 8;
-  repeated string target_gym_ids = 9;
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string description = 2 [(buf.validate.field).string = {max_len: 2000}];
+  string code = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  int32 discount_percentage = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 100
+  }];
+  string start_date = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string end_date = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  int32 max_usage = 7 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 10000000
+  }];
+  int32 per_user_limit = 8 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
+  repeated string target_gym_ids = 9 [(buf.validate.field).repeated = {
+    max_items: 100
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+  option (buf.validate.message).cel = {
+    id: "create_promotion_date_order"
+    message: "end_date must be on or after start_date"
+    expression: "this.start_date <= this.end_date"
+  };
 }
 
-message PromotionResponse {
+message CreatePromotionResponse {
   string id = 1;
   string name = 2;
   string description = 3;
@@ -47,42 +91,119 @@ message PromotionResponse {
   int32 current_usage = 9;
   int32 per_user_limit = 10;
   repeated string target_gym_ids = 11;
-  string status = 12; // DRAFT, ACTIVE, EXPIRED, DISABLED
+  PromotionStatus status = 12;
 }
 
 message UpdatePromotionRequest {
-  string promotion_id = 1;
+  string promotion_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string description = 3 [(buf.validate.field).string = {max_len: 2000}];
+  int32 discount_percentage = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 100
+  }];
+  string start_date = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string end_date = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  int32 max_usage = 7 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 10000000
+  }];
+  int32 per_user_limit = 8 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
+  repeated string target_gym_ids = 9 [(buf.validate.field).repeated = {
+    max_items: 100
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+  option (buf.validate.message).cel = {
+    id: "update_promotion_date_order"
+    message: "end_date must be on or after start_date"
+    expression: "this.start_date <= this.end_date"
+  };
+}
+
+message UpdatePromotionResponse {
+  string id = 1;
   string name = 2;
   string description = 3;
-  int32 discount_percentage = 4;
-  string start_date = 5;
-  string end_date = 6;
-  int32 max_usage = 7;
-  int32 per_user_limit = 8;
-  repeated string target_gym_ids = 9;
+  string code = 4;
+  int32 discount_percentage = 5;
+  string start_date = 6;
+  string end_date = 7;
+  int32 max_usage = 8;
+  int32 current_usage = 9;
+  int32 per_user_limit = 10;
+  repeated string target_gym_ids = 11;
+  PromotionStatus status = 12;
 }
 
 message DisablePromotionRequest {
-  string promotion_id = 1;
+  string promotion_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message DisablePromotionResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string code = 4;
+  int32 discount_percentage = 5;
+  string start_date = 6;
+  string end_date = 7;
+  int32 max_usage = 8;
+  int32 current_usage = 9;
+  int32 per_user_limit = 10;
+  repeated string target_gym_ids = 11;
+  PromotionStatus status = 12;
 }
 
 message PublishPromotionRequest {
-  string promotion_id = 1;
+  string promotion_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
+
+message PublishPromotionResponse {}
 
 message ListPromotionsRequest {
-  string gym_id = 1;
+  string gym_id = 1 [(buf.validate.field).string = {max_len: 128}];
 }
 
-message PromotionsResponse {
-  repeated PromotionResponse promotions = 1;
+message ListPromotionsResponse {
+  repeated CreatePromotionResponse promotions = 1;
 }
 
 message GetPromotionStatsRequest {
-  string promotion_id = 1;
+  string promotion_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message PromotionStatsResponse {
+message GetPromotionStatsResponse {
   string promotion_id = 1;
   int32 total_redeemed = 2;
   int32 total_reserved = 3;
@@ -90,9 +211,18 @@ message PromotionStatsResponse {
 }
 
 message ValidateAndReserveRequest {
-  string code = 1;
-  string user_id = 2;
-  string gym_id = 3;
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ValidateAndReserveResponse {
@@ -103,21 +233,43 @@ message ValidateAndReserveResponse {
 }
 
 message ConfirmReservationRequest {
-  string reservation_id = 1;
-  string payment_id = 2;
-  int64 discount_amount_vnd = 3;
+  string reservation_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string payment_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 discount_amount_vnd = 3 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
 }
+
+message ConfirmReservationResponse {}
 
 message ReleaseReservationRequest {
-  string reservation_id = 1;
+  string reservation_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
+
+message ReleaseReservationResponse {}
 
 message CheckDiscountCodeRequest {
-  string code = 1;
-  string gym_id = 2;
+  string code = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message DiscountInfoResponse {
+message CheckDiscountCodeResponse {
   bool valid = 1;
   int32 discount_percentage = 2;
   string description = 3;

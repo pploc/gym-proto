@@ -2,82 +2,169 @@ syntax = "proto3";
 
 package notification.v1;
 
-import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
-option go_package = "github.com/pploc/proto-go/v3/notification/v1;notificationv1";
+option go_package = "github.com/pploc/proto-go/notification/v1;notificationv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.notification.v1";
 
-service NotificationService {
-  rpc GetMyNotifications(GetNotificationsRequest) returns (NotificationsResponse);
-  rpc MarkAsRead(MarkAsReadRequest) returns (google.protobuf.Empty);
-
-  rpc GetPreferences(google.protobuf.Empty) returns (PreferencesResponse);
-  rpc UpdatePreferences(UpdatePreferencesRequest) returns (PreferencesResponse);
-
-  rpc RegisterDevice(RegisterDeviceRequest) returns (google.protobuf.Empty);
-  rpc UnregisterDevice(UnregisterDeviceRequest) returns (google.protobuf.Empty);
-
-  rpc SendBulkNotification(BulkNotificationRequest) returns (BulkNotificationResponse);
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
+  NOTIFICATION_CHANNEL_SMS = 1;
+  NOTIFICATION_CHANNEL_EMAIL = 2;
+  NOTIFICATION_CHANNEL_PUSH = 3;
 }
 
-message GetNotificationsRequest {
-  string user_id = 1;
-  int32 limit = 2;
+enum NotificationStatus {
+  NOTIFICATION_STATUS_UNSPECIFIED = 0;
+  NOTIFICATION_STATUS_PENDING = 1;
+  NOTIFICATION_STATUS_SENT = 2;
+  NOTIFICATION_STATUS_FAILED = 3;
+  NOTIFICATION_STATUS_READ = 4;
+}
+
+enum DevicePlatform {
+  DEVICE_PLATFORM_UNSPECIFIED = 0;
+  DEVICE_PLATFORM_IOS = 1;
+  DEVICE_PLATFORM_ANDROID = 2;
+}
+
+service NotificationService {
+  rpc GetMyNotifications(GetMyNotificationsRequest) returns (GetMyNotificationsResponse);
+  rpc MarkAsRead(MarkAsReadRequest) returns (MarkAsReadResponse);
+
+  rpc GetPreferences(GetPreferencesRequest) returns (GetPreferencesResponse);
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
+
+  rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
+  rpc UnregisterDevice(UnregisterDeviceRequest) returns (UnregisterDeviceResponse);
+
+  rpc SendBulkNotification(SendBulkNotificationRequest) returns (SendBulkNotificationResponse);
+}
+
+message GetMyNotificationsRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
 }
 
 message NotificationMessage {
   string id = 1;
   string user_id = 2;
-  string channel = 3;
+  NotificationChannel channel = 3;
   string event_type = 4;
   string title = 5;
   string body = 6;
-  string status = 7;
+  NotificationStatus status = 7;
   string sent_at = 8;
 }
 
-message NotificationsResponse {
+message GetMyNotificationsResponse {
   repeated NotificationMessage notifications = 1;
 }
 
 message MarkAsReadRequest {
-  string notification_id = 1;
-  string user_id = 2;
+  string notification_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
+message MarkAsReadResponse {}
+
 message Preference {
-  string channel = 1; // SMS, EMAIL, PUSH
+  NotificationChannel channel = 1 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
   bool enabled = 2;
 }
 
-message PreferencesResponse {
+message GetPreferencesRequest {}
+
+message GetPreferencesResponse {
   repeated Preference preferences = 1;
 }
 
 message UpdatePreferencesRequest {
-  string user_id = 2;
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  repeated Preference preferences = 1 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 10
+  }];
+}
+
+message UpdatePreferencesResponse {
   repeated Preference preferences = 1;
 }
 
 message RegisterDeviceRequest {
-  string user_id = 1;
-  string device_id = 2;
-  string fcm_token = 3;
-  string platform = 4; // IOS, ANDROID
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string device_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string fcm_token = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 4096
+  }];
+  DevicePlatform platform = 4 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
 }
+
+message RegisterDeviceResponse {}
 
 message UnregisterDeviceRequest {
-  string user_id = 1;
-  string device_id = 2;
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string device_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message BulkNotificationRequest {
-  string title = 1;
-  string body = 2;
-  repeated string target_user_ids = 3;
+message UnregisterDeviceResponse {}
+
+message SendBulkNotificationRequest {
+  string title = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string body = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 2000
+  }];
+  repeated string target_user_ids = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 1000
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
 }
 
-message BulkNotificationResponse {
+message SendBulkNotificationResponse {
   int32 sent_count = 1;
 }

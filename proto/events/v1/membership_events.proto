@@ -2,43 +2,108 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message MembershipActivatedEvent {
-  string member_id = 1;
-  string user_id = 2;
-  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
-  string start_date = 4;
-  string end_date = 5; // null for LIFETIME
-  string gym_id = 6;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  common.v1.PlanType plan_type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string start_date = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string end_date = 5 [(buf.validate.field).string = {
+    max_len: 32
+    pattern: "^$|^\\d{4}-\\d{2}-\\d{2}$"
+  }]; // empty for LIFETIME
+  string gym_id = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
   bool is_renewal = 7;
-  int64 timestamp = 8;
+  int64 timestamp = 8 [(buf.validate.field).int64 = {gt: 0}];
+  option (buf.validate.message).cel = {
+    id: "membership_activated_lifetime_end"
+    message: "LIFETIME plans must omit end_date; non-LIFETIME plans require end_date on or after start_date"
+    expression: "this.plan_type == 3 ? this.end_date.size() == 0 : (this.end_date.size() > 0 && this.start_date <= this.end_date)"
+  };
 }
 
 message MembershipPausedEvent {
-  string member_id = 1;
-  int64 paused_at = 2;
-  int32 remaining_days = 3;
-  string gym_id = 4;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 paused_at = 2 [(buf.validate.field).int64 = {gt: 0}];
+  int32 remaining_days = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 3660
+  }];
+  string gym_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message MembershipResumedEvent {
-  string member_id = 1;
-  string new_end_date = 2;
-  string gym_id = 3;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string new_end_date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message MembershipExpiringSoonEvent {
-  string member_id = 1;
-  string end_date = 2;
-  string plan_type = 3;
-  string gym_id = 4;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string end_date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  common.v1.PlanType plan_type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string gym_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message MembershipExpiredEvent {
-  string member_id = 1;
-  int64 expired_at = 2;
-  string gym_id = 3;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 expired_at = 2 [(buf.validate.field).int64 = {gt: 0}];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }

@@ -2,15 +2,47 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message PromotionPublishedEvent {
-  string promotion_id = 1;
-  string code = 2;
-  int32 percentage = 3;
-  repeated string target_gym_ids = 4;
-  string start_date = 5;
-  string end_date = 6;
+  string promotion_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string code = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  int32 percentage = 3 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 100
+  }];
+  repeated string target_gym_ids = 4 [(buf.validate.field).repeated = {
+    max_items: 100
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+  string start_date = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string end_date = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  option (buf.validate.message).cel = {
+    id: "promotion_published_date_order"
+    message: "end_date must be on or after start_date"
+    expression: "this.start_date <= this.end_date"
+  };
 }

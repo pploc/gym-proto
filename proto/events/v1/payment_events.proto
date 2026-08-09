@@ -2,40 +2,112 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message PaymentCompletedEvent {
-  string payment_id = 1;
-  string user_id = 2;
-  string type = 3; // MEMBERSHIP, TRAINER_BOOKING
-  string reference_id = 4;
-  int64 amount_vnd = 5;
-  string provider = 6; // MOMO, ZALOPAY, VNPAY
-  string gym_id = 7;
+  string payment_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  common.v1.PaymentType type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string reference_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 amount_vnd = 5 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
+  // Open provider vocabulary.
+  string provider = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  string gym_id = 7 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
   bool discount_applied = 8;
-  int32 discount_percentage = 9;
-  int64 timestamp = 10;
+  int32 discount_percentage = 9 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  int64 timestamp = 10 [(buf.validate.field).int64 = {gt: 0}];
+  option (buf.validate.message).cel = {
+    id: "payment_completed_discount"
+    message: "discount_percentage must be zero when discount_applied is false"
+    expression: "this.discount_applied || this.discount_percentage == 0"
+  };
 }
 
 message PaymentFailedEvent {
-  string payment_id = 1;
-  string user_id = 2;
-  string type = 3;
-  string reference_id = 4;
-  string gym_id = 5;
-  string reason = 6;
-  int64 timestamp = 7;
+  string payment_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  common.v1.PaymentType type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string reference_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string reason = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 500
+  }];
+  int64 timestamp = 7 [(buf.validate.field).int64 = {gt: 0}];
 }
 
 message PaymentRefundedEvent {
-  string payment_id = 1;
-  string user_id = 2;
-  string type = 3;
-  string reference_id = 4;
-  string gym_id = 5;
-  int64 refund_amount_vnd = 6;
-  string reason = 7;
-  int64 timestamp = 8;
+  string payment_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  common.v1.PaymentType type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string reference_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 refund_amount_vnd = 6 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
+  string reason = 7 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 500
+  }];
+  int64 timestamp = 8 [(buf.validate.field).int64 = {gt: 0}];
 }

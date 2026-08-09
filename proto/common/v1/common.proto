@@ -2,20 +2,80 @@ syntax = "proto3";
 
 package common.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/common/v1;commonv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/common/v1;commonv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.common.v1";
 
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_CUSTOMER = 1;
+  ROLE_TRAINER = 2;
+  ROLE_ADMIN = 3;
+  ROLE_SUPER_ADMIN = 4;
+}
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_SUSPENDED = 2;
+  USER_STATUS_PENDING_VERIFICATION = 3;
+}
+
+enum AuthProvider {
+  AUTH_PROVIDER_UNSPECIFIED = 0;
+  AUTH_PROVIDER_LOCAL = 1;
+  AUTH_PROVIDER_GOOGLE = 2;
+}
+
+enum MembershipStatus {
+  MEMBERSHIP_STATUS_UNSPECIFIED = 0;
+  MEMBERSHIP_STATUS_NONE = 1;
+  MEMBERSHIP_STATUS_ACTIVE = 2;
+  MEMBERSHIP_STATUS_PAUSED = 3;
+  MEMBERSHIP_STATUS_EXPIRED = 4;
+}
+
+enum PlanType {
+  PLAN_TYPE_UNSPECIFIED = 0;
+  PLAN_TYPE_MONTHLY = 1;
+  PLAN_TYPE_YEARLY = 2;
+  PLAN_TYPE_LIFETIME = 3;
+}
+
+enum PaymentType {
+  PAYMENT_TYPE_UNSPECIFIED = 0;
+  PAYMENT_TYPE_MEMBERSHIP = 1;
+  PAYMENT_TYPE_TRAINER_BOOKING = 2;
+}
+
+enum RiskLevel {
+  RISK_LEVEL_UNSPECIFIED = 0;
+  RISK_LEVEL_AT_RISK = 1;
+  RISK_LEVEL_INACTIVE = 2;
+  RISK_LEVEL_GHOST = 3;
+}
+
 message Money {
-  string currency_code = 1; // "VND"
-  int64 units = 2; // amount in integer
-  int32 nanos = 3; // fraction of a unit
+  string currency_code = 1 [(buf.validate.field).string = {len: 3}];
+  int64 units = 2;
+  int32 nanos = 3 [(buf.validate.field).int32 = {
+    gte: -999999999
+    lte: 999999999
+  }];
 }
 
 message PaginationRequest {
-  int32 page = 1;
-  int32 limit = 2;
-  string cursor = 3; // cursor token for keyset pagination
+  int32 page = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100000
+  }];
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string cursor = 3 [(buf.validate.field).string = {max_len: 512}];
 }
 
 message PaginationResponse {

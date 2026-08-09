@@ -2,127 +2,279 @@ syntax = "proto3";
 
 package plans.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/plans/v1;plansv1";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "github.com/pploc/proto-go/plans/v1;plansv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.plans.v1";
 
-service PlansService {
-  rpc CreateGymLocation(CreateGymLocationRequest) returns (GymLocationResponse);
-  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (GymLocationResponse);
-  rpc GetGymLocation(GetGymLocationRequest) returns (GymLocationResponse);
-  rpc ListGymLocations(ListGymLocationsRequest) returns (GymLocationsResponse);
+enum GymLocationStatus {
+  GYM_LOCATION_STATUS_UNSPECIFIED = 0;
+  GYM_LOCATION_STATUS_ACTIVE = 1;
+  GYM_LOCATION_STATUS_CLOSED = 2;
+}
 
-  rpc CreateMembershipPlan(CreateMembershipPlanRequest) returns (MembershipPlanResponse);
-  rpc UpdateMembershipPlan(UpdateMembershipPlanRequest) returns (MembershipPlanResponse);
-  rpc GetMembershipPlan(GetMembershipPlanRequest) returns (MembershipPlanResponse);
-  rpc ListMembershipPlans(ListMembershipPlansRequest) returns (MembershipPlansResponse);
+service PlansService {
+  rpc CreateGymLocation(CreateGymLocationRequest) returns (CreateGymLocationResponse);
+  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (UpdateGymLocationResponse);
+  rpc GetGymLocation(GetGymLocationRequest) returns (GetGymLocationResponse);
+  rpc ListGymLocations(ListGymLocationsRequest) returns (ListGymLocationsResponse);
+
+  rpc CreateMembershipPlan(CreateMembershipPlanRequest) returns (CreateMembershipPlanResponse);
+  rpc UpdateMembershipPlan(UpdateMembershipPlanRequest) returns (UpdateMembershipPlanResponse);
+  rpc GetMembershipPlan(GetMembershipPlanRequest) returns (GetMembershipPlanResponse);
+  rpc ListMembershipPlans(ListMembershipPlansRequest) returns (ListMembershipPlansResponse);
 
   // Internal only. Requires the verified ms-gym-identifier workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
-  rpc GetActiveGym(GetActiveGymRequest) returns (GymLocationResponse);
+  rpc GetActiveGym(GetActiveGymRequest) returns (GetActiveGymResponse);
 
   // Internal only. Requires the verified ms-gym-member workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
-  rpc ResolvePurchasablePlan(ResolvePurchasablePlanRequest) returns (ResolvedPlanResponse);
+  rpc ResolvePurchasablePlan(ResolvePurchasablePlanRequest) returns (ResolvePurchasablePlanResponse);
 }
 
 message CreateGymLocationRequest {
-  string chain_id = 1;
-  string name = 2;
-  string address = 3;
-  string city = 4;
+  string chain_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string address = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 500
+  }];
+  string city = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
 }
 
 message UpdateGymLocationRequest {
-  string id = 1;
-  string chain_id = 2;
-  string name = 3;
-  string address = 4;
-  string city = 5;
-  string status = 6; // ACTIVE, CLOSED
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string chain_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string address = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 500
+  }];
+  string city = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 100
+  }];
+  GymLocationStatus status = 6 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
 }
 
 message GetGymLocationRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ListGymLocationsRequest {
-  string chain_id = 1;
-  string city = 2;
-  string status = 3; // ACTIVE, CLOSED
+  string chain_id = 1 [(buf.validate.field).string = {max_len: 128}];
+  string city = 2 [(buf.validate.field).string = {max_len: 100}];
+  GymLocationStatus status = 3 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    enum: {defined_only: true}
+  }];
 }
 
-message GymLocationResponse {
+message CreateGymLocationResponse {
   string id = 1;
   string chain_id = 2;
   string name = 3;
   string address = 4;
   string city = 5;
-  string status = 6; // ACTIVE, CLOSED
+  GymLocationStatus status = 6;
 }
 
-message GymLocationsResponse {
-  repeated GymLocationResponse locations = 1;
+message UpdateGymLocationResponse {
+  string id = 1;
+  string chain_id = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  GymLocationStatus status = 6;
+}
+
+message GetGymLocationResponse {
+  string id = 1;
+  string chain_id = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  GymLocationStatus status = 6;
+}
+
+message ListGymLocationsResponse {
+  repeated GetGymLocationResponse locations = 1;
 }
 
 message CreateMembershipPlanRequest {
-  string gym_id = 1;
-  string name = 2;
-  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
-  optional int32 duration_days = 4;
-  int64 price_vnd = 5;
-  string description = 6;
-  optional bool active = 7; // Defaults to true when absent.
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  common.v1.PlanType plan_type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  optional int32 duration_days = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 3660
+  }];
+  int64 price_vnd = 5 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
+  string description = 6 [(buf.validate.field).string = {max_len: 2000}];
+  optional bool active = 7;
+  option (buf.validate.message).cel = {
+    id: "create_plan_lifetime_duration"
+    message: "LIFETIME plans must omit duration_days; non-LIFETIME plans require duration_days"
+    expression: "this.plan_type == 3 ? !has(this.duration_days) : has(this.duration_days)"
+  };
 }
 
 message UpdateMembershipPlanRequest {
-  string id = 1;
-  string name = 2;
-  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
-  optional int32 duration_days = 4;
-  int64 price_vnd = 5;
-  string description = 6;
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  common.v1.PlanType plan_type = 3 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  optional int32 duration_days = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 3660
+  }];
+  int64 price_vnd = 5 [(buf.validate.field).int64 = {
+    gte: 0
+    lte: 100000000000
+  }];
+  string description = 6 [(buf.validate.field).string = {max_len: 2000}];
   bool active = 7;
+  option (buf.validate.message).cel = {
+    id: "update_plan_lifetime_duration"
+    message: "LIFETIME plans must omit duration_days; non-LIFETIME plans require duration_days"
+    expression: "this.plan_type == 3 ? !has(this.duration_days) : has(this.duration_days)"
+  };
 }
 
 message GetMembershipPlanRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ListMembershipPlansRequest {
-  string gym_id = 1;
-  string plan_type = 2; // MONTHLY, YEARLY, LIFETIME
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  common.v1.PlanType plan_type = 2 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    enum: {defined_only: true}
+  }];
   optional bool active = 3;
 }
 
-message MembershipPlanResponse {
+message CreateMembershipPlanResponse {
   string id = 1;
   string gym_id = 2;
   string name = 3;
-  string plan_type = 4; // MONTHLY, YEARLY, LIFETIME
+  common.v1.PlanType plan_type = 4;
   optional int32 duration_days = 5;
   int64 price_vnd = 6;
   string description = 7;
   bool active = 8;
 }
 
-message MembershipPlansResponse {
-  repeated MembershipPlanResponse plans = 1;
+message UpdateMembershipPlanResponse {
+  string id = 1;
+  string gym_id = 2;
+  string name = 3;
+  common.v1.PlanType plan_type = 4;
+  optional int32 duration_days = 5;
+  int64 price_vnd = 6;
+  string description = 7;
+  bool active = 8;
+}
+
+message GetMembershipPlanResponse {
+  string id = 1;
+  string gym_id = 2;
+  string name = 3;
+  common.v1.PlanType plan_type = 4;
+  optional int32 duration_days = 5;
+  int64 price_vnd = 6;
+  string description = 7;
+  bool active = 8;
+}
+
+message ListMembershipPlansResponse {
+  repeated GetMembershipPlanResponse plans = 1;
 }
 
 message GetActiveGymRequest {
-  string gym_id = 1;
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message GetActiveGymResponse {
+  string id = 1;
+  string chain_id = 2;
+  string name = 3;
+  string address = 4;
+  string city = 5;
+  GymLocationStatus status = 6;
 }
 
 message ResolvePurchasablePlanRequest {
-  string plan_id = 1;
-  string gym_id = 2;
+  string plan_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message ResolvedPlanResponse {
+message ResolvePurchasablePlanResponse {
   string plan_id = 1;
   string gym_id = 2;
-  string plan_type = 3; // MONTHLY, YEARLY, LIFETIME
+  common.v1.PlanType plan_type = 3;
   optional int32 duration_days = 4;
   int64 price_vnd = 5;
 }

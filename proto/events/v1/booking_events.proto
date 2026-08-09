@@ -2,74 +2,197 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
+enum BookingCancellationActor {
+  BOOKING_CANCELLATION_ACTOR_UNSPECIFIED = 0;
+  BOOKING_CANCELLATION_ACTOR_CUSTOMER = 1;
+  BOOKING_CANCELLATION_ACTOR_TRAINER = 2;
+  BOOKING_CANCELLATION_ACTOR_SYSTEM = 3;
+}
+
 message BookingRequestedEvent {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  int64 scheduled_at = 4;
-  int32 duration_minutes = 5;
-  string gym_id = 6;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 scheduled_at = 4 [(buf.validate.field).int64 = {gt: 0}];
+  int32 duration_minutes = 5 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 1440
+  }];
+  string gym_id = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message BookingAcceptedEvent {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string gym_id = 4;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message BookingRejectedEvent {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string gym_id = 4;
-  string reason = 5;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string reason = 5 [(buf.validate.field).string = {max_len: 500}];
 }
 
 message BookingCompletedEvent {
-  string booking_id = 1;
-  string trainer_id = 2;
-  string customer_id = 3;
-  int32 duration_minutes = 4;
-  string gym_id = 5;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 duration_minutes = 4 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 1440
+  }];
+  string gym_id = 5 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message BookingCancelledEvent {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string cancelled_by = 4; // CUSTOMER, TRAINER, SYSTEM
-  string reason = 5;
-  int32 refund_percentage = 6;
-  string gym_id = 7;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  BookingCancellationActor cancelled_by = 4 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+  string reason = 5 [(buf.validate.field).string = {max_len: 500}];
+  int32 refund_percentage = 6 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string gym_id = 7 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message BookingExpiredEvent {
-  string booking_id = 1;
-  string trainer_id = 2;
-  string slot = 3;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string slot = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
 }
 
 message BookingAutoRejectedEvent {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string gym_id = 4;
+  string booking_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string customer_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string trainer_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message TrainerCreatedEvent {
-  string trainer_id = 1;
-  string user_id = 2;
-  string gym_id = 3;
-  string display_name = 4;
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string user_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string display_name = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
 }
 
 message TrainerSuspendedEvent {
-  string trainer_id = 1;
-  string gym_id = 2;
-  int32 affected_booking_count = 3;
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 affected_booking_count = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000000
+  }];
 }

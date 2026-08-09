@@ -1,26 +1,27 @@
 {
-  "contractVersion": "v3",
-  "status": "published",
+  "contractVersion": "v4",
+  "status": "candidate",
   "versions": {
     "gymProto": {
       "currentStable": "v3.0.0",
-      "releaseTarget": "v3.0.0",
-      "status": "published"
+      "releaseTarget": "v4.0.0",
+      "status": "candidate"
     },
     "protoGo": {
-      "currentStable": "v3.0.0",
-      "releaseTarget": "v3.0.0",
-      "modulePath": "github.com/pploc/proto-go/v3",
-      "status": "published"
+      "currentStable": "v1.3.0",
+      "releaseTarget": "v1.4.0",
+      "modulePath": "github.com/pploc/proto-go",
+      "status": "candidate",
+      "note": "Keep module path github.com/pploc/proto-go (no /vN). Tag v1.4.0 overwrites v1 line content with contract cleanup; Java artifact is independent 4.0.0."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
       "currentStable": "3.0.0",
-      "releaseTarget": "3.0.0",
-      "status": "published"
+      "releaseTarget": "4.0.0",
+      "status": "candidate"
     },
-    "commonGo": "v0.3.0",
-    "commonJava": "2.0.0",
+    "commonGo": "v0.4.0",
+    "commonJava": "2.1.0",
     "schemaRegistry": "Confluent Schema Registry 7.7.1 / Protobuf / BACKWARD"
   },
   "owners": {
@@ -41,19 +42,20 @@
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v2.0.0",
-    "previousStableSourceSha": "25e52f5f3ec871369cada67099a5fd2e9f26673f",
-    "publication": "https://github.com/pploc/gym-proto/releases/tag/v3.0.0",
-    "publishedSourceSha": "ea00953ca803a12741d6d1ca1f45ab4cadac66a8",
-    "publishedProtoGoSha": "4e88408e271c430e5cdbe19a4bf2652c6e935171",
-    "fixtureSha256": "8a767863aa47842144729fc40d5033b3b56760dab1b51eff3ea8ca84eec310d5",
-    "generatedAggregateSha256": "f3d2266c241af498dc7279a358f944b9d53636218d0949caf8ac149839dd17f5"
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v3.0.0",
+    "previousStableSourceSha": "ea00953ca803a12741d6d1ca1f45ab4cadac66a8",
+    "publication": "pending-v4.0.0",
+    "publishedSourceSha": "pending",
+    "publishedProtoGoSha": "pending",
+    "fixtureSha256": "pending-regenerate",
+    "generatedAggregateSha256": "pending-regenerate"
   },
   "requiredEvidence": [
-    "tagged proto-go external import without replace under github.com/pploc/proto-go/v3",
+    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.4.0",
+    "Java gym-proto-java:4.0.0 from GitHub Packages",
     "Go fixture suite",
     "Java fixture suite",
-    "Schema Registry BACKWARD compatibility check",
+    "Schema Registry in-place overwrite of .v1-value subjects (no dual .v2 topics)",
     "Kong trusted-header stripping and injection test"
   ]
 }

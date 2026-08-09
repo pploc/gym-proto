@@ -1,7 +1,7 @@
 {
-  "contractGeneration": "v1",
+  "contractGeneration": "v2",
   "delivery": "at-least-once",
-  "initialMemberConsumerGroup": "ms-gym-member-v1",
+  "initialMemberConsumerGroup": "ms-gym-member-v2",
   "dlqTopic": "{topic}.DLQ",
   "key": "domain-entity-ordering-key-as-bytes-or-utf8",
   "value": "confluent-schema-registry-framed-concrete-protobuf",
@@ -11,27 +11,32 @@
     {
       "event": "events.v1.UserRegisteredEvent",
       "topic": "identity.user.registered.v1",
-      "subject": "identity.user.registered.v1-value"
+      "subject": "identity.user.registered.v1-value",
+      "reason": "string-to-enum role/auth_provider"
     },
     {
       "event": "events.v1.UserSuspendedEvent",
       "topic": "identity.user.suspended.v1",
-      "subject": "identity.user.suspended.v1-value"
+      "subject": "identity.user.suspended.v1-value",
+      "reason": "string-to-enum role"
     },
     {
       "event": "events.v1.UserRoleChangedEvent",
       "topic": "identity.user.role-changed.v1",
-      "subject": "identity.user.role-changed.v1-value"
+      "subject": "identity.user.role-changed.v1-value",
+      "reason": "string-to-enum old_role/new_role"
     },
     {
       "event": "events.v1.PaymentCompletedEvent",
       "topic": "payment.completed.v1",
-      "subject": "payment.completed.v1-value"
+      "subject": "payment.completed.v1-value",
+      "reason": "string-to-enum type"
     },
     {
       "event": "events.v1.MembershipActivatedEvent",
       "topic": "membership.activated.v1",
-      "subject": "membership.activated.v1-value"
+      "subject": "membership.activated.v1-value",
+      "reason": "string-to-enum plan_type"
     },
     {
       "event": "events.v1.MembershipPausedEvent",
@@ -46,12 +51,18 @@
     {
       "event": "events.v1.MembershipExpiringSoonEvent",
       "topic": "membership.expiring-soon.v1",
-      "subject": "membership.expiring-soon.v1-value"
+      "subject": "membership.expiring-soon.v1-value",
+      "reason": "string-to-enum plan_type"
     },
     {
       "event": "events.v1.MembershipExpiredEvent",
       "topic": "membership.expired.v1",
       "subject": "membership.expired.v1-value"
+    },
+    {
+      "event": "events.v1.EmailVerificationRequestedEvent",
+      "topic": "identity.email.verification-requested.v1",
+      "subject": "identity.email.verification-requested.v1-value"
     }
   ],
   "schema": {
@@ -60,7 +71,8 @@
     "compatibility": "BACKWARD",
     "schemaId": "assigned by Schema Registry; fixture IDs are generated only from a clean disposable Registry",
     "fixtureArtifact": "confluent-7.7.1-fixtures.json",
-    "fixtureProcedure": "README.md"
+    "fixtureProcedure": "README.md",
+    "enumBreakPolicy": "new-topic-and-subject-generation; never BACKWARD-revise old .v1-value subjects"
   },
   "headers": {
     "required": {

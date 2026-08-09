@@ -2,48 +2,75 @@ syntax = "proto3";
 
 package workout.v1;
 
-import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
 
-option go_package = "github.com/pploc/proto-go/v3/workout/v1;workoutv1";
+option go_package = "github.com/pploc/proto-go/workout/v1;workoutv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.workout.v1";
 
 service WorkoutService {
   rpc LogWorkout(LogWorkoutRequest) returns (LogWorkoutResponse);
-  rpc GetWorkout(GetWorkoutRequest) returns (WorkoutResponse);
-  rpc GetWorkoutHistory(GetWorkoutHistoryRequest) returns (WorkoutHistoryResponse);
-  rpc DeleteWorkout(DeleteWorkoutRequest) returns (google.protobuf.Empty);
+  rpc GetWorkout(GetWorkoutRequest) returns (GetWorkoutResponse);
+  rpc GetWorkoutHistory(GetWorkoutHistoryRequest) returns (GetWorkoutHistoryResponse);
+  rpc DeleteWorkout(DeleteWorkoutRequest) returns (DeleteWorkoutResponse);
 
-  rpc CreateTemplate(CreateTemplateRequest) returns (TemplateResponse);
-  rpc UpdateTemplate(UpdateTemplateRequest) returns (TemplateResponse);
-  rpc DeleteTemplate(DeleteTemplateRequest) returns (google.protobuf.Empty);
-  rpc ListTemplates(ListTemplatesRequest) returns (TemplatesResponse);
-  rpc GetTemplate(GetTemplateRequest) returns (TemplateResponse);
+  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse);
+  rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse);
+  rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse);
+  rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse);
+  rpc GetTemplate(GetTemplateRequest) returns (GetTemplateResponse);
 
-  rpc GetPersonalRecords(GetPRRequest) returns (PRListResponse);
+  rpc GetPersonalRecords(GetPersonalRecordsRequest) returns (GetPersonalRecordsResponse);
 }
 
 message ExerciseSet {
-  int32 set_number = 1;
-  int32 reps = 2;
-  double weight_kg = 3;
-  int32 duration_seconds = 4;
+  int32 set_number = 1 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 100
+  }];
+  int32 reps = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
+  double weight_kg = 3 [(buf.validate.field).double = {
+    gte: 0
+    lte: 2000
+  }];
+  int32 duration_seconds = 4 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 86400
+  }];
   bool is_warmup = 5;
 }
 
 message ExerciseEntry {
-  string exercise_name = 1;
-  string muscle_group = 2;
-  repeated ExerciseSet sets = 3;
-  string notes = 4;
+  string exercise_name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string muscle_group = 2 [(buf.validate.field).string = {max_len: 100}];
+  repeated ExerciseSet sets = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+  }];
+  string notes = 4 [(buf.validate.field).string = {max_len: 1000}];
 }
 
 message LogWorkoutRequest {
-  string gym_id = 1;
-  string template_id = 2; // optional
-  repeated ExerciseEntry exercises = 3;
-  int32 duration_minutes = 4;
-  string notes = 5;
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string template_id = 2 [(buf.validate.field).string = {max_len: 128}];
+  repeated ExerciseEntry exercises = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+  }];
+  int32 duration_minutes = 4 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1440
+  }];
+  string notes = 5 [(buf.validate.field).string = {max_len: 2000}];
 }
 
 message LogWorkoutResponse {
@@ -53,10 +80,13 @@ message LogWorkoutResponse {
 }
 
 message GetWorkoutRequest {
-  string workout_id = 1;
+  string workout_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message WorkoutResponse {
+message GetWorkoutResponse {
   string id = 1;
   string user_id = 2;
   string gym_id = 3;
@@ -68,25 +98,42 @@ message WorkoutResponse {
 }
 
 message GetWorkoutHistoryRequest {
-  string user_id = 1;
-  string month = 2; // "2024-12"
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string month = 2 [(buf.validate.field).string = {
+    max_len: 7
+    pattern: "^$|^\\d{4}-\\d{2}$"
+  }];
 }
 
-message WorkoutHistoryResponse {
-  repeated WorkoutResponse workouts = 1;
+message GetWorkoutHistoryResponse {
+  repeated GetWorkoutResponse workouts = 1;
 }
 
 message DeleteWorkoutRequest {
-  string workout_id = 1;
+  string workout_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
+
+message DeleteWorkoutResponse {}
 
 message CreateTemplateRequest {
-  string name = 1;
-  string split_tag = 2;
-  repeated ExerciseEntry exercises = 3;
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string split_tag = 2 [(buf.validate.field).string = {max_len: 100}];
+  repeated ExerciseEntry exercises = 3 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+  }];
 }
 
-message TemplateResponse {
+message CreateTemplateResponse {
   string template_id = 1;
   string user_id = 2;
   string name = 3;
@@ -95,30 +142,69 @@ message TemplateResponse {
 }
 
 message UpdateTemplateRequest {
+  string template_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
+  string split_tag = 3 [(buf.validate.field).string = {max_len: 100}];
+  repeated ExerciseEntry exercises = 4 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 100
+  }];
+}
+
+message UpdateTemplateResponse {
   string template_id = 1;
-  string name = 2;
-  string split_tag = 3;
-  repeated ExerciseEntry exercises = 4;
+  string user_id = 2;
+  string name = 3;
+  string split_tag = 4;
+  repeated ExerciseEntry exercises = 5;
 }
 
 message DeleteTemplateRequest {
-  string template_id = 1;
+  string template_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
+
+message DeleteTemplateResponse {}
 
 message ListTemplatesRequest {
-  string user_id = 1;
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message TemplatesResponse {
-  repeated TemplateResponse templates = 1;
+message ListTemplatesResponse {
+  repeated CreateTemplateResponse templates = 1;
 }
 
 message GetTemplateRequest {
-  string template_id = 1;
+  string template_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message GetPRRequest {
-  string user_id = 1;
+message GetTemplateResponse {
+  string template_id = 1;
+  string user_id = 2;
+  string name = 3;
+  string split_tag = 4;
+  repeated ExerciseEntry exercises = 5;
+}
+
+message GetPersonalRecordsRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message PersonalRecord {
@@ -130,6 +216,6 @@ message PersonalRecord {
   string workout_id = 6;
 }
 
-message PRListResponse {
+message GetPersonalRecordsResponse {
   repeated PersonalRecord records = 1;
 }

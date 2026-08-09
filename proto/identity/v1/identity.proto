@@ -2,75 +2,192 @@ syntax = "proto3";
 
 package identity.v1;
 
-import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
 
-option go_package = "github.com/pploc/proto-go/v3/identity/v1;identityv1";
+option go_package = "github.com/pploc/proto-go/identity/v1;identityv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.identity.v1";
 
 service IdentityService {
-  rpc Register(RegisterRequest) returns (AuthResponse);
-  rpc Login(LoginRequest) returns (AuthResponse);
-  rpc LoginWithGoogle(GoogleLoginRequest) returns (AuthResponse);
-  rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
-  rpc VerifyEmail(VerifyEmailRequest) returns (AuthResponse);
-  rpc ResendEmailVerification(ResendEmailVerificationRequest) returns (google.protobuf.Empty);
-  rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc LoginWithGoogle(LoginWithGoogleRequest) returns (LoginWithGoogleResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc ResendEmailVerification(ResendEmailVerificationRequest) returns (ResendEmailVerificationResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
 
-  rpc GetCurrentUser(google.protobuf.Empty) returns (UserResponse);
-  rpc ChangePassword(ChangePasswordRequest) returns (google.protobuf.Empty);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
   rpc SelectGym(SelectGymRequest) returns (SelectGymResponse);
 
-  rpc CreateTrainerAccount(CreateTrainerRequest) returns (UserResponse);
-  rpc SuspendUser(SuspendUserRequest) returns (google.protobuf.Empty);
+  rpc CreateTrainerAccount(CreateTrainerAccountRequest) returns (CreateTrainerAccountResponse);
+  rpc SuspendUser(SuspendUserRequest) returns (SuspendUserResponse);
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
 }
 
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string full_name = 3;
+  string email = 1 [(buf.validate.field).string = {
+    email: true
+    max_len: 320
+  }];
+  string password = 2 [(buf.validate.field).string = {
+    min_len: 8
+    max_len: 128
+  }];
+  string full_name = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
   reserved 4, 5;
   reserved "role", "gym_id";
 }
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  string email = 1 [(buf.validate.field).string = {
+    email: true
+    max_len: 320
+  }];
+  string password = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message GoogleLoginRequest {
-  string id_token = 1;
+message LoginWithGoogleRequest {
+  string id_token = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 8192
+  }];
 }
 
 message RefreshTokenRequest {
-  string refresh_token = 1;
+  string refresh_token = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 2048
+  }];
 }
 
 message VerifyEmailRequest {
-  string verification_token = 1;
+  string verification_token = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 2048
+  }];
 }
 
 message ResendEmailVerificationRequest {
-  string email = 1;
+  string email = 1 [(buf.validate.field).string = {
+    email: true
+    max_len: 320
+  }];
 }
 
 message LogoutRequest {
-  string access_token = 1;
+  string access_token = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 4096
+  }];
 }
 
-message AuthResponse {
+message GetCurrentUserRequest {}
+
+message ChangePasswordRequest {
+  string old_password = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string new_password = 2 [(buf.validate.field).string = {
+    min_len: 8
+    max_len: 128
+  }];
+}
+
+message SelectGymRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message CreateTrainerAccountRequest {
+  string email = 1 [(buf.validate.field).string = {
+    email: true
+    max_len: 320
+  }];
+  string temp_password = 2 [(buf.validate.field).string = {
+    min_len: 8
+    max_len: 128
+  }];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message SuspendUserRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message ListUsersRequest {
+  int32 page = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100000
+  }];
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+  string gym_id = 3 [(buf.validate.field).string = {max_len: 128}];
+}
+
+message RegisterResponse {
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
-  string status = 4;
+  common.v1.UserStatus status = 4;
 }
 
-message UserResponse {
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  common.v1.UserStatus status = 4;
+}
+
+message LoginWithGoogleResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  common.v1.UserStatus status = 4;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  common.v1.UserStatus status = 4;
+}
+
+message VerifyEmailResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  common.v1.UserStatus status = 4;
+}
+
+message ResendEmailVerificationResponse {}
+
+message LogoutResponse {}
+
+message GetCurrentUserResponse {
   string id = 1;
   string email = 2;
-  string role = 3;
-  string status = 4;
+  common.v1.Role role = 3;
+  common.v1.UserStatus status = 4;
   string full_name = 5;
   string phone = 6;
   reserved 7;
@@ -78,39 +195,30 @@ message UserResponse {
   bool email_verified = 8;
 }
 
-message ChangePasswordRequest {
-  string old_password = 1;
-  string new_password = 2;
-}
-
-message SelectGymRequest {
-  string gym_id = 1;
-}
+message ChangePasswordResponse {}
 
 message SelectGymResponse {
   string access_token = 1;
   int32 expires_in = 2;
   string gym_id = 3;
-  string membership_status = 4;
+  common.v1.MembershipStatus membership_status = 4;
 }
 
-message CreateTrainerRequest {
-  string email = 1;
-  string temp_password = 2;
-  string gym_id = 3;
+message CreateTrainerAccountResponse {
+  string id = 1;
+  string email = 2;
+  common.v1.Role role = 3;
+  common.v1.UserStatus status = 4;
+  string full_name = 5;
+  string phone = 6;
+  reserved 7;
+  reserved "gym_id";
+  bool email_verified = 8;
 }
 
-message SuspendUserRequest {
-  string user_id = 1;
-}
-
-message ListUsersRequest {
-  int32 page = 1;
-  int32 limit = 2;
-  string gym_id = 3;
-}
+message SuspendUserResponse {}
 
 message ListUsersResponse {
-  repeated UserResponse users = 1;
+  repeated GetCurrentUserResponse users = 1;
   int32 total = 2;
 }

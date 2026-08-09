@@ -83,3 +83,19 @@ Every Protobuf change must answer and record the following before release:
       dependency. Released nine-topic Kafka inventory is unchanged.
 - [x] This is a deliberate major source break. Immutable `v2.0.0` artifacts remain
       the previous stable baseline and must not be rewritten.
+
+## v4.0.0 semantic review
+
+Breaking cleanup of existing `*.v1` packages in place. Artifact major version is `v4.0.0`.
+
+- [x] Buf STANDARD lint with no RPC name/uniqueness exceptions.
+- [x] All RPCs use unique exact `<RpcName>Request` / `<RpcName>Response` messages.
+- [x] All `google.protobuf.Empty` usages replaced with method-specific empty messages.
+- [x] Shared response messages split by copying top-level fields (no wrapper nesting).
+- [x] Closed vocabularies converted to proto3 enums with `*_UNSPECIFIED = 0`.
+- [x] Open vocabularies (payment provider, specialties, free-text) remain strings.
+- [x] Protovalidate annotations on all RPC requests and Kafka events.
+- [x] Generated Go module path moves to `github.com/pploc/proto-go`.
+- [x] Protobuf/Java packages remain `*.v1`.
+- [x] Enum-break Kafka events move to new `.v2` topics/subjects; non-enum events stay on current generation.
+- [x] HTTP selectors, verbs, paths, and body bindings preserved; internal RPCs remain unbound.

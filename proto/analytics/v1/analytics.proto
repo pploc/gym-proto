@@ -2,25 +2,44 @@ syntax = "proto3";
 
 package analytics.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/analytics/v1;analyticsv1";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "github.com/pploc/proto-go/analytics/v1;analyticsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.analytics.v1";
 
 service AnalyticsService {
-  rpc GetDailyAttendance(AttendanceRequest) returns (AttendanceResponse);
-  rpc GetAttendanceTrend(TrendRequest) returns (TrendResponse);
-  rpc GetMembershipStats(MembershipStatsRequest) returns (MembershipStatsResponse);
-  rpc GetInactiveMembers(InactiveMembersRequest) returns (InactiveMembersResponse);
-  rpc GetRevenueReport(RevenueRequest) returns (RevenueResponse);
-  rpc GetRevenueComparison(RevenueComparisonRequest) returns (RevenueComparisonResponse);
-  rpc GetTrainerUtilization(TrainerUtilizationRequest) returns (TrainerUtilizationResponse);
-  rpc GetDashboardSummary(DashboardRequest) returns (DashboardSummaryResponse);
+  rpc GetDailyAttendance(GetDailyAttendanceRequest) returns (GetDailyAttendanceResponse);
+  rpc GetAttendanceTrend(GetAttendanceTrendRequest) returns (GetAttendanceTrendResponse);
+  rpc GetMembershipStats(GetMembershipStatsRequest) returns (GetMembershipStatsResponse);
+  rpc GetInactiveMembers(GetInactiveMembersRequest) returns (GetInactiveMembersResponse);
+  rpc GetRevenueReport(GetRevenueReportRequest) returns (GetRevenueReportResponse);
+  rpc GetRevenueComparison(GetRevenueComparisonRequest) returns (GetRevenueComparisonResponse);
+  rpc GetTrainerUtilization(GetTrainerUtilizationRequest) returns (GetTrainerUtilizationResponse);
+  rpc GetDashboardSummary(GetDashboardSummaryRequest) returns (GetDashboardSummaryResponse);
 }
 
-message AttendanceRequest {
-  string gym_id = 1;
-  string start_date = 2; // "2024-12-01"
-  string end_date = 3; // "2024-12-07"
+message GetDailyAttendanceRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string start_date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  string end_date = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
+  option (buf.validate.message).cel = {
+    id: "attendance_date_order"
+    message: "end_date must be on or after start_date"
+    expression: "this.start_date <= this.end_date"
+  };
 }
 
 message DailyAttendance {
@@ -30,13 +49,19 @@ message DailyAttendance {
   int32 peak_hour = 4;
 }
 
-message AttendanceResponse {
+message GetDailyAttendanceResponse {
   repeated DailyAttendance attendance = 1;
 }
 
-message TrendRequest {
-  string gym_id = 1;
-  int32 days = 2; // e.g. 7 or 30
+message GetAttendanceTrendRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 days = 2 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 365
+  }];
 }
 
 message TrendPoint {
@@ -45,16 +70,23 @@ message TrendPoint {
   double change_pct = 3;
 }
 
-message TrendResponse {
+message GetAttendanceTrendResponse {
   repeated TrendPoint points = 1;
 }
 
-message MembershipStatsRequest {
-  string gym_id = 1;
-  string date = 2;
+message GetMembershipStatsRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
 }
 
-message MembershipStatsResponse {
+message GetMembershipStatsResponse {
   string date = 1;
   int32 active_count = 2;
   int32 paused_count = 3;
@@ -63,9 +95,15 @@ message MembershipStatsResponse {
   int32 churned_count = 6;
 }
 
-message InactiveMembersRequest {
-  string gym_id = 1;
-  int32 inactive_days_threshold = 2; // default 14
+message GetInactiveMembersRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 inactive_days_threshold = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 3650
+  }];
 }
 
 message InactiveMember {
@@ -74,30 +112,43 @@ message InactiveMember {
   string phone = 3;
   string last_checkin = 4;
   int32 inactive_days = 5;
-  string risk_level = 6; // AT_RISK, INACTIVE, GHOST
+  common.v1.RiskLevel risk_level = 6;
 }
 
-message InactiveMembersResponse {
+message GetInactiveMembersResponse {
   repeated InactiveMember members = 1;
 }
 
-message RevenueRequest {
-  string gym_id = 1;
-  string month = 2; // "2024-12"
+message GetRevenueReportRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string month = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 7
+    pattern: "^\\d{4}-\\d{2}$"
+  }];
 }
 
-message RevenueResponse {
+message GetRevenueReportResponse {
   int64 total_revenue_vnd = 1;
   int64 membership_revenue_vnd = 2;
   int64 trainer_revenue_vnd = 3;
 }
 
-message RevenueComparisonRequest {
-  string gym_id = 1;
-  int32 months = 2; // comparison across N months
+message GetRevenueComparisonRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 months = 2 [(buf.validate.field).int32 = {
+    gte: 1
+    lte: 36
+  }];
 }
 
-message RevenueComparisonResponse {
+message GetRevenueComparisonResponse {
   message MonthlyRevenue {
     string month = 1;
     int64 total = 2;
@@ -105,12 +156,19 @@ message RevenueComparisonResponse {
   repeated MonthlyRevenue revenue_history = 1;
 }
 
-message TrainerUtilizationRequest {
-  string trainer_id = 1;
-  string month = 2;
+message GetTrainerUtilizationRequest {
+  string trainer_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string month = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 7
+    pattern: "^\\d{4}-\\d{2}$"
+  }];
 }
 
-message TrainerUtilizationResponse {
+message GetTrainerUtilizationResponse {
   string trainer_id = 1;
   string month = 2;
   int32 total_bookings = 3;
@@ -120,11 +178,14 @@ message TrainerUtilizationResponse {
   double utilization_pct = 7;
 }
 
-message DashboardRequest {
-  string gym_id = 1;
+message GetDashboardSummaryRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
-message DashboardSummaryResponse {
+message GetDashboardSummaryResponse {
   int32 today_checkins = 1;
   int32 active_members = 2;
   int64 month_revenue_vnd = 3;

@@ -2,13 +2,28 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message MemberAtRiskEvent {
-  string member_id = 1;
-  string gym_id = 2;
-  int32 inactive_days = 3;
-  string risk_level = 4; // AT_RISK, INACTIVE, GHOST
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 inactive_days = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 3650
+  }];
+  common.v1.RiskLevel risk_level = 4 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
 }

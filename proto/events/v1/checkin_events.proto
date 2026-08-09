@@ -2,13 +2,24 @@ syntax = "proto3";
 
 package events.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/events/v1;eventsv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message CheckInRecordedEvent {
-  string member_id = 1;
-  string gym_id = 2;
-  string device_id = 3;
-  int64 checked_in_at = 4;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string device_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int64 checked_in_at = 4 [(buf.validate.field).int64 = {gt: 0}];
 }

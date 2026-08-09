@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '1.0.0'
+version = System.getenv('RELEASE_VERSION') ?: '4.0.0'
 
 java {
     toolchain {
@@ -43,7 +43,8 @@ configurations {
 dependencies {
     implementation 'io.grpc:grpc-protobuf:1.60.0'
     implementation 'io.grpc:grpc-stub:1.60.0'
-    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+    implementation 'com.google.protobuf:protobuf-java:4.30.1'
+    implementation 'build.buf:protovalidate:0.6.0'
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 

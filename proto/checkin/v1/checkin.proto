@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package checkin.v1;
 
-option go_package = "github.com/pploc/proto-go/v3/checkin/v1;checkinv1";
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/pploc/proto-go/checkin/v1;checkinv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.checkin.v1";
 
 service CheckInService {
   rpc ProcessScan(ProcessScanRequest) returns (ProcessScanResponse);
-  rpc GetCheckInHistory(GetCheckInHistoryRequest) returns (CheckInHistoryResponse);
-  rpc GetDailyCount(GetDailyCountRequest) returns (DailyCountResponse);
+  rpc GetCheckInHistory(GetCheckInHistoryRequest) returns (GetCheckInHistoryResponse);
+  rpc GetDailyCount(GetDailyCountRequest) returns (GetDailyCountResponse);
   rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
   rpc GetDisplayQrPayload(GetDisplayQrPayloadRequest) returns (GetDisplayQrPayloadResponse);
   rpc RevokeDevice(RevokeDeviceRequest) returns (RevokeDeviceResponse);
@@ -17,11 +19,20 @@ service CheckInService {
 }
 
 message ProcessScanRequest {
-  string member_id = 1;
-  string gym_id = 2;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
   // Signed payload: v1.<gym_id>.<key_version>.<device_id>.<utc_slot>.<mac_base64url>.
   // The service rejects a gym_id that differs from the signed payload.
-  string qr_payload = 3;
+  string qr_payload = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 4096
+  }];
 }
 
 message ProcessScanResponse {
@@ -30,9 +41,18 @@ message ProcessScanResponse {
 }
 
 message GetCheckInHistoryRequest {
-  string member_id = 1;
-  int32 page = 2;
-  int32 limit = 3;
+  string member_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  int32 page = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100000
+  }];
+  int32 limit = 3 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
 }
 
 message CheckInRecord {
@@ -42,17 +62,24 @@ message CheckInRecord {
   string checked_in_at = 4;
 }
 
-message CheckInHistoryResponse {
+message GetCheckInHistoryResponse {
   repeated CheckInRecord records = 1;
   int32 total = 2;
 }
 
 message GetDailyCountRequest {
-  string gym_id = 1;
-  string date = 2; // "2024-12-15"
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string date = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 32
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  }];
 }
 
-message DailyCountResponse {
+message GetDailyCountResponse {
   string gym_id = 1;
   string date = 2;
   int32 count = 3;
@@ -60,8 +87,14 @@ message DailyCountResponse {
 
 // Registers a display kiosk after Check-in verifies the gym through Member.GetGymLocation.
 message RegisterDeviceRequest {
-  string gym_id = 1;
-  string device_name = 2;
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  string device_name = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 200
+  }];
 }
 
 message RegisterDeviceResponse {
@@ -72,7 +105,10 @@ message RegisterDeviceResponse {
 
 message GetDisplayQrPayloadRequest {
   // Bound to the presented device credential and used as an explicit lookup key.
-  string device_id = 1;
+  string device_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message SignedQrPayload {
@@ -91,7 +127,10 @@ message GetDisplayQrPayloadResponse {
 }
 
 message RevokeDeviceRequest {
-  string device_id = 1;
+  string device_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message RevokeDeviceResponse {
@@ -100,7 +139,10 @@ message RevokeDeviceResponse {
 }
 
 message RotateGymQrRootKeyRequest {
-  string gym_id = 1;
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
   // Emergency rotation retires the previous key immediately.
   bool emergency = 2;
 }
