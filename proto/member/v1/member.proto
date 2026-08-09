@@ -23,7 +23,11 @@ service MemberService {
   // This RPC is intentionally absent from the external HTTP configuration.
   rpc GetMembershipStatusByUserId(GetMembershipStatusByUserIdRequest) returns (GetMembershipStatusByUserIdResponse);
 
+  // Internal only. Requires the verified ms-gym-checkin workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
   rpc ValidateMembership(ValidateMembershipRequest) returns (ValidateMembershipResponse);
+  // Internal only. Requires the verified ms-gym-notification workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
   rpc ListMembersByStatus(ListMembersByStatusRequest) returns (ListMembersByStatusResponse);
 }
 
@@ -106,6 +110,10 @@ message PurchaseMembershipRequest {
     max_len: 64
   }];
   string discount_code = 3 [(buf.validate.field).string = {max_len: 64}];
+  string idempotency_key = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message PurchaseMembershipResponse {
@@ -199,6 +207,7 @@ message ListMembersByStatusRequest {
     not_in: [0]
   }];
   repeated string gym_ids = 2 [(buf.validate.field).repeated = {
+    min_items: 1
     max_items: 100
     items: {
       string: {
