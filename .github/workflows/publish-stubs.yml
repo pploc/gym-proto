@@ -96,7 +96,7 @@ jobs:
             exit 1
           fi
           grep -Eq 'SelectGym|GetMembershipStatusByUserId|PurchaseMembershipRequest' /tmp/breaking.txt
-          ./scripts/verify-retired-symbols.py
+          python3 ./scripts/verify-retired-symbols.py
 
       - name: Generate stubs and verify routes
         shell: bash
