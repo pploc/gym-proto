@@ -29,9 +29,6 @@ http:
     - selector: identity.v1.IdentityService.ChangePassword
       post: /api/v1/users/password
       body: "*"
-    - selector: identity.v1.IdentityService.SelectGym
-      post: /api/v1/auth/gym
-      body: "*"
     - selector: identity.v1.IdentityService.CreateTrainerAccount
       post: /api/v1/admin/trainers
       body: "*"

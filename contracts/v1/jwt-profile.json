@@ -2,18 +2,11 @@
   "algorithm": "RS256",
   "issuer": "gym-identifier",
   "audience": "gym-api",
-  "requiredClaims": ["sub", "iss", "aud", "iat", "exp", "jti", "kid"],
-  "applicationClaims": ["role", "gym_id", "membership_status"],
-  "gymNeutralToken": {
-    "gymId": "absent",
-    "membershipStatus": "NONE"
-  },
-  "selectedGymToken": {
-    "gymId": "required",
-    "membershipStatus": "status returned for (sub, gym_id)"
-  },
+  "requiredClaims": ["sub", "role", "iss", "aud", "iat", "exp", "jti"],
+  "requiredProtectedHeaders": ["kid"],
+  "applicationClaims": ["role"],
+  "forbiddenClaims": ["gym_id", "membership_status"],
   "roles": ["CUSTOMER", "TRAINER", "ADMIN", "SUPER_ADMIN"],
-  "membershipStatuses": ["NONE", "ACTIVE", "PAUSED", "EXPIRED"],
   "publicMethods": [
     "Register",
     "Login",

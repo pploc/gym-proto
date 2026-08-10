@@ -1,23 +1,23 @@
 {
-  "contractVersion": "v4",
+  "contractVersion": "v5",
   "status": "candidate",
   "versions": {
     "gymProto": {
-      "currentStable": "v3.0.0",
-      "releaseTarget": "v4.0.0",
+      "currentStable": "v4.0.0",
+      "releaseTarget": "v5.0.0",
       "status": "candidate"
     },
     "protoGo": {
-      "currentStable": "v1.3.0",
-      "releaseTarget": "v1.4.0",
+      "currentStable": "v1.4.0",
+      "releaseTarget": "v1.5.0",
       "modulePath": "github.com/pploc/proto-go",
       "status": "candidate",
-      "note": "Keep module path github.com/pploc/proto-go (no /vN). Tag v1.4.0 overwrites v1 line content with contract cleanup; Java artifact is independent 4.0.0."
+      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 5.0.0."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "currentStable": "3.0.0",
-      "releaseTarget": "4.0.0",
+      "currentStable": "4.1.0",
+      "releaseTarget": "5.0.0",
       "status": "candidate"
     },
     "commonGo": "v0.4.0",
@@ -42,20 +42,23 @@
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v3.0.0",
-    "previousStableSourceSha": "ea00953ca803a12741d6d1ca1f45ab4cadac66a8",
-    "publication": "pending-v4.0.0",
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v4.0.0",
+    "previousStableSourceSha": "05ee473bc8723af90356f9831a9e71e01b7b99c0",
+    "publication": "pending-v5.0.0",
     "publishedSourceSha": "pending",
     "publishedProtoGoSha": "pending",
     "fixtureSha256": "pending-regenerate",
     "generatedAggregateSha256": "pending-regenerate"
   },
   "requiredEvidence": [
-    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.4.0",
-    "Java gym-proto-java:4.0.0 from GitHub Packages",
+    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.5.0",
+    "Java gym-proto-java:5.0.0 from GitHub Packages",
+    "retired SelectGym and GetMembershipStatusByUserId symbols absent",
+    "stable identity-only JWT claims",
+    "explicit-gym Member request validation",
     "Go fixture suite",
     "Java fixture suite",
-    "Schema Registry in-place overwrite of .v1-value subjects (no dual .v2 topics)",
-    "Kong trusted-header stripping and injection test"
+    "Schema Registry compatibility verification",
+    "Kong trusted-header stripping and identity-role-only injection test"
   ]
 }

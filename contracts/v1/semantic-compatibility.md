@@ -99,3 +99,21 @@ Breaking cleanup of existing `*.v1` packages in place. Artifact major version is
 - [x] Protobuf/Java packages remain `*.v1`.
 - [x] Enum-break Kafka events move to new `.v2` topics/subjects; non-enum events stay on current generation.
 - [x] HTTP selectors, verbs, paths, and body bindings preserved; internal RPCs remain unbound.
+
+## v5.0.0 semantic review
+
+Stage 0 is one coordinated pre-production break before Phase 9 gateway generation.
+
+- [x] Identity `SelectGym` RPC and request/response messages are retired; their exact
+      names are rejected by a source and generated-output compatibility check.
+- [x] Member `GetMembershipStatusByUserId` RPC and request/response messages are
+      retired; their exact names are rejected by the same compatibility check.
+- [x] Access tokens carry only stable identity and token-control claims. `gym_id` and
+      `membership_status` are forbidden.
+- [x] Gym-specific public Member requests carry explicit validated `gym_id`; purchase
+      uses nested `PurchaseMembershipBody` without losing existing inputs.
+- [x] Final Member and Plans verbs, paths, body selectors, and authorization policies
+      are frozen in `contracts/v1/routes.json` before Stage 1 annotations/OpenAPI.
+- [x] Internal Member and Plans workload methods remain unbound.
+- [x] Java and Go artifacts must be published from one source SHA as Java `5.0.0`
+      and Go `v1.5.0`; existing immutable artifacts remain unchanged.

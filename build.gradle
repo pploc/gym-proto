@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '4.1.0'
+version = System.getenv('RELEASE_VERSION') ?: '5.0.0'
 
 java {
     toolchain {
@@ -71,6 +71,12 @@ tasks.register('verifyHttpConfig', Exec) {
     group = 'verification'
     description = 'Verify the consolidated HTTP configuration preserves all intentional mappings.'
     commandLine 'python3', layout.projectDirectory.file('scripts/verify-http-config.py').asFile.absolutePath
+}
+
+tasks.register('verifyRetiredSymbols', Exec) {
+    group = 'verification'
+    description = 'Verify retired Stage 0 RPC and message names are absent.'
+    commandLine 'python3', layout.projectDirectory.file('scripts/verify-retired-symbols.py').asFile.absolutePath
 }
 
 tasks.register('verifyGeneratedRoutes', Exec) {
@@ -166,6 +172,7 @@ tasks.register('verifyConfluentBackwardCompatibility', JavaExec) {
 
 tasks.named('check') {
     dependsOn tasks.named('verifyHttpConfig')
+    dependsOn tasks.named('verifyRetiredSymbols')
     dependsOn tasks.named('verifyGeneratedRoutes')
     dependsOn tasks.named('verifyConfluentFixtures')
     dependsOn tasks.named('verifyEmailVerificationTokenCapture')

@@ -46,6 +46,34 @@ if combined_by_selector != legacy_by_selector:
         f"consolidated mappings differ: missing={missing}, extra={extra}, changed={changed}"
     )
 
+member_public = {
+    "member.v1.MemberService.GetMember": {"get": "/api/v1/members/{member_id}"},
+    "member.v1.MemberService.UpdateProfile": {"put": "/api/v1/members/{member_id}", "body": "*"},
+    "member.v1.MemberService.ListMembers": {"get": "/api/v1/gyms/{gym_id}/members"},
+    "member.v1.MemberService.PurchaseMembership": {
+        "post": "/api/v1/gyms/{gym_id}/memberships/purchase",
+        "body": "purchase",
+    },
+    "member.v1.MemberService.PauseMembership": {
+        "post": "/api/v1/gyms/{gym_id}/members/{member_id}/membership:pause",
+        "body": "*",
+    },
+    "member.v1.MemberService.ResumeMembership": {
+        "post": "/api/v1/gyms/{gym_id}/members/{member_id}/membership:resume",
+        "body": "*",
+    },
+    "member.v1.MemberService.GetMembershipStatus": {
+        "get": "/api/v1/gyms/{gym_id}/members/{member_id}/membership"
+    },
+}
+actual_member = {
+    selector: {key: value for key, value in rule.items() if key != "selector"}
+    for selector, rule in combined_by_selector.items()
+    if selector.startswith("member.v1.MemberService.")
+}
+if actual_member != member_public:
+    raise SystemExit(f"Member HTTP surface differs: expected={member_public}, actual={actual_member}")
+
 plans_public = {
     "plans.v1.PlansService.CreateGymLocation": {"post": "/api/v1/gyms", "body": "*"},
     "plans.v1.PlansService.UpdateGymLocation": {"put": "/api/v1/gyms/{id}", "body": "*"},
@@ -68,7 +96,6 @@ if actual_plans != plans_public:
     raise SystemExit(f"Plans HTTP surface differs: expected={plans_public}, actual={actual_plans}")
 
 internal = {
-    "member.v1.MemberService.GetMembershipStatusByUserId",
     "member.v1.MemberService.ValidateMembership",
     "member.v1.MemberService.ListMembersByStatus",
     "plans.v1.PlansService.GetActiveGym",

@@ -20,7 +20,7 @@
           "subject": "identity.user.registered.v1-value",
           "eventType": "events.v1.UserRegisteredEvent",
           "schema": {
-            "id": 1,
+            "id": 3,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -31,12 +31,12 @@
           "event-id": "fixture-user-registered-001",
           "traceparent": "00-00000000000000000000000000000001-0000000000000001-01"
           },
-          "payloadHex": "0a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722208435553544f4d4552320850415353574f524438fbd095ffbc31",
+          "payloadHex": "0a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722001300138fbd095ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000001",
+            "schemaIdBigEndianHex": "00000003",
             "messageIndexesHex": "00",
-            "completeHex": "0000000001000a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722208435553544f4d4552320850415353574f524438fbd095ffbc31"
+            "completeHex": "0000000003000a08757365722d3030311215757365722d303031406578616d706c652e746573741a0c4669787475726520557365722001300138fbd095ffbc31"
           }
         },
         {
@@ -46,7 +46,7 @@
           "subject": "identity.user.suspended.v1-value",
           "eventType": "events.v1.UserSuspendedEvent",
           "schema": {
-            "id": 1,
+            "id": 3,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -57,12 +57,12 @@
           "event-id": "fixture-user-suspended-002",
           "traceparent": "00-00000000000000000000000000000002-0000000000000002-01"
           },
-          "payloadHex": "0a08757365722d3030321208435553544f4d455220c8d395ffbc31",
+          "payloadHex": "0a08757365722d303032100120c8d395ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000001",
+            "schemaIdBigEndianHex": "00000003",
             "messageIndexesHex": "0202",
-            "completeHex": "000000000102020a08757365722d3030321208435553544f4d455220c8d395ffbc31"
+            "completeHex": "000000000302020a08757365722d303032100120c8d395ffbc31"
           }
         },
         {
@@ -72,7 +72,7 @@
           "subject": "identity.user.role-changed.v1-value",
           "eventType": "events.v1.UserRoleChangedEvent",
           "schema": {
-            "id": 1,
+            "id": 3,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -83,12 +83,12 @@
           "event-id": "fixture-user-role-changed-003",
           "traceparent": "00-00000000000000000000000000000003-0000000000000003-01"
           },
-          "payloadHex": "0a08757365722d3030331208435553544f4d45521a07545241494e45522895d695ffbc31",
+          "payloadHex": "0a08757365722d303033100118022895d695ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000001",
+            "schemaIdBigEndianHex": "00000003",
             "messageIndexesHex": "0204",
-            "completeHex": "000000000102040a08757365722d3030331208435553544f4d45521a07545241494e45522895d695ffbc31"
+            "completeHex": "000000000302040a08757365722d303033100118022895d695ffbc31"
           }
         },
         {
@@ -98,7 +98,7 @@
           "subject": "payment.completed.v1-value",
           "eventType": "events.v1.PaymentCompletedEvent",
           "schema": {
-            "id": 2,
+            "id": 4,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -109,12 +109,12 @@
           "event-id": "fixture-payment-completed-004",
           "traceparent": "00-00000000000000000000000000000004-0000000000000004-01"
           },
-          "payloadHex": "0a0b7061796d656e742d3030341208757365722d3030341a0a4d454d424552534849502210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31",
+          "payloadHex": "0a0b7061796d656e742d3030341208757365722d30303418012210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000002",
+            "schemaIdBigEndianHex": "00000004",
             "messageIndexesHex": "00",
-            "completeHex": "0000000002000a0b7061796d656e742d3030341208757365722d3030341a0a4d454d424552534849502210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31"
+            "completeHex": "0000000004000a0b7061796d656e742d3030341208757365722d30303418012210706c616e2d6d6f6e74686c792d30303128a0c21e3205564e5041593a0767796d2d3030314001480a50e8d795ffbc31"
           }
         },
         {
@@ -124,7 +124,7 @@
           "subject": "membership.activated.v1-value",
           "eventType": "events.v1.MembershipActivatedEvent",
           "schema": {
-            "id": 3,
+            "id": 5,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -135,12 +135,12 @@
           "event-id": "fixture-membership-activated-005",
           "traceparent": "00-00000000000000000000000000000005-0000000000000005-01"
           },
-          "payloadHex": "0a0a6d656d6265722d3030351208757365722d3030351a074d4f4e54484c59220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31",
+          "payloadHex": "0a0a6d656d6265722d3030351208757365722d3030351801220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000003",
+            "schemaIdBigEndianHex": "00000005",
             "messageIndexesHex": "00",
-            "completeHex": "0000000003000a0a6d656d6265722d3030351208757365722d3030351a074d4f4e54484c59220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31"
+            "completeHex": "0000000005000a0a6d656d6265722d3030351208757365722d3030351801220a323032332d31312d31342a0a323032332d31322d3134320767796d2d30303140d2d995ffbc31"
           }
         },
         {
@@ -150,7 +150,7 @@
           "subject": "membership.paused.v1-value",
           "eventType": "events.v1.MembershipPausedEvent",
           "schema": {
-            "id": 3,
+            "id": 5,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -164,9 +164,9 @@
           "payloadHex": "0a0a6d656d6265722d30303610b0db95ffbc311814220767796d2d303032",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000003",
+            "schemaIdBigEndianHex": "00000005",
             "messageIndexesHex": "0202",
-            "completeHex": "000000000302020a0a6d656d6265722d30303610b0db95ffbc311814220767796d2d303032"
+            "completeHex": "000000000502020a0a6d656d6265722d30303610b0db95ffbc311814220767796d2d303032"
           }
         },
         {
@@ -176,7 +176,7 @@
           "subject": "membership.resumed.v1-value",
           "eventType": "events.v1.MembershipResumedEvent",
           "schema": {
-            "id": 3,
+            "id": 5,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -190,9 +190,9 @@
           "payloadHex": "0a0a6d656d6265722d303037120a323032332d31322d33311a0767796d2d303032",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000003",
+            "schemaIdBigEndianHex": "00000005",
             "messageIndexesHex": "0204",
-            "completeHex": "000000000302040a0a6d656d6265722d303037120a323032332d31322d33311a0767796d2d303032"
+            "completeHex": "000000000502040a0a6d656d6265722d303037120a323032332d31322d33311a0767796d2d303032"
           }
         },
         {
@@ -202,7 +202,7 @@
           "subject": "membership.expiring-soon.v1-value",
           "eventType": "events.v1.MembershipExpiringSoonEvent",
           "schema": {
-            "id": 3,
+            "id": 5,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -213,12 +213,12 @@
           "event-id": "fixture-membership-expiring-soon-008",
           "traceparent": "00-00000000000000000000000000000008-0000000000000008-01"
           },
-          "payloadHex": "0a0a6d656d6265722d303038120a323032332d31312d32311a06594541524c59220767796d2d303033",
+          "payloadHex": "0a0a6d656d6265722d303038120a323032332d31312d32311802220767796d2d303033",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000003",
+            "schemaIdBigEndianHex": "00000005",
             "messageIndexesHex": "0206",
-            "completeHex": "000000000302060a0a6d656d6265722d303038120a323032332d31312d32311a06594541524c59220767796d2d303033"
+            "completeHex": "000000000502060a0a6d656d6265722d303038120a323032332d31312d32311802220767796d2d303033"
           }
         },
         {
@@ -228,7 +228,7 @@
           "subject": "membership.expired.v1-value",
           "eventType": "events.v1.MembershipExpiredEvent",
           "schema": {
-            "id": 3,
+            "id": 5,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -242,9 +242,9 @@
           "payloadHex": "0a0a6d656d6265722d30303910d0df95ffbc311a0767796d2d303033",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000003",
+            "schemaIdBigEndianHex": "00000005",
             "messageIndexesHex": "0208",
-            "completeHex": "000000000302080a0a6d656d6265722d30303910d0df95ffbc311a0767796d2d303033"
+            "completeHex": "000000000502080a0a6d656d6265722d30303910d0df95ffbc311a0767796d2d303033"
           }
         },
         {
@@ -254,7 +254,7 @@
           "subject": "identity.email.verification-requested.v1-value",
           "eventType": "events.v1.EmailVerificationRequestedEvent",
           "schema": {
-            "id": 1,
+            "id": 3,
             "version": 1,
             "type": "PROTOBUF"
           },
@@ -268,9 +268,9 @@
           "payloadHex": "0a08757365722d3031301215757365722d303130406578616d706c652e746573741a0c466978747572652055736572223a687474703a2f2f6c6f63616c686f73743a333030302f7665726966792d656d61696c3f746f6b656e3d666978747572652d746f6b656e2d3031302880fca483bd3130b4e095ffbc31",
           "frame": {
             "magicByteHex": "00",
-            "schemaIdBigEndianHex": "00000001",
+            "schemaIdBigEndianHex": "00000003",
             "messageIndexesHex": "0206",
-            "completeHex": "000000000102060a08757365722d3031301215757365722d303130406578616d706c652e746573741a0c466978747572652055736572223a687474703a2f2f6c6f63616c686f73743a333030302f7665726966792d656d61696c3f746f6b656e3d666978747572652d746f6b656e2d3031302880fca483bd3130b4e095ffbc31"
+            "completeHex": "000000000302060a08757365722d3031301215757365722d303130406578616d706c652e746573741a0c466978747572652055736572223a687474703a2f2f6c6f63616c686f73743a333030302f7665726966792d656d61696c3f746f6b656e3d666978747572652d746f6b656e2d3031302880fca483bd3130b4e095ffbc31"
           }
         }
   ]

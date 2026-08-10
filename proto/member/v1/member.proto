@@ -19,10 +19,6 @@ service MemberService {
   rpc ResumeMembership(ResumeMembershipRequest) returns (ResumeMembershipResponse);
   rpc GetMembershipStatus(GetMembershipStatusRequest) returns (GetMembershipStatusResponse);
 
-  // Internal only. Requires the verified ms-gym-identifier workload identity.
-  // This RPC is intentionally absent from the external HTTP configuration.
-  rpc GetMembershipStatusByUserId(GetMembershipStatusByUserIdRequest) returns (GetMembershipStatusByUserIdResponse);
-
   // Internal only. Requires the verified ms-gym-checkin workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
   rpc ValidateMembership(ValidateMembershipRequest) returns (ValidateMembershipResponse);
@@ -91,7 +87,10 @@ message ListMembersRequest {
     gte: 0
     lte: 100
   }];
-  string gym_id = 3 [(buf.validate.field).string = {max_len: 128}];
+  string gym_id = 3 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ListMembersResponse {
@@ -99,7 +98,7 @@ message ListMembersResponse {
   int32 total = 2;
 }
 
-message PurchaseMembershipRequest {
+message PurchaseMembershipBody {
   string plan_id = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
@@ -116,6 +115,14 @@ message PurchaseMembershipRequest {
   }];
 }
 
+message PurchaseMembershipRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+  PurchaseMembershipBody purchase = 2 [(buf.validate.field).required = true];
+}
+
 message PurchaseMembershipResponse {
   string payment_url = 1;
   string payment_id = 2;
@@ -126,6 +133,10 @@ message PauseMembershipRequest {
     min_len: 1
     max_len: 128
   }];
+  string gym_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ResumeMembershipRequest {
@@ -133,17 +144,14 @@ message ResumeMembershipRequest {
     min_len: 1
     max_len: 128
   }];
-}
-
-message GetMembershipStatusRequest {
-  string member_id = 1 [(buf.validate.field).string = {
+  string gym_id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
 }
 
-message GetMembershipStatusByUserIdRequest {
-  string user_id = 1 [(buf.validate.field).string = {
+message GetMembershipStatusRequest {
+  string member_id = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
@@ -170,14 +178,6 @@ message ResumeMembershipResponse {
 }
 
 message GetMembershipStatusResponse {
-  string member_id = 1;
-  common.v1.MembershipStatus status = 2;
-  string start_date = 3;
-  string end_date = 4;
-  int32 remaining_days = 5;
-}
-
-message GetMembershipStatusByUserIdResponse {
   string member_id = 1;
   common.v1.MembershipStatus status = 2;
   string start_date = 3;

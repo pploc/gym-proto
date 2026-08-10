@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v4",
+  "contractVersion": "v5",
   "identityVocabulary": {
     "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
     "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
@@ -16,16 +16,16 @@
     "sourcePackagesRemain": "*.v1",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "major-contract-change: strict RPC request/response names, closed enums, protovalidate, go module /v4",
+    "currentReleaseClassification": "major-contract-change: stage-0 identity-only JWT, retire SelectGym and GetMembershipStatusByUserId, explicit gym Member requests, nested purchase body",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
     "expectedSourceBreak": [
-      "all go_package options move under github.com/pploc/proto-go",
-      "RPC request/response messages become method-specific unique types",
-      "google.protobuf.Empty replaced by method-specific empty messages",
-      "categorical strings become proto3 enums with *_UNSPECIFIED=0",
-      "protovalidate annotations added on requests and events"
+      "IdentityService.SelectGym and SelectGymRequest/Response removed",
+      "MemberService.GetMembershipStatusByUserId and request/response removed",
+      "PurchaseMembershipRequest becomes gym_id plus nested PurchaseMembershipBody",
+      "access tokens forbid gym_id and membership_status claims",
+      "Kong injects only x-user-id and x-user-role; gym context is request-scoped"
     ]
   },
   "schemaRegistry": {
@@ -45,11 +45,16 @@
   "gateway": {
     "provesTrustedHeaderStrippingAndInjection": true,
     "externalProtocol": "http-json-to-service-local-grpc-gateway-8080",
-    "nativeInternalGrpcPort": 50051
+    "nativeInternalGrpcPort": 50051,
+    "injectedTrustedHeaders": ["x-user-id", "x-user-role"],
+    "gymContextSource": "request-path-and-body"
   },
   "jwt": {
     "algorithm": "RS256",
     "issuer": "gym-identifier",
-    "audience": "gym-api"
+    "audience": "gym-api",
+    "requiredClaims": ["sub", "role", "iss", "aud", "iat", "exp", "jti"],
+    "requiredProtectedHeaders": ["kid"],
+    "forbiddenClaims": ["gym_id", "membership_status"]
   }
 }

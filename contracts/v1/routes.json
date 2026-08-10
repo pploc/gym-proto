@@ -29,26 +29,58 @@
       "identity.v1.IdentityService/Logout",
       "identity.v1.IdentityService/GetCurrentUser",
       "identity.v1.IdentityService/ChangePassword",
-      "identity.v1.IdentityService/SelectGym",
+      "identity.v1.IdentityService/CreateTrainerAccount",
+      "identity.v1.IdentityService/SuspendUser",
+      "identity.v1.IdentityService/ListUsers"
+    ],
+    "superAdminOnly": [
       "identity.v1.IdentityService/CreateTrainerAccount",
       "identity.v1.IdentityService/SuspendUser",
       "identity.v1.IdentityService/ListUsers"
     ]
   },
   "member": {
+    "public": [
+      "member.v1.MemberService/GetMember",
+      "member.v1.MemberService/UpdateProfile",
+      "member.v1.MemberService/ListMembers",
+      "member.v1.MemberService/PurchaseMembership",
+      "member.v1.MemberService/PauseMembership",
+      "member.v1.MemberService/ResumeMembership",
+      "member.v1.MemberService/GetMembershipStatus"
+    ],
     "internal": [
-      "member.v1.MemberService/GetMembershipStatusByUserId",
       "member.v1.MemberService/ValidateMembership",
       "member.v1.MemberService/ListMembersByStatus"
     ],
-    "identifierLookupAuthorization": {
-      "mechanism": "mtls",
-      "requiredPeer": "ms-gym-identifier",
-      "allowedMethods": [
-        "member.v1.MemberService/GetMembershipStatusByUserId"
-      ],
-      "networkPolicy": "identifier-to-member-50051-only"
+    "httpRoutes": {
+      "member.v1.MemberService/GetMember": "GET /api/v1/members/{member_id}",
+      "member.v1.MemberService/UpdateProfile": "PUT /api/v1/members/{member_id}",
+      "member.v1.MemberService/ListMembers": "GET /api/v1/gyms/{gym_id}/members",
+      "member.v1.MemberService/PurchaseMembership": "POST /api/v1/gyms/{gym_id}/memberships/purchase",
+      "member.v1.MemberService/PauseMembership": "POST /api/v1/gyms/{gym_id}/members/{member_id}/membership:pause",
+      "member.v1.MemberService/ResumeMembership": "POST /api/v1/gyms/{gym_id}/members/{member_id}/membership:resume",
+      "member.v1.MemberService/GetMembershipStatus": "GET /api/v1/gyms/{gym_id}/members/{member_id}/membership"
     },
+    "policies": {
+      "member.v1.MemberService/GetMember": "customer-self-or-super-admin",
+      "member.v1.MemberService/UpdateProfile": "customer-self-or-super-admin",
+      "member.v1.MemberService/ListMembers": "super-admin-only",
+      "member.v1.MemberService/PurchaseMembership": "customer-self-from-verified-sub",
+      "member.v1.MemberService/PauseMembership": "customer-self",
+      "member.v1.MemberService/ResumeMembership": "customer-self",
+      "member.v1.MemberService/GetMembershipStatus": "customer-self-or-super-admin"
+    },
+    "workloadAuthorization": [
+      {
+        "caller": "ms-gym-checkin",
+        "allowedMethods": ["member.v1.MemberService/ValidateMembership"]
+      },
+      {
+        "caller": "ms-gym-notification",
+        "allowedMethods": ["member.v1.MemberService/ListMembersByStatus"]
+      }
+    ],
     "removedExternalMethods": [
       "member.v1.MemberService/GetPlans",
       "member.v1.MemberService/CreateGymLocation",
@@ -82,19 +114,33 @@
       "plans.v1.PlansService/GetMembershipPlan": "GET /api/v1/plans/{id}",
       "plans.v1.PlansService/ListMembershipPlans": "GET /api/v1/gyms/{gym_id}/plans"
     },
+    "policies": {
+      "plans.v1.PlansService/CreateGymLocation": "super-admin-only",
+      "plans.v1.PlansService/UpdateGymLocation": "super-admin-only",
+      "plans.v1.PlansService/GetGymLocation": "authenticated",
+      "plans.v1.PlansService/ListGymLocations": "authenticated",
+      "plans.v1.PlansService/CreateMembershipPlan": "super-admin-only",
+      "plans.v1.PlansService/UpdateMembershipPlan": "super-admin-only",
+      "plans.v1.PlansService/GetMembershipPlan": "authenticated",
+      "plans.v1.PlansService/ListMembershipPlans": "authenticated"
+    },
     "workloadAuthorization": [
       {
         "caller": "ms-gym-identifier",
-        "allowedMethods": [
-          "plans.v1.PlansService/GetActiveGym"
-        ]
+        "allowedMethods": ["plans.v1.PlansService/GetActiveGym"]
       },
       {
         "caller": "ms-gym-member",
-        "allowedMethods": [
-          "plans.v1.PlansService/ResolvePurchasablePlan"
-        ]
+        "allowedMethods": ["plans.v1.PlansService/ResolvePurchasablePlan"]
       }
     ]
-  }
+  },
+  "retiredSymbols": [
+    "identity.v1.IdentityService/SelectGym",
+    "identity.v1.SelectGymRequest",
+    "identity.v1.SelectGymResponse",
+    "member.v1.MemberService/GetMembershipStatusByUserId",
+    "member.v1.GetMembershipStatusByUserIdRequest",
+    "member.v1.GetMembershipStatusByUserIdResponse"
+  ]
 }

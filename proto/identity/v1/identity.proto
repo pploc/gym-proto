@@ -20,7 +20,6 @@ service IdentityService {
 
   rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
-  rpc SelectGym(SelectGymRequest) returns (SelectGymResponse);
 
   rpc CreateTrainerAccount(CreateTrainerAccountRequest) returns (CreateTrainerAccountResponse);
   rpc SuspendUser(SuspendUserRequest) returns (SuspendUserResponse);
@@ -99,13 +98,6 @@ message ChangePasswordRequest {
   }];
   string new_password = 2 [(buf.validate.field).string = {
     min_len: 8
-    max_len: 128
-  }];
-}
-
-message SelectGymRequest {
-  string gym_id = 1 [(buf.validate.field).string = {
-    min_len: 1
     max_len: 128
   }];
 }
@@ -196,13 +188,6 @@ message GetCurrentUserResponse {
 }
 
 message ChangePasswordResponse {}
-
-message SelectGymResponse {
-  string access_token = 1;
-  int32 expires_in = 2;
-  string gym_id = 3;
-  common.v1.MembershipStatus membership_status = 4;
-}
 
 message CreateTrainerAccountResponse {
   string id = 1;

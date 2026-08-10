@@ -5,16 +5,16 @@ on:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v4.0.0"]
+    tags: ["v5.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v3.0.0
-  RELEASE_TARGET: v4.0.0
-  # Go module stays github.com/pploc/proto-go (no /v4). Tag overwrites the v1 line.
-  PROTO_GO_RELEASE_TARGET: v1.4.0
+  STABLE_PROTO_TAG: v4.0.0
+  RELEASE_TARGET: v5.0.0
+  # Go module stays github.com/pploc/proto-go (no /v5).
+  PROTO_GO_RELEASE_TARGET: v1.5.0
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -92,12 +92,11 @@ jobs:
           buf format -d --exit-code proto
           buf lint proto
           if buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" > /tmp/breaking.txt 2>&1; then
-            echo "v4.0.0 must contain the declared contract cleanup break against v3.0.0" >&2
+            echo "v5.0.0 must contain the declared Stage 0 break against v4.0.0" >&2
             exit 1
           fi
-          grep -Fq 'go_package' /tmp/breaking.txt
-          grep -Eq 'AuthResponse|MemberResponse|GymLocationResponse|MembershipPlanResponse|google.protobuf.Empty' /tmp/breaking.txt
-          grep -Eq 'Role|UserStatus|AuthProvider|MembershipStatus|PlanType|PaymentType' /tmp/breaking.txt || true
+          grep -Eq 'SelectGym|GetMembershipStatusByUserId|PurchaseMembershipRequest' /tmp/breaking.txt
+          ./scripts/verify-retired-symbols.py
 
       - name: Generate stubs and verify routes
         shell: bash

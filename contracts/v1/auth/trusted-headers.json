@@ -1,5 +1,6 @@
 {
-  "trustedHeaders": [
+  "injectedTrustedHeaders": ["x-user-id", "x-user-role"],
+  "strippedClientHeaders": [
     "x-user-id",
     "x-user-role",
     "x-gym-id",
@@ -18,18 +19,12 @@
   "gateway": {
     "validatesJwt": true,
     "stripsClientSuppliedCopies": true,
-    "claimTrustRequiresAuthenticatedBoundary": true
+    "claimTrustRequiresAuthenticatedBoundary": true,
+    "gymContextComesFromRequestPath": true
   },
   "downstream": {
     "trimsAndNormalizes": true,
     "rejectsConflictingDuplicates": true
-  },
-  "membership": {
-    "statuses": ["NONE", "ACTIVE", "PAUSED", "EXPIRED"],
-    "defaultForNewCustomersAndNonCustomerRoles": "NONE",
-    "ordinaryAuthenticatedMethodsAcceptAnyKnownStatus": true,
-    "requiredStatusForMembershipGatedMethods": "ACTIVE",
-    "missingBlankMalformedConflictingOrUnknownFailsClosedWhenRequired": true
   },
   "tracing": {
     "canonical": ["traceparent", "tracestate"],
