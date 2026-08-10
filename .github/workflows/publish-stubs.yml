@@ -151,10 +151,11 @@ jobs:
             -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
           ./gradlew verifyConfluentBackwardCompatibility \
             -PschemaRegistryUrl="$SCHEMA_REGISTRY_URL" --no-daemon
-          expected_subjects="$(jq -r '[.cases[].subject] | unique | length' contracts/v1/kafka/confluent-7.7.1-fixtures.json)"
-          test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects" | jq length)" -eq "$expected_subjects"
-          for subject in $(jq -r '.cases[].subject' contracts/v1/kafka/confluent-7.7.1-fixtures.json); do
-            test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/config/$subject" | jq -r '.compatibilityLevel')" = BACKWARD
+          # Protobuf import subjects (e.g. common/v1/common.proto) are registered too;
+          # assert each fixture case subject exists and is BACKWARD, not total count.
+          for subject in $(jq -r '.cases[].subject' contracts/v1/kafka/confluent-7.7.1-fixtures.json | sort -u); do
+            curl --fail --silent "$SCHEMA_REGISTRY_URL/subjects/${subject}/versions/latest" >/dev/null
+            test "$(curl --fail --silent "$SCHEMA_REGISTRY_URL/config/${subject}" | jq -r '.compatibilityLevel')" = BACKWARD
           done
 
       - name: Create verification checksums and report
