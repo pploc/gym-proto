@@ -1,0 +1,534 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Gym Active API
+    version: 6.0.0-candidate
+paths:
+    /api/v1/admin/trainers:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_CreateTrainerAccount
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.CreateTrainerAccountRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.CreateTrainerAccountResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/admin/users:
+        get:
+            tags:
+                - IdentityService
+            operationId: IdentityService_ListUsers
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: gymId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.ListUsersResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/admin/users/{userId}/suspend:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_SuspendUser
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.SuspendUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.SuspendUserResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/auth/email/resend:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_ResendEmailVerification
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.ResendEmailVerificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.ResendEmailVerificationResponse'
+    /api/v1/auth/email/verify:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_VerifyEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.VerifyEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.VerifyEmailResponse'
+    /api/v1/auth/login:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.LoginResponse'
+    /api/v1/auth/logout:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.LogoutResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/auth/oauth/google:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_LoginWithGoogle
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.LoginWithGoogleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.LoginWithGoogleResponse'
+    /api/v1/auth/refresh:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_RefreshToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.RefreshTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.RefreshTokenResponse'
+    /api/v1/auth/register:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.RegisterResponse'
+    /api/v1/users/me:
+        get:
+            tags:
+                - IdentityService
+            operationId: IdentityService_GetCurrentUser
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.GetCurrentUserResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/users/password:
+        post:
+            tags:
+                - IdentityService
+            operationId: IdentityService_ChangePassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/identity.v1.ChangePasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/identity.v1.ChangePasswordResponse'
+            security:
+                - BearerAuth: []
+components:
+    schemas:
+        identity.v1.ChangePasswordRequest:
+            type: object
+            properties:
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+        identity.v1.ChangePasswordResponse:
+            type: object
+            properties: {}
+        identity.v1.CreateTrainerAccountRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                tempPassword:
+                    type: string
+                gymId:
+                    type: string
+        identity.v1.CreateTrainerAccountResponse:
+            example:
+                id: trainer_example_01
+                email: trainer@example.invalid
+                role: ROLE_TRAINER
+                status: USER_STATUS_ACTIVE
+                fullName: Trainer Example
+                emailVerified: true
+            type: object
+            properties:
+                id:
+                    type: string
+                email:
+                    type: string
+                role:
+                    enum:
+                        - ROLE_UNSPECIFIED
+                        - ROLE_CUSTOMER
+                        - ROLE_TRAINER
+                        - ROLE_ADMIN
+                        - ROLE_SUPER_ADMIN
+                    type: string
+                    format: enum
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+                fullName:
+                    type: string
+                phone:
+                    type: string
+                emailVerified:
+                    type: boolean
+        identity.v1.GetCurrentUserResponse:
+            example:
+                id: user_example_01
+                email: member@example.invalid
+                role: ROLE_CUSTOMER
+                status: USER_STATUS_ACTIVE
+                fullName: Member Example
+                phone: +15555550100
+                emailVerified: true
+            type: object
+            properties:
+                id:
+                    type: string
+                email:
+                    type: string
+                role:
+                    enum:
+                        - ROLE_UNSPECIFIED
+                        - ROLE_CUSTOMER
+                        - ROLE_TRAINER
+                        - ROLE_ADMIN
+                        - ROLE_SUPER_ADMIN
+                    type: string
+                    format: enum
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+                fullName:
+                    type: string
+                phone:
+                    type: string
+                emailVerified:
+                    type: boolean
+        identity.v1.ListUsersResponse:
+            example:
+                users:
+                    - id: user_example_01
+                      email: member@example.invalid
+                      role: ROLE_CUSTOMER
+                      status: USER_STATUS_ACTIVE
+                      fullName: Member Example
+                      emailVerified: true
+                total: 1
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/identity.v1.GetCurrentUserResponse'
+                total:
+                    type: integer
+                    format: int32
+        identity.v1.LoginRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+        identity.v1.LoginResponse:
+            example:
+                accessToken: redacted-access-token
+                refreshToken: redacted-refresh-token
+                expiresIn: 900
+                status: USER_STATUS_ACTIVE
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+        identity.v1.LoginWithGoogleRequest:
+            type: object
+            properties:
+                idToken:
+                    type: string
+        identity.v1.LoginWithGoogleResponse:
+            example:
+                accessToken: redacted-access-token
+                refreshToken: redacted-refresh-token
+                expiresIn: 900
+                status: USER_STATUS_ACTIVE
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+        identity.v1.LogoutRequest:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+        identity.v1.LogoutResponse:
+            type: object
+            properties: {}
+        identity.v1.RefreshTokenRequest:
+            type: object
+            properties:
+                refreshToken:
+                    type: string
+        identity.v1.RefreshTokenResponse:
+            example:
+                accessToken: redacted-access-token
+                refreshToken: redacted-refresh-token
+                expiresIn: 900
+                status: USER_STATUS_ACTIVE
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+        identity.v1.RegisterRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+                fullName:
+                    type: string
+        identity.v1.RegisterResponse:
+            example:
+                status: USER_STATUS_PENDING_VERIFICATION
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+        identity.v1.ResendEmailVerificationRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+        identity.v1.ResendEmailVerificationResponse:
+            type: object
+            properties: {}
+        identity.v1.SuspendUserRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+        identity.v1.SuspendUserResponse:
+            type: object
+            properties: {}
+        identity.v1.VerifyEmailRequest:
+            type: object
+            properties:
+                verificationToken:
+                    type: string
+        identity.v1.VerifyEmailResponse:
+            example:
+                accessToken: redacted-access-token
+                refreshToken: redacted-refresh-token
+                expiresIn: 900
+                status: USER_STATUS_ACTIVE
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                refreshToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                status:
+                    enum:
+                        - USER_STATUS_UNSPECIFIED
+                        - USER_STATUS_ACTIVE
+                        - USER_STATUS_SUSPENDED
+                        - USER_STATUS_PENDING_VERIFICATION
+                    type: string
+                    format: enum
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+tags:
+    - name: IdentityService

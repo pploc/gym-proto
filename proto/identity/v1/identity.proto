@@ -4,26 +4,187 @@ package identity.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
 
 option go_package = "github.com/pploc/proto-go/identity/v1;identityv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.identity.v1";
+option (openapi.v3.document) = {
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
 
 service IdentityService {
-  rpc Register(RegisterRequest) returns (RegisterResponse);
-  rpc Login(LoginRequest) returns (LoginResponse);
-  rpc LoginWithGoogle(LoginWithGoogleRequest) returns (LoginWithGoogleResponse);
-  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
-  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
-  rpc ResendEmailVerification(ResendEmailVerificationRequest) returns (ResendEmailVerificationResponse);
-  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/register"
+      body: "*"
+    };
+  }
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/login"
+      body: "*"
+    };
+  }
+  rpc LoginWithGoogle(LoginWithGoogleRequest) returns (LoginWithGoogleResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/oauth/google"
+      body: "*"
+    };
+  }
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/refresh"
+      body: "*"
+    };
+  }
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/email/verify"
+      body: "*"
+    };
+  }
+  rpc ResendEmailVerification(ResendEmailVerificationRequest) returns (ResendEmailVerificationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/email/resend"
+      body: "*"
+    };
+  }
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/logout"
+      body: "*"
+    };
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
+    option (google.api.http) = {get: "/api/v1/users/me"};
 
-  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
-  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/password"
+      body: "*"
+    };
 
-  rpc CreateTrainerAccount(CreateTrainerAccountRequest) returns (CreateTrainerAccountResponse);
-  rpc SuspendUser(SuspendUserRequest) returns (SuspendUserResponse);
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc CreateTrainerAccount(CreateTrainerAccountRequest) returns (CreateTrainerAccountResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/trainers"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc SuspendUser(SuspendUserRequest) returns (SuspendUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/users/{user_id}/suspend"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/users"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 }
 
 message RegisterRequest {
@@ -137,6 +298,9 @@ message ListUsersRequest {
 }
 
 message RegisterResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "status: USER_STATUS_PENDING_VERIFICATION\n"}
+  };
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
@@ -144,6 +308,9 @@ message RegisterResponse {
 }
 
 message LoginResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "accessToken: redacted-access-token\nrefreshToken: redacted-refresh-token\nexpiresIn: 900\nstatus: USER_STATUS_ACTIVE\n"}
+  };
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
@@ -151,6 +318,9 @@ message LoginResponse {
 }
 
 message LoginWithGoogleResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "accessToken: redacted-access-token\nrefreshToken: redacted-refresh-token\nexpiresIn: 900\nstatus: USER_STATUS_ACTIVE\n"}
+  };
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
@@ -158,6 +328,9 @@ message LoginWithGoogleResponse {
 }
 
 message RefreshTokenResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "accessToken: redacted-access-token\nrefreshToken: redacted-refresh-token\nexpiresIn: 900\nstatus: USER_STATUS_ACTIVE\n"}
+  };
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
@@ -165,6 +338,9 @@ message RefreshTokenResponse {
 }
 
 message VerifyEmailResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "accessToken: redacted-access-token\nrefreshToken: redacted-refresh-token\nexpiresIn: 900\nstatus: USER_STATUS_ACTIVE\n"}
+  };
   string access_token = 1;
   string refresh_token = 2;
   int32 expires_in = 3;
@@ -176,6 +352,9 @@ message ResendEmailVerificationResponse {}
 message LogoutResponse {}
 
 message GetCurrentUserResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: user_example_01\nemail: member@example.invalid\nrole: ROLE_CUSTOMER\nstatus: USER_STATUS_ACTIVE\nfullName: Member Example\nphone: +15555550100\nemailVerified: true\n"}
+  };
   string id = 1;
   string email = 2;
   common.v1.Role role = 3;
@@ -190,6 +369,9 @@ message GetCurrentUserResponse {
 message ChangePasswordResponse {}
 
 message CreateTrainerAccountResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: trainer_example_01\nemail: trainer@example.invalid\nrole: ROLE_TRAINER\nstatus: USER_STATUS_ACTIVE\nfullName: Trainer Example\nemailVerified: true\n"}
+  };
   string id = 1;
   string email = 2;
   common.v1.Role role = 3;
@@ -204,6 +386,9 @@ message CreateTrainerAccountResponse {
 message SuspendUserResponse {}
 
 message ListUsersResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "users:\n  - id: user_example_01\n    email: member@example.invalid\n    role: ROLE_CUSTOMER\n    status: USER_STATUS_ACTIVE\n    fullName: Member Example\n    emailVerified: true\ntotal: 1\n"}
+  };
   repeated GetCurrentUserResponse users = 1;
   int32 total = 2;
 }

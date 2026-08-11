@@ -1,0 +1,15 @@
+version: v2
+managed:
+  enabled: false
+plugins:
+  - local: protoc-gen-openapi
+    out: openapi
+    strategy: all
+    opt:
+      - title=Gym Active API
+      - version=6.0.0-candidate
+      - output_mode=source_relative
+      - naming=json
+      - fq_schema_naming=true
+      - enum_type=string
+      - default_response=false

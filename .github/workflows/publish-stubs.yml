@@ -5,16 +5,19 @@ on:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v5.0.0"]
+    tags: ["v6.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v4.0.0
-  RELEASE_TARGET: v5.0.0
-  # Go module stays github.com/pploc/proto-go (no /v5).
-  PROTO_GO_RELEASE_TARGET: v1.5.0
+  STABLE_PROTO_TAG: v5.0.0
+  RELEASE_TARGET: v6.0.0
+  # Go module stays github.com/pploc/proto-go (no /v6).
+  PROTO_GO_RELEASE_TARGET: v1.6.0
+  GNOSTIC_VERSION: v0.7.1
+  GNOSTIC_COMMIT: 39aedcfe9f00c4336420c8ed927fb0f803f921f2
+  KONG_COMPATIBILITY_READY: "false"
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -91,12 +94,10 @@ jobs:
           set -euo pipefail
           buf format -d --exit-code proto
           buf lint proto
-          if buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}" > /tmp/breaking.txt 2>&1; then
-            echo "v5.0.0 must contain the declared Stage 0 break against v4.0.0" >&2
-            exit 1
-          fi
-          grep -Eq 'SelectGym|GetMembershipStatusByUserId|PurchaseMembershipRequest' /tmp/breaking.txt
+          buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}"
           python3 ./scripts/verify-retired-symbols.py
+          python3 ./scripts/verify-kong-errors.py
+          test "$(go list -m -f '{{.Version}} {{.Origin.Hash}}' github.com/google/gnostic@${GNOSTIC_VERSION})" = "${GNOSTIC_VERSION} ${GNOSTIC_COMMIT}"
 
       - name: Generate stubs and verify routes
         shell: bash
@@ -104,19 +105,41 @@ jobs:
           set -euo pipefail
           python3 -m pip install --disable-pip-version-check PyYAML==6.0.2
           ./scripts/verify-http-config.py
-          rm -rf gen
+          rm -rf gen dist
           buf generate
           ./scripts/verify-generated-routes.sh
+          ./scripts/generate-openapi.sh
+          python3 ./scripts/verify-openapi.py
+          git diff --exit-code -- openapi
+          ./scripts/package-kong-proto.sh
+          python3 ./scripts/verify-kong-proto.py
+          ./scripts/verify-kong-proto-smoke.sh
+          python3 ./scripts/verify-kong-errors.py
+          test "$(go list -m -f '{{.Version}} {{.Origin.Hash}}' github.com/google/gnostic@${GNOSTIC_VERSION})" = "${GNOSTIC_VERSION} ${GNOSTIC_COMMIT}"
 
       - name: Verify generated output is deterministic
         shell: bash
         run: |
           set -euo pipefail
           find gen -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/generated-before.sha256
-          rm -rf gen
+          sha256sum \
+            openapi/identity/v1/identity.openapi.yaml \
+            openapi/member/v1/member.openapi.yaml \
+            openapi/plans/v1/plans.openapi.yaml \
+            dist/kong-proto-6.0.0.tar.gz > /tmp/candidate-before.sha256
+          rm -rf gen dist
           buf generate
+          ./scripts/generate-openapi.sh
+          ./scripts/package-kong-proto.sh
           find gen -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/generated-after.sha256
+          sha256sum \
+            openapi/identity/v1/identity.openapi.yaml \
+            openapi/member/v1/member.openapi.yaml \
+            openapi/plans/v1/plans.openapi.yaml \
+            dist/kong-proto-6.0.0.tar.gz > /tmp/candidate-after.sha256
           diff -u /tmp/generated-before.sha256 /tmp/generated-after.sha256
+          diff -u /tmp/candidate-before.sha256 /tmp/candidate-after.sha256
+          git diff --exit-code -- openapi
 
       - name: Wait for Schema Registry
         shell: bash
@@ -167,7 +190,15 @@ jobs:
           if [[ -d gen ]]; then
             find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
           fi
-          jq '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, stableProtoTag: env.STABLE_PROTO_TAG, releaseTarget: env.RELEASE_TARGET}' \
+          sha256sum \
+            openapi/identity/v1/identity.openapi.yaml \
+            openapi/member/v1/member.openapi.yaml \
+            openapi/plans/v1/plans.openapi.yaml \
+            dist/kong-proto-6.0.0.tar.gz > evidence/candidate-artifacts.sha256
+          jq --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
+            --arg generatorCommit "$GNOSTIC_COMMIT" \
+            --argjson releaseReady false \
+            '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, stableProtoTag: env.STABLE_PROTO_TAG, releaseTarget: env.RELEASE_TARGET, generator: $generator, generatorCommit: $generatorCommit, releaseReady: $releaseReady}' \
             > evidence/validation-report.json
 
       - name: Upload validation evidence
@@ -222,6 +253,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Refuse unmeasured Kong compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KONG_COMPATIBILITY_READY" = true
+          python3 ./scripts/verify-kong-errors.py --release
+
       - name: Refuse conflicting release artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -245,15 +283,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf gen evidence
+          rm -rf gen dist evidence
           buf generate
           ./scripts/verify-generated-routes.sh
+          ./scripts/generate-openapi.sh
+          python3 ./scripts/verify-openapi.py
+          git diff --exit-code -- openapi
+          ./scripts/package-kong-proto.sh
+          python3 ./scripts/verify-kong-proto.py
           ./gradlew check --no-daemon
           mkdir -p evidence
           sha256sum contracts/v1/kafka/confluent-7.7.1-fixtures.json > evidence/fixture.sha256
           find gen -type f -print0 | sort -z | xargs -0 sha256sum > evidence/generated.sha256
+          sha256sum \
+            openapi/identity/v1/identity.openapi.yaml \
+            openapi/member/v1/member.openapi.yaml \
+            openapi/plans/v1/plans.openapi.yaml \
+            dist/kong-proto-6.0.0.tar.gz > evidence/candidate-artifacts.sha256
           jq -n --arg version "$RELEASE_VERSION" \
-            '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, releaseVersion: $version}' \
+            --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
+            --arg generatorCommit "$GNOSTIC_COMMIT" \
+            '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, releaseVersion: $version, generator: $generator, generatorCommit: $generatorCommit, releaseReady: true}' \
             > evidence/release-report.json
 
       - name: Prepare immutable Go release commit

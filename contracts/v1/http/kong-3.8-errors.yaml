@@ -1,0 +1,14 @@
+# Release readiness remains blocked until Stage 3 records real Kong 3.8 behavior.
+kong:
+  version: 3.8
+measurement:
+  status: pending-stage-3-compatibility-spike
+  required:
+    - http_status
+    - response_body_bytes
+    - content_type
+    - grpc_status
+    - grpc_message
+    - x_error_code_header_or_trailer
+    - cors_visibility
+release_ready: false

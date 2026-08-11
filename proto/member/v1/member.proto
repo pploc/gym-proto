@@ -4,20 +4,170 @@ package member.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
 
 option go_package = "github.com/pploc/proto-go/member/v1;memberv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.member.v1";
+option (openapi.v3.document) = {
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
 
 service MemberService {
-  rpc GetMember(GetMemberRequest) returns (GetMemberResponse);
-  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
-  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
+  rpc GetMember(GetMemberRequest) returns (GetMemberResponse) {
+    option (google.api.http) = {get: "/api/v1/members/{member_id}"};
 
-  rpc PurchaseMembership(PurchaseMembershipRequest) returns (PurchaseMembershipResponse);
-  rpc PauseMembership(PauseMembershipRequest) returns (PauseMembershipResponse);
-  rpc ResumeMembership(ResumeMembershipRequest) returns (ResumeMembershipResponse);
-  rpc GetMembershipStatus(GetMembershipStatusRequest) returns (GetMembershipStatusResponse);
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/members/{member_id}"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ListMembers(ListMembersRequest) returns (ListMembersResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{gym_id}/members"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc PurchaseMembership(PurchaseMembershipRequest) returns (PurchaseMembershipResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms/{gym_id}/memberships/purchase"
+      body: "purchase"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc PauseMembership(PauseMembershipRequest) returns (PauseMembershipResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms/{gym_id}/members/{member_id}/membership:pause"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ResumeMembership(ResumeMembershipRequest) returns (ResumeMembershipResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms/{gym_id}/members/{member_id}/membership:resume"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetMembershipStatus(GetMembershipStatusRequest) returns (GetMembershipStatusResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{gym_id}/members/{member_id}/membership"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 
   // Internal only. Requires the verified ms-gym-checkin workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
@@ -35,6 +185,9 @@ message GetMemberRequest {
 }
 
 message GetMemberResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: member_example_01\nuserId: user_example_01\nfullName: Member Example\nphone: +15555550100\navatarUrl: https://images.example.invalid/members/member_example_01.png\ndateOfBirth: 1990-01-01\nstatus: MEMBERSHIP_STATUS_ACTIVE\n"}
+  };
   string id = 1;
   string user_id = 2;
   reserved 3;
@@ -67,6 +220,9 @@ message UpdateProfileRequest {
 }
 
 message UpdateProfileResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: member_example_01\nuserId: user_example_01\nfullName: Member Example\nphone: +15555550100\navatarUrl: https://images.example.invalid/members/member_example_01.png\ndateOfBirth: 1990-01-01\nstatus: MEMBERSHIP_STATUS_ACTIVE\n"}
+  };
   string id = 1;
   string user_id = 2;
   reserved 3;
@@ -94,6 +250,9 @@ message ListMembersRequest {
 }
 
 message ListMembersResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "members:\n  - id: member_example_01\n    userId: user_example_01\n    fullName: Member Example\n    phone: +15555550100\n    status: MEMBERSHIP_STATUS_ACTIVE\ntotal: 1\n"}
+  };
   repeated GetMemberResponse members = 1;
   int32 total = 2;
 }
@@ -124,6 +283,9 @@ message PurchaseMembershipRequest {
 }
 
 message PurchaseMembershipResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "paymentUrl: https://payments.example.invalid/checkout/payment_example_01\npaymentId: payment_example_01\n"}
+  };
   string payment_url = 1;
   string payment_id = 2;
 }
@@ -162,6 +324,9 @@ message GetMembershipStatusRequest {
 }
 
 message PauseMembershipResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "memberId: member_example_01\nstatus: MEMBERSHIP_STATUS_PAUSED\nstartDate: 2026-01-01\nendDate: 2026-02-01\nremainingDays: 30\n"}
+  };
   string member_id = 1;
   common.v1.MembershipStatus status = 2;
   string start_date = 3;
@@ -170,6 +335,9 @@ message PauseMembershipResponse {
 }
 
 message ResumeMembershipResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "memberId: member_example_01\nstatus: MEMBERSHIP_STATUS_ACTIVE\nstartDate: 2026-01-01\nendDate: 2026-02-01\nremainingDays: 30\n"}
+  };
   string member_id = 1;
   common.v1.MembershipStatus status = 2;
   string start_date = 3;
@@ -178,6 +346,9 @@ message ResumeMembershipResponse {
 }
 
 message GetMembershipStatusResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "memberId: member_example_01\nstatus: MEMBERSHIP_STATUS_ACTIVE\nstartDate: 2026-01-01\nendDate: 2026-02-01\nremainingDays: 30\n"}
+  };
   string member_id = 1;
   common.v1.MembershipStatus status = 2;
   string start_date = 3;

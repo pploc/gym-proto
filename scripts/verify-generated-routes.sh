@@ -60,13 +60,20 @@ assert_unique_routes() {
 }
 
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/Register" "/api/v1/auth/register"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/Login" "/api/v1/auth/login"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/LoginWithGoogle" "/api/v1/auth/oauth/google"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/RefreshToken" "/api/v1/auth/refresh"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/VerifyEmail" "/api/v1/auth/email/verify"
-reject_method "$IDENTITY_GATEWAY" "SelectGym"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/ResendEmailVerification" "/api/v1/auth/email/resend"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/Logout" "/api/v1/auth/logout"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/GetCurrentUser" "/api/v1/users/me"
+require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/ChangePassword" "/api/v1/users/password"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/CreateTrainerAccount" "/api/v1/admin/trainers"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/SuspendUser" "/api/v1/admin/users/{user_id}/suspend"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/ListUsers" "/api/v1/admin/users"
+reject_method "$IDENTITY_GATEWAY" "SelectGym"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/GetMember" "/api/v1/members/{member_id}"
+require_route "$MEMBER_GATEWAY" "member.v1.MemberService/UpdateProfile" "/api/v1/members/{member_id}"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/ListMembers" "/api/v1/gyms/{gym_id}/members"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/PurchaseMembership" "/api/v1/gyms/{gym_id}/memberships/purchase"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/PauseMembership" "/api/v1/gyms/{gym_id}/members/{member_id}/membership:pause"
@@ -92,6 +99,7 @@ reject_method "$MEMBER_GATEWAY" "GetGymLocation"
 reject_method "$PLANS_GATEWAY" "GetActiveGym"
 reject_method "$PLANS_GATEWAY" "ResolvePurchasablePlan"
 
+assert_route_count "$IDENTITY_GATEWAY" 24
 assert_route_count "$MEMBER_GATEWAY" 14
 assert_route_count "$PLANS_GATEWAY" 16
 for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY"; do

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '5.0.0'
+version = System.getenv('RELEASE_VERSION') ?: '6.0.0'
 
 java {
     toolchain {
@@ -77,6 +77,44 @@ tasks.register('verifyRetiredSymbols', Exec) {
     group = 'verification'
     description = 'Verify retired Stage 0 RPC and message names are absent.'
     commandLine 'python3', layout.projectDirectory.file('scripts/verify-retired-symbols.py').asFile.absolutePath
+}
+
+tasks.register('generateOpenApi', Exec) {
+    group = 'verification'
+    description = 'Generate the active OpenAPI candidate from inline HTTP annotations.'
+    commandLine 'bash', layout.projectDirectory.file('scripts/generate-openapi.sh').asFile.absolutePath
+}
+
+tasks.register('verifyOpenApi', Exec) {
+    group = 'verification'
+    description = 'Verify active OpenAPI matches canonical HTTP annotations.'
+    dependsOn tasks.named('generateOpenApi')
+    commandLine 'python3', layout.projectDirectory.file('scripts/verify-openapi.py').asFile.absolutePath
+}
+
+tasks.register('packageKongProto', Exec) {
+    group = 'verification'
+    description = 'Package deterministic source protobufs for Kong 3.8.'
+    commandLine 'bash', layout.projectDirectory.file('scripts/package-kong-proto.sh').asFile.absolutePath
+}
+
+tasks.register('verifyKongProto', Exec) {
+    group = 'verification'
+    description = 'Verify Kong source protobuf bundle contents and parse smoke.'
+    dependsOn tasks.named('packageKongProto')
+    commandLine 'bash', '-c', "python3 '${layout.projectDirectory.file('scripts/verify-kong-proto.py').asFile.absolutePath}' && bash '${layout.projectDirectory.file('scripts/verify-kong-proto-smoke.sh').asFile.absolutePath}'"
+}
+
+tasks.register('verifyKongErrorCandidate', Exec) {
+    group = 'verification'
+    description = 'Verify candidate remains blocked on measured Kong error behavior.'
+    commandLine 'python3', layout.projectDirectory.file('scripts/verify-kong-errors.py').asFile.absolutePath
+}
+
+tasks.register('verifyKongErrorRelease', Exec) {
+    group = 'verification'
+    description = 'Refuse release while Kong error behavior is unmeasured.'
+    commandLine 'python3', layout.projectDirectory.file('scripts/verify-kong-errors.py').asFile.absolutePath, '--release'
 }
 
 tasks.register('verifyGeneratedRoutes', Exec) {
@@ -173,6 +211,9 @@ tasks.register('verifyConfluentBackwardCompatibility', JavaExec) {
 tasks.named('check') {
     dependsOn tasks.named('verifyHttpConfig')
     dependsOn tasks.named('verifyRetiredSymbols')
+    dependsOn tasks.named('verifyOpenApi')
+    dependsOn tasks.named('verifyKongProto')
+    dependsOn tasks.named('verifyKongErrorCandidate')
     dependsOn tasks.named('verifyGeneratedRoutes')
     dependsOn tasks.named('verifyConfluentFixtures')
     dependsOn tasks.named('verifyEmailVerificationTokenCapture')

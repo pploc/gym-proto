@@ -1,24 +1,24 @@
 {
-  "contractVersion": "v5",
+  "contractVersion": "v6-candidate",
   "status": "candidate",
   "versions": {
     "gymProto": {
-      "currentStable": "v4.0.0",
-      "releaseTarget": "v5.0.0",
-      "status": "candidate"
+      "currentStable": "v5.0.0",
+      "releaseTarget": "v6.0.0",
+      "status": "unreleased-candidate"
     },
     "protoGo": {
-      "currentStable": "v1.4.0",
-      "releaseTarget": "v1.5.0",
+      "currentStable": "v1.5.0",
+      "releaseTarget": "v1.6.0",
       "modulePath": "github.com/pploc/proto-go",
-      "status": "candidate",
-      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 5.0.0."
+      "status": "unreleased-candidate",
+      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 6.0.0."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "currentStable": "4.1.0",
-      "releaseTarget": "5.0.0",
-      "status": "candidate"
+      "currentStable": "5.0.0",
+      "releaseTarget": "6.0.0",
+      "status": "unreleased-candidate"
     },
     "commonGo": "v0.4.0",
     "commonJava": "2.1.0",
@@ -36,29 +36,55 @@
     "compatibility.json",
     "jwt-profile.json",
     "routes.json",
+    "http/active-operations.yaml",
+    "http/kong-3.8-errors.yaml",
     "semantic-compatibility.md",
     "release-evidence.md",
     "kafka/wire-format.json",
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v4.0.0",
-    "previousStableSourceSha": "05ee473bc8723af90356f9831a9e71e01b7b99c0",
-    "publication": "pending-v5.0.0",
-    "publishedSourceSha": "pending",
-    "publishedProtoGoSha": "pending",
-    "fixtureSha256": "pending-regenerate",
-    "generatedAggregateSha256": "pending-regenerate"
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v5.0.0",
+    "previousStableSourceSha": "59000df8efa312b50763c3b95694b46842d2f6df",
+    "publication": "blocked-pending-stage-2-3-kong-compatibility-spike",
+    "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",
+    "openApiAnnotations": {
+      "source": "vendored exact github.com/google/gnostic v0.7.1 sources",
+      "files": {
+        "proto/openapiv3/annotations.proto": "621cb97b9f36cf7d5532632de39ba5df975ccc57a6e78c782139babb3a3f90b1",
+        "proto/openapiv3/OpenAPIv3.proto": "4e27abed9e9b30c84fc3b38e4f94b8663d8be26ff6eaedc2c133abc9518fcc08"
+      }
+    },
+    "openApiCandidates": [
+      {
+        "service": "identity",
+        "path": "openapi/identity/v1/identity.openapi.yaml",
+        "operations": 12
+      },
+      {
+        "service": "member",
+        "path": "openapi/member/v1/member.openapi.yaml",
+        "operations": 7
+      },
+      {
+        "service": "plans",
+        "path": "openapi/plans/v1/plans.openapi.yaml",
+        "operations": 8
+      }
+    ],
+    "openApiGeneration": "direct source-relative Gnostic output; no post-generation normalization, merge, or rewrite",
+    "kongSourceBundle": "dist/kong-proto-6.0.0.tar.gz",
+    "runtimeErrorEvidence": "pending-stage-3-compatibility-spike"
   },
   "requiredEvidence": [
-    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.5.0",
-    "Java gym-proto-java:5.0.0 from GitHub Packages",
+    "exactly 27 active inline google.api.http annotations with no external YAML duplicate",
+    "Gnostic OpenAPI 3 candidate generated from active annotations",
+    "deterministic Kong 3.8 source protobuf bundle and Member/Plans parse smoke",
     "retired SelectGym and GetMembershipStatusByUserId symbols absent",
     "stable identity-only JWT claims",
-    "explicit-gym Member request validation",
-    "Go fixture suite",
-    "Java fixture suite",
-    "Schema Registry compatibility verification",
-    "Kong trusted-header stripping and identity-role-only injection test"
+    "Kong trusted-header stripping and identity-role-only injection regression test",
+    "measured Kong 3.8 error/header/CORS evidence before publication",
+    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.6.0",
+    "Java gym-proto-java:6.0.0 from GitHub Packages"
   ]
 }

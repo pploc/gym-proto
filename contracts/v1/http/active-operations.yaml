@@ -1,0 +1,156 @@
+# Semantic allowlist only. Inline google.api.http options own runtime bindings.
+version: v6-candidate
+operations:
+  - selector: identity.v1.IdentityService.Register
+    operation_id: IdentityService_Register
+    method: POST
+    path: /api/v1/auth/register
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.Login
+    operation_id: IdentityService_Login
+    method: POST
+    path: /api/v1/auth/login
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.LoginWithGoogle
+    operation_id: IdentityService_LoginWithGoogle
+    method: POST
+    path: /api/v1/auth/oauth/google
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.RefreshToken
+    operation_id: IdentityService_RefreshToken
+    method: POST
+    path: /api/v1/auth/refresh
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.VerifyEmail
+    operation_id: IdentityService_VerifyEmail
+    method: POST
+    path: /api/v1/auth/email/verify
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.ResendEmailVerification
+    operation_id: IdentityService_ResendEmailVerification
+    method: POST
+    path: /api/v1/auth/email/resend
+    body: '*'
+    auth: public
+  - selector: identity.v1.IdentityService.Logout
+    operation_id: IdentityService_Logout
+    method: POST
+    path: /api/v1/auth/logout
+    body: '*'
+    auth: authenticated
+  - selector: identity.v1.IdentityService.GetCurrentUser
+    operation_id: IdentityService_GetCurrentUser
+    method: GET
+    path: /api/v1/users/me
+    auth: authenticated
+  - selector: identity.v1.IdentityService.ChangePassword
+    operation_id: IdentityService_ChangePassword
+    method: POST
+    path: /api/v1/users/password
+    body: '*'
+    auth: authenticated
+  - selector: identity.v1.IdentityService.CreateTrainerAccount
+    operation_id: IdentityService_CreateTrainerAccount
+    method: POST
+    path: /api/v1/admin/trainers
+    body: '*'
+    auth: super-admin-only
+  - selector: identity.v1.IdentityService.SuspendUser
+    operation_id: IdentityService_SuspendUser
+    method: POST
+    path: /api/v1/admin/users/{user_id}/suspend
+    body: '*'
+    auth: super-admin-only
+  - selector: identity.v1.IdentityService.ListUsers
+    operation_id: IdentityService_ListUsers
+    method: GET
+    path: /api/v1/admin/users
+    auth: super-admin-only
+  - selector: member.v1.MemberService.GetMember
+    operation_id: MemberService_GetMember
+    method: GET
+    path: /api/v1/members/{member_id}
+    auth: customer-self-or-super-admin
+  - selector: member.v1.MemberService.UpdateProfile
+    operation_id: MemberService_UpdateProfile
+    method: PUT
+    path: /api/v1/members/{member_id}
+    body: '*'
+    auth: customer-self-or-super-admin
+  - selector: member.v1.MemberService.ListMembers
+    operation_id: MemberService_ListMembers
+    method: GET
+    path: /api/v1/gyms/{gym_id}/members
+    auth: super-admin-only
+  - selector: member.v1.MemberService.PurchaseMembership
+    operation_id: MemberService_PurchaseMembership
+    method: POST
+    path: /api/v1/gyms/{gym_id}/memberships/purchase
+    body: purchase
+    auth: customer-self-from-verified-sub
+  - selector: member.v1.MemberService.PauseMembership
+    operation_id: MemberService_PauseMembership
+    method: POST
+    path: /api/v1/gyms/{gym_id}/members/{member_id}/membership:pause
+    body: '*'
+    auth: customer-self
+  - selector: member.v1.MemberService.ResumeMembership
+    operation_id: MemberService_ResumeMembership
+    method: POST
+    path: /api/v1/gyms/{gym_id}/members/{member_id}/membership:resume
+    body: '*'
+    auth: customer-self
+  - selector: member.v1.MemberService.GetMembershipStatus
+    operation_id: MemberService_GetMembershipStatus
+    method: GET
+    path: /api/v1/gyms/{gym_id}/members/{member_id}/membership
+    auth: customer-self-or-super-admin
+  - selector: plans.v1.PlansService.CreateGymLocation
+    operation_id: PlansService_CreateGymLocation
+    method: POST
+    path: /api/v1/gyms
+    body: '*'
+    auth: super-admin-only
+  - selector: plans.v1.PlansService.UpdateGymLocation
+    operation_id: PlansService_UpdateGymLocation
+    method: PUT
+    path: /api/v1/gyms/{id}
+    body: '*'
+    auth: super-admin-only
+  - selector: plans.v1.PlansService.GetGymLocation
+    operation_id: PlansService_GetGymLocation
+    method: GET
+    path: /api/v1/gyms/{id}
+    auth: authenticated
+  - selector: plans.v1.PlansService.ListGymLocations
+    operation_id: PlansService_ListGymLocations
+    method: GET
+    path: /api/v1/gyms
+    auth: authenticated
+  - selector: plans.v1.PlansService.CreateMembershipPlan
+    operation_id: PlansService_CreateMembershipPlan
+    method: POST
+    path: /api/v1/gyms/{gym_id}/plans
+    body: '*'
+    auth: super-admin-only
+  - selector: plans.v1.PlansService.UpdateMembershipPlan
+    operation_id: PlansService_UpdateMembershipPlan
+    method: PUT
+    path: /api/v1/plans/{id}
+    body: '*'
+    auth: super-admin-only
+  - selector: plans.v1.PlansService.GetMembershipPlan
+    operation_id: PlansService_GetMembershipPlan
+    method: GET
+    path: /api/v1/plans/{id}
+    auth: authenticated
+  - selector: plans.v1.PlansService.ListMembershipPlans
+    operation_id: PlansService_ListMembershipPlans
+    method: GET
+    path: /api/v1/gyms/{gym_id}/plans
+    auth: authenticated

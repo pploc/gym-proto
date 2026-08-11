@@ -6,6 +6,8 @@ deps:
 lint:
   use:
     - STANDARD
+  ignore:
+    - openapiv3
 breaking:
   use:
     - FILE

@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v5",
+  "contractVersion": "v6-candidate",
   "identityVocabulary": {
     "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
     "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
@@ -16,16 +16,14 @@
     "sourcePackagesRemain": "*.v1",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "major-contract-change: stage-0 identity-only JWT, retire SelectGym and GetMembershipStatusByUserId, explicit gym Member requests, nested purchase body",
+    "currentReleaseClassification": "v6 candidate: Stage 1 moves active Identity, Member, and Plans HTTP mappings into inline annotations and produces unreleased OpenAPI/Kong source artifacts",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
     "expectedSourceBreak": [
-      "IdentityService.SelectGym and SelectGymRequest/Response removed",
-      "MemberService.GetMembershipStatusByUserId and request/response removed",
-      "PurchaseMembershipRequest becomes gym_id plus nested PurchaseMembershipBody",
-      "access tokens forbid gym_id and membership_status claims",
-      "Kong injects only x-user-id and x-user-role; gym context is request-scoped"
+      "none against v5.0.0: Stage 1 preserves public RPC, message, field, verb, path, and body semantics",
+      "active Identity, Member, and Plans HTTP mapping source moves from external YAML into inline annotations",
+      "OpenAPI and Kong source bundle are unreleased candidate artifacts until Stage 2-3 compatibility evidence exists"
     ]
   },
   "schemaRegistry": {

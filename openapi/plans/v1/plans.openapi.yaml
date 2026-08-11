@@ -1,0 +1,514 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Gym Active API
+    version: 6.0.0-candidate
+paths:
+    /api/v1/gyms:
+        get:
+            tags:
+                - PlansService
+            operationId: PlansService_ListGymLocations
+            parameters:
+                - name: chainId
+                  in: query
+                  schema:
+                    type: string
+                - name: city
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - GYM_LOCATION_STATUS_UNSPECIFIED
+                        - GYM_LOCATION_STATUS_ACTIVE
+                        - GYM_LOCATION_STATUS_CLOSED
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.ListGymLocationsResponse'
+            security:
+                - BearerAuth: []
+        post:
+            tags:
+                - PlansService
+            operationId: PlansService_CreateGymLocation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/plans.v1.CreateGymLocationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.CreateGymLocationResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/plans:
+        get:
+            tags:
+                - PlansService
+            operationId: PlansService_ListMembershipPlans
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: planType
+                  in: query
+                  schema:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                - name: active
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.ListMembershipPlansResponse'
+            security:
+                - BearerAuth: []
+        post:
+            tags:
+                - PlansService
+            operationId: PlansService_CreateMembershipPlan
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/plans.v1.CreateMembershipPlanRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.CreateMembershipPlanResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{id}:
+        get:
+            tags:
+                - PlansService
+            operationId: PlansService_GetGymLocation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.GetGymLocationResponse'
+            security:
+                - BearerAuth: []
+        put:
+            tags:
+                - PlansService
+            operationId: PlansService_UpdateGymLocation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/plans.v1.UpdateGymLocationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.UpdateGymLocationResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/plans/{id}:
+        get:
+            tags:
+                - PlansService
+            operationId: PlansService_GetMembershipPlan
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.GetMembershipPlanResponse'
+            security:
+                - BearerAuth: []
+        put:
+            tags:
+                - PlansService
+            operationId: PlansService_UpdateMembershipPlan
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/plans.v1.UpdateMembershipPlanRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/plans.v1.UpdateMembershipPlanResponse'
+            security:
+                - BearerAuth: []
+components:
+    schemas:
+        plans.v1.CreateGymLocationRequest:
+            type: object
+            properties:
+                chainId:
+                    type: string
+                name:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+        plans.v1.CreateGymLocationResponse:
+            example:
+                id: gym_example_01
+                chainId: chain_example_01
+                name: Downtown Gym
+                address: 100 Example Street
+                city: Example City
+                status: GYM_LOCATION_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                chainId:
+                    type: string
+                name:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                status:
+                    enum:
+                        - GYM_LOCATION_STATUS_UNSPECIFIED
+                        - GYM_LOCATION_STATUS_ACTIVE
+                        - GYM_LOCATION_STATUS_CLOSED
+                    type: string
+                    format: enum
+        plans.v1.CreateMembershipPlanRequest:
+            type: object
+            properties:
+                gymId:
+                    type: string
+                name:
+                    type: string
+                planType:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                durationDays:
+                    type: integer
+                    format: int32
+                priceVnd:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+        plans.v1.CreateMembershipPlanResponse:
+            example:
+                id: plan_example_01
+                gymId: gym_example_01
+                name: Monthly Membership
+                planType: PLAN_TYPE_MONTHLY
+                durationDays: 30
+                priceVnd: '299000'
+                description: Monthly membership
+                active: true
+            type: object
+            properties:
+                id:
+                    type: string
+                gymId:
+                    type: string
+                name:
+                    type: string
+                planType:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                durationDays:
+                    type: integer
+                    format: int32
+                priceVnd:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+        plans.v1.GetGymLocationResponse:
+            example:
+                id: gym_example_01
+                chainId: chain_example_01
+                name: Downtown Gym
+                address: 100 Example Street
+                city: Example City
+                status: GYM_LOCATION_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                chainId:
+                    type: string
+                name:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                status:
+                    enum:
+                        - GYM_LOCATION_STATUS_UNSPECIFIED
+                        - GYM_LOCATION_STATUS_ACTIVE
+                        - GYM_LOCATION_STATUS_CLOSED
+                    type: string
+                    format: enum
+        plans.v1.GetMembershipPlanResponse:
+            example:
+                id: plan_example_01
+                gymId: gym_example_01
+                name: Monthly Membership
+                planType: PLAN_TYPE_MONTHLY
+                durationDays: 30
+                priceVnd: '299000'
+                description: Monthly membership
+                active: true
+            type: object
+            properties:
+                id:
+                    type: string
+                gymId:
+                    type: string
+                name:
+                    type: string
+                planType:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                durationDays:
+                    type: integer
+                    format: int32
+                priceVnd:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+        plans.v1.ListGymLocationsResponse:
+            example:
+                locations:
+                    - id: gym_example_01
+                      chainId: chain_example_01
+                      name: Downtown Gym
+                      address: 100 Example Street
+                      city: Example City
+                      status: GYM_LOCATION_STATUS_ACTIVE
+            type: object
+            properties:
+                locations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/plans.v1.GetGymLocationResponse'
+        plans.v1.ListMembershipPlansResponse:
+            example:
+                plans:
+                    - id: plan_example_01
+                      gymId: gym_example_01
+                      name: Monthly Membership
+                      planType: PLAN_TYPE_MONTHLY
+                      durationDays: 30
+                      priceVnd: '299000'
+                      description: Monthly membership
+                      active: true
+            type: object
+            properties:
+                plans:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/plans.v1.GetMembershipPlanResponse'
+        plans.v1.UpdateGymLocationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                chainId:
+                    type: string
+                name:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                status:
+                    enum:
+                        - GYM_LOCATION_STATUS_UNSPECIFIED
+                        - GYM_LOCATION_STATUS_ACTIVE
+                        - GYM_LOCATION_STATUS_CLOSED
+                    type: string
+                    format: enum
+        plans.v1.UpdateGymLocationResponse:
+            example:
+                id: gym_example_01
+                chainId: chain_example_01
+                name: Downtown Gym
+                address: 100 Example Street
+                city: Example City
+                status: GYM_LOCATION_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                chainId:
+                    type: string
+                name:
+                    type: string
+                address:
+                    type: string
+                city:
+                    type: string
+                status:
+                    enum:
+                        - GYM_LOCATION_STATUS_UNSPECIFIED
+                        - GYM_LOCATION_STATUS_ACTIVE
+                        - GYM_LOCATION_STATUS_CLOSED
+                    type: string
+                    format: enum
+        plans.v1.UpdateMembershipPlanRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                planType:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                durationDays:
+                    type: integer
+                    format: int32
+                priceVnd:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+        plans.v1.UpdateMembershipPlanResponse:
+            example:
+                id: plan_example_01
+                gymId: gym_example_01
+                name: Monthly Membership
+                planType: PLAN_TYPE_MONTHLY
+                durationDays: 30
+                priceVnd: '299000'
+                description: Monthly membership
+                active: true
+            type: object
+            properties:
+                id:
+                    type: string
+                gymId:
+                    type: string
+                name:
+                    type: string
+                planType:
+                    enum:
+                        - PLAN_TYPE_UNSPECIFIED
+                        - PLAN_TYPE_MONTHLY
+                        - PLAN_TYPE_YEARLY
+                        - PLAN_TYPE_LIFETIME
+                    type: string
+                    format: enum
+                durationDays:
+                    type: integer
+                    format: int32
+                priceVnd:
+                    type: string
+                description:
+                    type: string
+                active:
+                    type: boolean
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+tags:
+    - name: PlansService

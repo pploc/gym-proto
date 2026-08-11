@@ -4,10 +4,30 @@ package plans.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
 
 option go_package = "github.com/pploc/proto-go/plans/v1;plansv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.plans.v1";
+option (openapi.v3.document) = {
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
 
 enum GymLocationStatus {
   GYM_LOCATION_STATUS_UNSPECIFIED = 0;
@@ -16,15 +36,162 @@ enum GymLocationStatus {
 }
 
 service PlansService {
-  rpc CreateGymLocation(CreateGymLocationRequest) returns (CreateGymLocationResponse);
-  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (UpdateGymLocationResponse);
-  rpc GetGymLocation(GetGymLocationRequest) returns (GetGymLocationResponse);
-  rpc ListGymLocations(ListGymLocationsRequest) returns (ListGymLocationsResponse);
+  rpc CreateGymLocation(CreateGymLocationRequest) returns (CreateGymLocationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms"
+      body: "*"
+    };
 
-  rpc CreateMembershipPlan(CreateMembershipPlanRequest) returns (CreateMembershipPlanResponse);
-  rpc UpdateMembershipPlan(UpdateMembershipPlanRequest) returns (UpdateMembershipPlanResponse);
-  rpc GetMembershipPlan(GetMembershipPlanRequest) returns (GetMembershipPlanResponse);
-  rpc ListMembershipPlans(ListMembershipPlansRequest) returns (ListMembershipPlansResponse);
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc UpdateGymLocation(UpdateGymLocationRequest) returns (UpdateGymLocationResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/gyms/{id}"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetGymLocation(GetGymLocationRequest) returns (GetGymLocationResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{id}"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ListGymLocations(ListGymLocationsRequest) returns (ListGymLocationsResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc CreateMembershipPlan(CreateMembershipPlanRequest) returns (CreateMembershipPlanResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms/{gym_id}/plans"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc UpdateMembershipPlan(UpdateMembershipPlanRequest) returns (UpdateMembershipPlanResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/plans/{id}"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetMembershipPlan(GetMembershipPlanRequest) returns (GetMembershipPlanResponse) {
+    option (google.api.http) = {get: "/api/v1/plans/{id}"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc ListMembershipPlans(ListMembershipPlansRequest) returns (ListMembershipPlansResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{gym_id}/plans"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 
   // Internal only. Requires the verified ms-gym-identifier workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
@@ -98,6 +265,9 @@ message ListGymLocationsRequest {
 }
 
 message CreateGymLocationResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: gym_example_01\nchainId: chain_example_01\nname: Downtown Gym\naddress: 100 Example Street\ncity: Example City\nstatus: GYM_LOCATION_STATUS_ACTIVE\n"}
+  };
   string id = 1;
   string chain_id = 2;
   string name = 3;
@@ -107,6 +277,9 @@ message CreateGymLocationResponse {
 }
 
 message UpdateGymLocationResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: gym_example_01\nchainId: chain_example_01\nname: Downtown Gym\naddress: 100 Example Street\ncity: Example City\nstatus: GYM_LOCATION_STATUS_ACTIVE\n"}
+  };
   string id = 1;
   string chain_id = 2;
   string name = 3;
@@ -116,6 +289,9 @@ message UpdateGymLocationResponse {
 }
 
 message GetGymLocationResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: gym_example_01\nchainId: chain_example_01\nname: Downtown Gym\naddress: 100 Example Street\ncity: Example City\nstatus: GYM_LOCATION_STATUS_ACTIVE\n"}
+  };
   string id = 1;
   string chain_id = 2;
   string name = 3;
@@ -125,6 +301,9 @@ message GetGymLocationResponse {
 }
 
 message ListGymLocationsResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "locations:\n  - id: gym_example_01\n    chainId: chain_example_01\n    name: Downtown Gym\n    address: 100 Example Street\n    city: Example City\n    status: GYM_LOCATION_STATUS_ACTIVE\n"}
+  };
   repeated GetGymLocationResponse locations = 1;
 }
 
@@ -208,6 +387,9 @@ message ListMembershipPlansRequest {
 }
 
 message CreateMembershipPlanResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: plan_example_01\ngymId: gym_example_01\nname: Monthly Membership\nplanType: PLAN_TYPE_MONTHLY\ndurationDays: 30\npriceVnd: '299000'\ndescription: Monthly membership\nactive: true\n"}
+  };
   string id = 1;
   string gym_id = 2;
   string name = 3;
@@ -219,6 +401,9 @@ message CreateMembershipPlanResponse {
 }
 
 message UpdateMembershipPlanResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: plan_example_01\ngymId: gym_example_01\nname: Monthly Membership\nplanType: PLAN_TYPE_MONTHLY\ndurationDays: 30\npriceVnd: '299000'\ndescription: Monthly membership\nactive: true\n"}
+  };
   string id = 1;
   string gym_id = 2;
   string name = 3;
@@ -230,6 +415,9 @@ message UpdateMembershipPlanResponse {
 }
 
 message GetMembershipPlanResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: plan_example_01\ngymId: gym_example_01\nname: Monthly Membership\nplanType: PLAN_TYPE_MONTHLY\ndurationDays: 30\npriceVnd: '299000'\ndescription: Monthly membership\nactive: true\n"}
+  };
   string id = 1;
   string gym_id = 2;
   string name = 3;
@@ -241,6 +429,9 @@ message GetMembershipPlanResponse {
 }
 
 message ListMembershipPlansResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "plans:\n  - id: plan_example_01\n    gymId: gym_example_01\n    name: Monthly Membership\n    planType: PLAN_TYPE_MONTHLY\n    durationDays: 30\n    priceVnd: '299000'\n    description: Monthly membership\n    active: true\n"}
+  };
   repeated GetMembershipPlanResponse plans = 1;
 }
 

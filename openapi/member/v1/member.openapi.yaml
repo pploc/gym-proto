@@ -1,0 +1,417 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Gym Active API
+    version: 6.0.0-candidate
+paths:
+    /api/v1/gyms/{gymId}/members:
+        get:
+            tags:
+                - MemberService
+            operationId: MemberService_ListMembers
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.ListMembersResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/members/{memberId}/membership:
+        get:
+            tags:
+                - MemberService
+            operationId: MemberService_GetMembershipStatus
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.GetMembershipStatusResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/members/{memberId}/membership:pause:
+        post:
+            tags:
+                - MemberService
+            operationId: MemberService_PauseMembership
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/member.v1.PauseMembershipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.PauseMembershipResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/members/{memberId}/membership:resume:
+        post:
+            tags:
+                - MemberService
+            operationId: MemberService_ResumeMembership
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/member.v1.ResumeMembershipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.ResumeMembershipResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/memberships/purchase:
+        post:
+            tags:
+                - MemberService
+            operationId: MemberService_PurchaseMembership
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/member.v1.PurchaseMembershipBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.PurchaseMembershipResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/members/{memberId}:
+        get:
+            tags:
+                - MemberService
+            operationId: MemberService_GetMember
+            parameters:
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.GetMemberResponse'
+            security:
+                - BearerAuth: []
+        put:
+            tags:
+                - MemberService
+            operationId: MemberService_UpdateProfile
+            parameters:
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/member.v1.UpdateProfileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/member.v1.UpdateProfileResponse'
+            security:
+                - BearerAuth: []
+components:
+    schemas:
+        member.v1.GetMemberResponse:
+            example:
+                id: member_example_01
+                userId: user_example_01
+                fullName: Member Example
+                phone: +15555550100
+                avatarUrl: https://images.example.invalid/members/member_example_01.png
+                dateOfBirth: 1990-01-01
+                status: MEMBERSHIP_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                userId:
+                    type: string
+                fullName:
+                    type: string
+                phone:
+                    type: string
+                avatarUrl:
+                    type: string
+                dateOfBirth:
+                    type: string
+                status:
+                    enum:
+                        - MEMBERSHIP_STATUS_UNSPECIFIED
+                        - MEMBERSHIP_STATUS_NONE
+                        - MEMBERSHIP_STATUS_ACTIVE
+                        - MEMBERSHIP_STATUS_PAUSED
+                        - MEMBERSHIP_STATUS_EXPIRED
+                    type: string
+                    format: enum
+        member.v1.GetMembershipStatusResponse:
+            example:
+                memberId: member_example_01
+                status: MEMBERSHIP_STATUS_ACTIVE
+                startDate: 2026-01-01
+                endDate: 2026-02-01
+                remainingDays: 30
+            type: object
+            properties:
+                memberId:
+                    type: string
+                status:
+                    enum:
+                        - MEMBERSHIP_STATUS_UNSPECIFIED
+                        - MEMBERSHIP_STATUS_NONE
+                        - MEMBERSHIP_STATUS_ACTIVE
+                        - MEMBERSHIP_STATUS_PAUSED
+                        - MEMBERSHIP_STATUS_EXPIRED
+                    type: string
+                    format: enum
+                startDate:
+                    type: string
+                endDate:
+                    type: string
+                remainingDays:
+                    type: integer
+                    format: int32
+        member.v1.ListMembersResponse:
+            example:
+                members:
+                    - id: member_example_01
+                      userId: user_example_01
+                      fullName: Member Example
+                      phone: +15555550100
+                      status: MEMBERSHIP_STATUS_ACTIVE
+                total: 1
+            type: object
+            properties:
+                members:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/member.v1.GetMemberResponse'
+                total:
+                    type: integer
+                    format: int32
+        member.v1.PauseMembershipRequest:
+            type: object
+            properties:
+                memberId:
+                    type: string
+                gymId:
+                    type: string
+        member.v1.PauseMembershipResponse:
+            example:
+                memberId: member_example_01
+                status: MEMBERSHIP_STATUS_PAUSED
+                startDate: 2026-01-01
+                endDate: 2026-02-01
+                remainingDays: 30
+            type: object
+            properties:
+                memberId:
+                    type: string
+                status:
+                    enum:
+                        - MEMBERSHIP_STATUS_UNSPECIFIED
+                        - MEMBERSHIP_STATUS_NONE
+                        - MEMBERSHIP_STATUS_ACTIVE
+                        - MEMBERSHIP_STATUS_PAUSED
+                        - MEMBERSHIP_STATUS_EXPIRED
+                    type: string
+                    format: enum
+                startDate:
+                    type: string
+                endDate:
+                    type: string
+                remainingDays:
+                    type: integer
+                    format: int32
+        member.v1.PurchaseMembershipBody:
+            type: object
+            properties:
+                planId:
+                    type: string
+                provider:
+                    type: string
+                    description: Open provider vocabulary (MOMO, ZALOPAY, VNPAY, STRIPE, ...).
+                discountCode:
+                    type: string
+                idempotencyKey:
+                    type: string
+        member.v1.PurchaseMembershipResponse:
+            example:
+                paymentUrl: https://payments.example.invalid/checkout/payment_example_01
+                paymentId: payment_example_01
+            type: object
+            properties:
+                paymentUrl:
+                    type: string
+                paymentId:
+                    type: string
+        member.v1.ResumeMembershipRequest:
+            type: object
+            properties:
+                memberId:
+                    type: string
+                gymId:
+                    type: string
+        member.v1.ResumeMembershipResponse:
+            example:
+                memberId: member_example_01
+                status: MEMBERSHIP_STATUS_ACTIVE
+                startDate: 2026-01-01
+                endDate: 2026-02-01
+                remainingDays: 30
+            type: object
+            properties:
+                memberId:
+                    type: string
+                status:
+                    enum:
+                        - MEMBERSHIP_STATUS_UNSPECIFIED
+                        - MEMBERSHIP_STATUS_NONE
+                        - MEMBERSHIP_STATUS_ACTIVE
+                        - MEMBERSHIP_STATUS_PAUSED
+                        - MEMBERSHIP_STATUS_EXPIRED
+                    type: string
+                    format: enum
+                startDate:
+                    type: string
+                endDate:
+                    type: string
+                remainingDays:
+                    type: integer
+                    format: int32
+        member.v1.UpdateProfileRequest:
+            type: object
+            properties:
+                memberId:
+                    type: string
+                fullName:
+                    type: string
+                phone:
+                    type: string
+                avatarUrl:
+                    type: string
+                dateOfBirth:
+                    type: string
+        member.v1.UpdateProfileResponse:
+            example:
+                id: member_example_01
+                userId: user_example_01
+                fullName: Member Example
+                phone: +15555550100
+                avatarUrl: https://images.example.invalid/members/member_example_01.png
+                dateOfBirth: 1990-01-01
+                status: MEMBERSHIP_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                userId:
+                    type: string
+                fullName:
+                    type: string
+                phone:
+                    type: string
+                avatarUrl:
+                    type: string
+                dateOfBirth:
+                    type: string
+                status:
+                    enum:
+                        - MEMBERSHIP_STATUS_UNSPECIFIED
+                        - MEMBERSHIP_STATUS_NONE
+                        - MEMBERSHIP_STATUS_ACTIVE
+                        - MEMBERSHIP_STATUS_PAUSED
+                        - MEMBERSHIP_STATUS_EXPIRED
+                    type: string
+                    format: enum
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+tags:
+    - name: MemberService

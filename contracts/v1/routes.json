@@ -10,11 +10,36 @@
     "rawGrpcPathRoutingDoesNotTranscodeRest": true
   },
   "httpMappingSourceOfTruth": {
-    "format": "google.api.Service",
-    "file": "proto/http.yaml",
+    "activeFormat": "google.api.http annotations",
+    "activeFiles": [
+      "proto/identity/v1/identity.proto",
+      "proto/member/v1/member.proto",
+      "proto/plans/v1/plans.proto"
+    ],
+    "deferredFormat": "google.api.Service",
+    "deferredFile": "proto/http.yaml",
     "generationOption": "grpc_api_configuration",
     "unboundMethods": false,
-    "generatedRouteAssertion": "scripts/verify-generated-routes.sh"
+    "generatedRouteAssertion": "scripts/verify-generated-routes.sh",
+    "openApiCandidates": [
+      {
+        "service": "identity",
+        "path": "openapi/identity/v1/identity.openapi.yaml",
+        "operations": 12
+      },
+      {
+        "service": "member",
+        "path": "openapi/member/v1/member.openapi.yaml",
+        "operations": 7
+      },
+      {
+        "service": "plans",
+        "path": "openapi/plans/v1/plans.openapi.yaml",
+        "operations": 8
+      }
+    ],
+    "openApiNaming": "protobuf-json-lowerCamel for schema, query, and URI placeholder names; runtime google.api.http paths remain snake_case",
+    "kongSourceBundle": "dist/kong-proto-6.0.0.tar.gz"
   },
   "identity": {
     "public": [
