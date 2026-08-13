@@ -38,6 +38,8 @@ docker run --detach --rm --name "$container" \
   -e KONG_PLUGINS=bundled,grpc-gateway \
   -v "$temp_dir/kong.yml:/work/kong.yml:ro" \
   -v "$bundle:/proto:ro" \
+  -v "$bundle/buf:/usr/local/kong/include/buf:ro" \
+  -v "$bundle/google/api:/usr/local/kong/include/google/api:ro" \
   kong:3.8-ubuntu >/dev/null
 
 for _ in {1..30}; do

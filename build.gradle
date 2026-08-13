@@ -100,10 +100,31 @@ tasks.register('packageKongProto', Exec) {
 
 tasks.register('verifyKongProto', Exec) {
     group = 'verification'
-    description = 'Verify Kong source protobuf bundle contents and parse smoke.'
+    description = 'Verify Kong source protobuf bundle contents and startup mount smoke.'
     dependsOn tasks.named('packageKongProto')
     commandLine 'bash', '-c', "python3 '${layout.projectDirectory.file('scripts/verify-kong-proto.py').asFile.absolutePath}' && bash '${layout.projectDirectory.file('scripts/verify-kong-proto-smoke.sh').asFile.absolutePath}'"
 }
+
+tasks.register('verifyKongProtoTranscoding', Exec) {
+    group = 'verification'
+    description = 'Verify Kong 3.8 grpc-gateway parses mounted source protobufs on request.'
+    dependsOn tasks.named('packageKongProto')
+    commandLine 'bash', layout.projectDirectory.file('scripts/probe-kong-proto-transcoding.sh').asFile.absolutePath
+}
+
+tasks.register('probeKongProtoTranscoding', Exec) {
+    group = 'verification'
+    description = 'Record Kong 3.8 grpc-gateway source protobuf parser incompatibility.'
+    dependsOn tasks.named('packageKongProto')
+    commandLine 'bash', layout.projectDirectory.file('scripts/probe-kong-proto-transcoding.sh').asFile.absolutePath
+}
+
+tasks.named('verifyKongProtoTranscoding') {
+    doLast {
+        throw new GradleException('Kong 3.8 grpc-gateway cannot parse the current source protobuf bundle; use generated grpc-gateway fallback.')
+    }
+}
+
 
 tasks.register('verifyKongErrorCandidate', Exec) {
     group = 'verification'
