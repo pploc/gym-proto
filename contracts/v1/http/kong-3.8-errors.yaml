@@ -18,6 +18,16 @@ measurement:
     member_forbidden: {http_status: 403, x_error_code: ACCESS_DENIED, cors_x_error_code_browser_readable: true}
     plans_not_found: {http_status: 404, x_error_code: PLAN_NOT_FOUND, cors_x_error_code_browser_readable: true}
     local_binding_failures: {http_status: 400, x_error_code: absent}
-    deterministic_500: skipped-no-fixture-input
-    deterministic_503: skipped-no-fixture-input
+    deterministic_500:
+      http_status: 500
+      body: '{"code":13, "message":"Internal server error", "details":[]}'
+      x_error_code: INTERNAL
+      cors_x_error_code_browser_readable: true
+      contains_internal_exception_text: false
+    deterministic_503:
+      http_status: 503
+      body: '{"code":14, "message":"Upstream service unavailable", "details":[]}'
+      x_error_code: absent
+      cors_status_and_body_browser_readable: true
+      contains_internal_exception_text: false
 release_ready: true

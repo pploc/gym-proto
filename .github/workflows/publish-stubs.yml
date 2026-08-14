@@ -17,7 +17,6 @@ env:
   PROTO_GO_RELEASE_TARGET: v1.6.0
   GNOSTIC_VERSION: v0.7.1
   GNOSTIC_COMMIT: 39aedcfe9f00c4336420c8ed927fb0f803f921f2
-  KONG_COMPATIBILITY_READY: "false"
   SCHEMA_REGISTRY_URL: http://localhost:8081
 
 jobs:
@@ -96,7 +95,6 @@ jobs:
           buf lint proto
           buf breaking . --against ".git#tag=${STABLE_PROTO_TAG}"
           python3 ./scripts/verify-retired-symbols.py
-          python3 ./scripts/verify-kong-errors.py
           test "$(go list -m -f '{{.Version}} {{.Origin.Hash}}' github.com/google/gnostic@${GNOSTIC_VERSION})" = "${GNOSTIC_VERSION} ${GNOSTIC_COMMIT}"
 
       - name: Generate stubs and verify routes
@@ -195,9 +193,14 @@ jobs:
             openapi/member/v1/member.openapi.yaml \
             openapi/plans/v1/plans.openapi.yaml \
             dist/kong-proto-6.0.0.tar.gz > evidence/candidate-artifacts.sha256
+          if python3 ./scripts/verify-kong-errors.py --release; then
+            release_ready=true
+          else
+            release_ready=false
+          fi
           jq --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
             --arg generatorCommit "$GNOSTIC_COMMIT" \
-            --argjson releaseReady false \
+            --argjson releaseReady "$release_ready" \
             '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, stableProtoTag: env.STABLE_PROTO_TAG, releaseTarget: env.RELEASE_TARGET, generator: $generator, generatorCommit: $generatorCommit, releaseReady: $releaseReady}' \
             > evidence/validation-report.json
 
@@ -257,7 +260,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$KONG_COMPATIBILITY_READY" = true
           python3 ./scripts/verify-kong-errors.py --release
 
       - name: Refuse conflicting release artifacts
@@ -300,6 +302,17 @@ jobs:
             openapi/member/v1/member.openapi.yaml \
             openapi/plans/v1/plans.openapi.yaml \
             dist/kong-proto-6.0.0.tar.gz > evidence/candidate-artifacts.sha256
+          cp openapi/identity/v1/identity.openapi.yaml evidence/identity.openapi.yaml
+          cp openapi/member/v1/member.openapi.yaml evidence/member.openapi.yaml
+          cp openapi/plans/v1/plans.openapi.yaml evidence/plans.openapi.yaml
+          cp dist/kong-proto-6.0.0.tar.gz evidence/
+          cp dist/kong-proto-6.0.0.tar.gz.sha256 evidence/
+          sha256sum \
+            evidence/identity.openapi.yaml \
+            evidence/member.openapi.yaml \
+            evidence/plans.openapi.yaml \
+            evidence/kong-proto-6.0.0.tar.gz \
+            > evidence/release-assets.sha256
           jq -n --arg version "$RELEASE_VERSION" \
             --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
             --arg generatorCommit "$GNOSTIC_COMMIT" \

@@ -46,7 +46,7 @@
   "technicalEvidence": {
     "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v5.0.0",
     "previousStableSourceSha": "59000df8efa312b50763c3b95694b46842d2f6df",
-    "publication": "blocked-pending-stage-2-3-kong-compatibility-spike",
+    "publication": "candidate-measured-generated-gateway-errors; release artifact publication remains pending approval",
     "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",
     "openApiAnnotations": {
       "source": "vendored exact github.com/google/gnostic v0.7.1 sources",
@@ -74,7 +74,7 @@
     ],
     "openApiGeneration": "direct source-relative Gnostic output; no post-generation normalization, merge, or rewrite",
     "kongSourceBundle": "dist/kong-proto-6.0.0.tar.gz",
-    "runtimeErrorEvidence": "pending-stage-3-compatibility-spike"
+    "runtimeErrorEvidence": "measured-stage-3-generated-gateway; deterministic-500-503-measured-and-sanitized"
   },
   "requiredEvidence": [
     "exactly 27 active inline google.api.http annotations with no external YAML duplicate",

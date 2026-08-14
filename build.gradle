@@ -229,6 +229,10 @@ tasks.register('verifyConfluentBackwardCompatibility', JavaExec) {
     args(providers.gradleProperty('schemaRegistryUrl').orElse('http://localhost:8081').get())
 }
 
+tasks.withType(PublishToMavenRepository).configureEach {
+    dependsOn tasks.named('verifyKongErrorRelease')
+}
+
 tasks.named('check') {
     dependsOn tasks.named('verifyHttpConfig')
     dependsOn tasks.named('verifyRetiredSymbols')
