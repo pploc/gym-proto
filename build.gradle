@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '6.0.0'
+version = System.getenv('RELEASE_VERSION') ?: '6.0.1'
 
 java {
     toolchain {

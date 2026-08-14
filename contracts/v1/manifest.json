@@ -1,24 +1,24 @@
 {
-  "contractVersion": "v6.0.0",
-  "status": "released",
+  "contractVersion": "v6.0.1",
+  "status": "release-candidate",
   "versions": {
     "gymProto": {
       "currentStable": "v6.0.0",
-      "releaseTarget": "v6.0.0",
-      "status": "released"
+      "releaseTarget": "v6.0.1",
+      "status": "release-candidate"
     },
     "protoGo": {
       "currentStable": "v1.6.0",
-      "releaseTarget": "v1.6.0",
+      "releaseTarget": "v1.6.1",
       "modulePath": "github.com/pploc/proto-go",
-      "status": "released",
-      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 6.0.0."
+      "status": "release-candidate",
+      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 6.0.1."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
       "currentStable": "6.0.0",
-      "releaseTarget": "6.0.0",
-      "status": "released"
+      "releaseTarget": "6.0.1",
+      "status": "release-candidate"
     },
     "commonGo": "v0.4.0",
     "commonJava": "2.1.0",
@@ -46,7 +46,7 @@
   "technicalEvidence": {
     "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v5.0.0",
     "previousStableSourceSha": "59000df8efa312b50763c3b95694b46842d2f6df",
-    "publication": "released v6.0.0; generated-gateway errors are measured and release assets are published",
+    "publication": "v6.0.1 release candidate; v6.0.0 remains immutable while the canonical merged OpenAPI artifact is added",
     "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",
     "openApiAnnotations": {
       "source": "vendored exact github.com/google/gnostic v0.7.1 sources",
@@ -72,8 +72,12 @@
         "operations": 8
       }
     ],
-    "openApiGeneration": "direct source-relative Gnostic output; no post-generation normalization, merge, or rewrite",
-    "kongSourceBundle": "dist/kong-proto-6.0.0.tar.gz",
+    "openApiGeneration": "direct source-relative Gnostic output followed by deterministic collision-rejecting merge into the active public document",
+    "activeOpenApi": {
+      "path": "openapi/gym-active-api.openapi.yaml",
+      "operations": 27
+    },
+    "kongSourceBundle": "dist/kong-proto-6.0.1.tar.gz",
     "runtimeErrorEvidence": "measured-stage-3-generated-gateway; deterministic-500-503-measured-and-sanitized"
   },
   "requiredEvidence": [
@@ -84,7 +88,8 @@
     "stable identity-only JWT claims",
     "Kong trusted-header stripping and identity-role-only injection regression test",
     "measured Kong 3.8 error/header/CORS evidence before publication",
-    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.6.0",
-    "Java gym-proto-java:6.0.0 from GitHub Packages"
+    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.6.1",
+    "Java gym-proto-java:6.0.1 from GitHub Packages",
+    "deterministic merged gym-active-api.openapi.yaml with exactly 27 operations"
   ]
 }

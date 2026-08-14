@@ -16,4 +16,5 @@ GOBIN="$plugin_dir" go install github.com/google/gnostic/cmd/protoc-gen-openapi@
     --path proto/plans/v1/plans.proto \
     --template "$root/buf.openapi.gen.yaml"
 )
+python3 "$root/scripts/merge-openapi.py"
 rm -rf "$plugin_dir"

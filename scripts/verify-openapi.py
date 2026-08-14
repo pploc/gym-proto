@@ -9,6 +9,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 OPERATIONS = ROOT / "contracts/v1/http/active-operations.yaml"
+CANONICAL_DOCUMENT = ROOT / "openapi/gym-active-api.openapi.yaml"
+CANDIDATE_VERSION = "6.0.1-candidate"
 METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
 SERVICE_DOCUMENTS = {
     "identity": {
@@ -94,7 +96,7 @@ def given_service_document_when_verified_then_match_partition(
     document = yaml.safe_load(config["path"].read_text())
     if not str(document.get("openapi", "")).startswith("3.0."):
         raise SystemExit(f"{service} OpenAPI version must be 3.0.x: {document.get('openapi')}")
-    if document.get("info", {}).get("version") != "6.0.0-candidate":
+    if document.get("info", {}).get("version") != CANDIDATE_VERSION:
         raise SystemExit(f"wrong {service} OpenAPI candidate version: {document.get('info', {}).get('version')}")
 
     service_operations = [
@@ -208,9 +210,29 @@ def given_service_annotations_when_openapi_is_generated_then_documents_are_isola
     if len(all_operation_ids) != 27:
         raise SystemExit(f"expected 27 unique OpenAPI operations, got {len(all_operation_ids)}")
 
+    canonical = yaml.safe_load(CANONICAL_DOCUMENT.read_text())
+    if canonical.get("openapi") != "3.0.3":
+        raise SystemExit(f"wrong canonical OpenAPI version: {canonical.get('openapi')}")
+    if canonical.get("info", {}).get("version") != CANDIDATE_VERSION:
+        raise SystemExit(f"wrong canonical OpenAPI candidate version: {canonical.get('info', {}).get('version')}")
+    canonical_operations = {
+        operation.get("operationId")
+        for path_item in canonical.get("paths", {}).values()
+        for method, operation in path_item.items()
+        if method.upper() in METHODS
+    }
+    if canonical_operations != all_operation_ids:
+        raise SystemExit(
+            "canonical OpenAPI operations differ: "
+            f"missing={sorted(all_operation_ids - canonical_operations)}, "
+            f"extra={sorted(canonical_operations - all_operation_ids)}"
+        )
+    if len(canonical_operations) != 27:
+        raise SystemExit(f"expected 27 canonical OpenAPI operations, got {len(canonical_operations)}")
+
     print(
-        "given active annotations when service OpenAPI documents are generated "
-        "then Identity 12, Member 7, and Plans 8 operations match"
+        "given active annotations when service and canonical OpenAPI documents are generated "
+        "then Identity 12, Member 7, Plans 8, and canonical 27 operations match"
     )
 
 

@@ -3,7 +3,7 @@ set -euo pipefail
 
 readonly root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly export_dir="$root/dist/kong-proto"
-readonly archive="$root/dist/kong-proto-6.0.0.tar.gz"
+readonly archive="$root/dist/kong-proto-6.0.1.tar.gz"
 
 rm -rf "$export_dir" "$archive"
 mkdir -p "$export_dir"
