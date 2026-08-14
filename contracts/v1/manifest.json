@@ -1,24 +1,24 @@
 {
-  "contractVersion": "v6-candidate",
-  "status": "candidate",
+  "contractVersion": "v6.0.0",
+  "status": "released",
   "versions": {
     "gymProto": {
-      "currentStable": "v5.0.0",
+      "currentStable": "v6.0.0",
       "releaseTarget": "v6.0.0",
-      "status": "unreleased-candidate"
+      "status": "released"
     },
     "protoGo": {
-      "currentStable": "v1.5.0",
+      "currentStable": "v1.6.0",
       "releaseTarget": "v1.6.0",
       "modulePath": "github.com/pploc/proto-go",
-      "status": "unreleased-candidate",
+      "status": "released",
       "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 6.0.0."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "currentStable": "5.0.0",
+      "currentStable": "6.0.0",
       "releaseTarget": "6.0.0",
-      "status": "unreleased-candidate"
+      "status": "released"
     },
     "commonGo": "v0.4.0",
     "commonJava": "2.1.0",
@@ -46,7 +46,7 @@
   "technicalEvidence": {
     "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v5.0.0",
     "previousStableSourceSha": "59000df8efa312b50763c3b95694b46842d2f6df",
-    "publication": "candidate-measured-generated-gateway-errors; release artifact publication remains pending approval",
+    "publication": "released v6.0.0; generated-gateway errors are measured and release assets are published",
     "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",
     "openApiAnnotations": {
       "source": "vendored exact github.com/google/gnostic v0.7.1 sources",
