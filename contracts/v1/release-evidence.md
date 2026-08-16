@@ -169,10 +169,10 @@ Existing historical evidence above is preserved and not rewritten.
 
 - Source branch: `develop`
 - Last stable `gym-proto` tag: `v6.0.1`
-- Superseded immutable source release: `v7.0.0`
-- Candidate source release: `v7.0.1`
+- Superseded immutable source releases: `v7.0.0`, `v7.0.1`
+- Candidate source release: `v7.0.2`
 - Superseded immutable Java artifact: `com.gym.proto:gym-proto-java:7.0.0`
-- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.1`
+- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.2`
 - Superseded immutable Go artifact: `github.com/pploc/proto-go@v1.7.0`
 - Candidate Go artifact: `github.com/pploc/proto-go@v1.7.1`
 - Publication status: not published
@@ -182,7 +182,7 @@ Existing historical evidence above is preserved and not rewritten.
 variant. Its Java API variant has no dependencies, so a clean Java 26 consumer
 cannot compile generated Protobuf types without declaring `protobuf-java`
 itself. Version `7.0.0` is immutable and remains available for reproducibility;
-`7.0.1` restores compile-visible generated-type dependencies from the same G10
+`7.0.2` restores compile-visible generated-type dependencies from the same G10
 contract source, then pairs with a new immutable Go `v1.7.1` tag.
 
 ## Coordinated G10 contract change
@@ -258,23 +258,50 @@ has tag policy `v7.0.0`.
 - `github.com/pploc/proto-go@v1.7.0` resolves without `replace` to
   `c51dda1954bfa8ef08fd2199566e3f3d3202e858`.
 
+`v7.0.1` is an immutable recovery tag for
+`393ec0b4621889ce01cc1ce12ee2348bfa245cf4`. Its workflow did not reach Java,
+Go, or release publication because release evidence referenced an absent
+`kong-proto-7.0.0.tar.gz` file. No `7.0.1` Java, Go, or GitHub release artifact
+exists.
+
 The Java `7.0.0` POM places generated-type dependencies at Maven `runtime`
 scope, and its Gradle `apiElements` variant has no dependencies. A Java 26
 consumer importing generated types fails with `class file for
 com.google.protobuf.MessageOrBuilder not found`. The package, source tag, Go
-tag, and release remain immutable. Recovery publishes only new `v7.0.1`, Java
-`7.0.1`, and Go `v1.7.1` artifacts after protected validation; schemas and wire
+tag, and release remain immutable. Recovery publishes only new `v7.0.2`, Java
+`7.0.2`, and Go `v1.7.1` artifacts after protected validation; schemas and wire
 contract do not change.
 
 `verify-kong-errors.py --release` validates committed G9 generated-gateway and
 Kong error evidence. It does not claim fresh G10 Stage 3 Check-in runtime
 probing.
 
+Recovery source was protected and merged as
+[`393ec0b4621889ce01cc1ce12ee2348bfa245cf4`](https://github.com/pploc/gym-proto/commit/393ec0b4621889ce01cc1ce12ee2348bfa245cf4)
+on 2026-08-16. PR validation run
+[`31945686301`](https://github.com/pploc/gym-proto/actions/runs/31945686301)
+and merged-source validation run
+[`31945802519`](https://github.com/pploc/gym-proto/actions/runs/31945802519)
+passed. Protected tag `v7.0.1` resolves to that merge commit; tag ruleset
+`20908696` forbids update and deletion. Release environment policy `57476793`
+permitted that tag, and its deployment was approved.
+
+Tag workflow [`31945998561`](https://github.com/pploc/gym-proto/actions/runs/31945998561)
+validated successfully, but no artifact publication started. Its release-artifact
+step referenced `evidence/kong-proto-7.0.0.tar.gz` after correctly creating the
+recovery archive `kong-proto-7.0.1.tar.gz`; it failed with `No such file or
+directory`.
+
+`v7.0.2` is the new immutable recovery candidate. It changes only release
+versioning and that stale evidence filename; it retains Go target `v1.7.1`
+because no `v1.7.1` tag exists.
+
 Pending before Gate 1 completion:
 
-- protected merge and validation for recovery source SHA;
-- tag policy and release-environment policy for `v7.0.1`;
-- external Java 26 consumer compilation against `7.0.1` without explicit
+- protected merge and validation for recovery source;
+- tag policy and release-environment policy for `v7.0.2`;
+- successful `v7.0.2` Java `7.0.2` and Go `v1.7.1` publication;
+- external Java 26 consumer compilation against `7.0.2` without explicit
   generated-type dependencies;
 - external Go `v1.7.1` resolution and release checksum verification;
 - accountable-owner approval.

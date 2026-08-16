@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '7.0.1'
+version = System.getenv('RELEASE_VERSION') ?: '7.0.2'
 
 ext {
     confluentVersion = '8.0.7'

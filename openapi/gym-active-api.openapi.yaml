@@ -947,7 +947,7 @@ components:
       type: http
 info:
   title: Gym Active API
-  version: 7.0.1-candidate
+  version: 7.0.2-candidate
 openapi: 3.0.3
 paths:
   /api/v1/admin/trainers:
