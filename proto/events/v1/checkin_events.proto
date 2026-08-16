@@ -3,12 +3,15 @@ syntax = "proto3";
 package events.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/pploc/proto-go/events/v1;eventsv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.events.v1";
 
 message CheckInRecordedEvent {
+  reserved 3;
+  reserved "device_id";
   string member_id = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
@@ -17,9 +20,5 @@ message CheckInRecordedEvent {
     min_len: 1
     max_len: 128
   }];
-  string device_id = 3 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  int64 checked_in_at = 4 [(buf.validate.field).int64 = {gt: 0}];
+  google.protobuf.Timestamp checked_in_at = 4 [(buf.validate.field).required = true];
 }

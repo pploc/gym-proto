@@ -22,6 +22,7 @@ public final class ConfluentFixtureGenerator {
             throw new IllegalArgumentException("Usage: <output-path> <schema-registry-url>");
         }
 
+        FixtureSupport.requireSchemaRegistryClientVersion();
         Path outputPath = Path.of(args[0]);
         String schemaRegistryUrl = args[1];
         CachedSchemaRegistryClient registry = new CachedSchemaRegistryClient(schemaRegistryUrl, 100);
@@ -45,7 +46,7 @@ public final class ConfluentFixtureGenerator {
                       "fixtureFormatVersion": 1,
                       "generatedBy": {
                         "tool": "gym-proto ConfluentFixtureGenerator",
-                        "schemaRegistryClient": "7.7.1",
+                        "schemaRegistryClient": "%s",
                         "schemaRegistryUrl": "%s"
                       },
                       "environment": {
@@ -60,6 +61,7 @@ public final class ConfluentFixtureGenerator {
                       ]
                     }
                     """.formatted(
+                    FixtureSupport.SCHEMA_REGISTRY_CLIENT_VERSION,
                     escape(schemaRegistryUrl),
                     FixtureSupport.SCHEMA_TYPE,
                     FixtureSupport.COMPATIBILITY,

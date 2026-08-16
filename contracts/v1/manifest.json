@@ -1,28 +1,28 @@
 {
-  "contractVersion": "v6.0.1",
+  "contractVersion": "v7.0.0",
   "status": "release-candidate",
   "versions": {
     "gymProto": {
-      "currentStable": "v6.0.0",
-      "releaseTarget": "v6.0.1",
+      "currentStable": "v6.0.1",
+      "releaseTarget": "v7.0.0",
       "status": "release-candidate"
     },
     "protoGo": {
-      "currentStable": "v1.6.0",
-      "releaseTarget": "v1.6.1",
+      "currentStable": "v1.6.1",
+      "releaseTarget": "v1.7.0",
       "modulePath": "github.com/pploc/proto-go",
       "status": "release-candidate",
-      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 6.0.1."
+      "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 7.0.0."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "currentStable": "6.0.0",
-      "releaseTarget": "6.0.1",
+      "currentStable": "6.0.1",
+      "releaseTarget": "7.0.0",
       "status": "release-candidate"
     },
     "commonGo": "v0.4.0",
     "commonJava": "2.1.0",
-    "schemaRegistry": "Confluent Schema Registry 7.7.1 / Protobuf / BACKWARD"
+    "schemaRegistry": "Confluent Schema Registry 7.7.1 / kafka-protobuf-serializer 8.0.7 / Protobuf / BACKWARD"
   },
   "owners": {
     "go": "pending",
@@ -41,12 +41,15 @@
     "semantic-compatibility.md",
     "release-evidence.md",
     "kafka/wire-format.json",
+    "kafka/confluent-7.7.1-fixtures.json",
     "dlq/retry-and-dlq.json"
   ],
   "technicalEvidence": {
-    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v5.0.0",
-    "previousStableSourceSha": "59000df8efa312b50763c3b95694b46842d2f6df",
-    "publication": "v6.0.1 release candidate; v6.0.0 remains immutable while the canonical merged OpenAPI artifact is added",
+    "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v6.0.1",
+    "previousStableSourceSha": "7f887b99503353b3c6a3066361ff5b36d44b6811",
+    "publication": "v7.0.0 release candidate; v6.0.1 remains immutable while coordinated G10 Check-in contracts are generated and verified",
+    "releaseClassification": "deliberate-major-contract-change",
+    "expectedBufBreakingDiagnostics": 24,
     "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",
     "openApiAnnotations": {
       "source": "vendored exact github.com/google/gnostic v0.7.1 sources",
@@ -70,26 +73,36 @@
         "service": "plans",
         "path": "openapi/plans/v1/plans.openapi.yaml",
         "operations": 8
+      },
+      {
+        "service": "checkin",
+        "path": "openapi/checkin/v1/checkin.openapi.yaml",
+        "operations": 6
       }
     ],
     "openApiGeneration": "direct source-relative Gnostic output followed by deterministic collision-rejecting merge into the active public document",
     "activeOpenApi": {
       "path": "openapi/gym-active-api.openapi.yaml",
-      "operations": 27
+      "operations": 33
     },
-    "kongSourceBundle": "dist/kong-proto-6.0.1.tar.gz",
-    "runtimeErrorEvidence": "measured-stage-3-generated-gateway; deterministic-500-503-measured-and-sanitized"
+    "kongSourceBundle": "dist/kong-proto-7.0.0.tar.gz",
+    "runtimeErrorEvidence": "measured-stage-3-generated-gateway; deterministic-500-503-measured-and-sanitized",
+    "checkInKafkaFixture": "generated and verified against clean Confluent Schema Registry 7.7.1; fixture SHA-256 e79341b996d5052c0e0e4a0fe2621fd5edab6ad3b2d3a8304678664cbb46b4ab"
   },
   "requiredEvidence": [
-    "exactly 27 active inline google.api.http annotations with no external YAML duplicate",
-    "Gnostic OpenAPI 3 candidate generated from active annotations",
-    "deterministic Kong 3.8 source protobuf bundle and Member/Plans parse smoke",
-    "retired SelectGym and GetMembershipStatusByUserId symbols absent",
-    "stable identity-only JWT claims",
+    "exactly 33 active inline google.api.http annotations with no external YAML duplicate",
+    "Gnostic OpenAPI 3 candidate generated from active annotations with Identity 12, Member 7, Plans 8, and Check-in 6 operations",
+    "deterministic Kong 3.8 source protobuf bundle containing all four active roots",
+    "24 expected Buf FILE breaking diagnostics against immutable v6.0.1 and no unclassified diagnostics",
+    "retired SelectGym, GetMembershipStatusByUserId, Check-in GetCheckInHistory, RegisterDevice, and RevokeDevice symbols absent",
+    "removed Check-in and Member fields reserved by exact field number and name",
+    "stable identity-only JWT claims and no display-device authentication contract",
+    "exact Check-in-only Member ValidateMembership and Plans ValidateCheckInGym workload allowlists",
+    "checkin.recorded.v1 Confluent Protobuf fixture generated through clean Schema Registry with canonical member key and headers",
     "Kong trusted-header stripping and identity-role-only injection regression test",
-    "measured Kong 3.8 error/header/CORS evidence before publication",
-    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.6.1",
-    "Java gym-proto-java:6.0.1 from GitHub Packages",
-    "deterministic merged gym-active-api.openapi.yaml with exactly 27 operations"
+    "measured G10 generated-gateway error/header/CORS evidence before publication",
+    "tagged proto-go external import without replace under github.com/pploc/proto-go @ v1.7.0",
+    "Java gym-proto-java:7.0.0 from GitHub Packages",
+    "deterministic merged gym-active-api.openapi.yaml with exactly 33 operations"
   ]
 }

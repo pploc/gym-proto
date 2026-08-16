@@ -4,7 +4,7 @@
 openapi: 3.0.3
 info:
     title: Gym Active API
-    version: 6.0.1-candidate
+    version: 7.0.0-candidate
 paths:
     /api/v1/admin/trainers:
         post:

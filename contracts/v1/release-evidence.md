@@ -160,3 +160,81 @@ Publication completed on 2026-08-08 from workflow run `31258506342`:
 - `com.gym.proto:gym-proto-java:3.0.0` resolves from GitHub Packages.
 
 Existing historical evidence above is preserved and not rewritten.
+
+---
+
+# Phase 10 candidate release evidence
+
+## Candidate
+
+- Source branch: `develop`
+- Last stable `gym-proto` tag: `v6.0.1`
+- Candidate source release: `v7.0.0`
+- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.0`
+- Candidate Go artifact: `github.com/pploc/proto-go@v1.7.0`
+- Publication status: not published
+- Human approval status: pending
+
+## Coordinated G10 contract change
+
+- Check-in exposes exactly six JWT-authenticated public RPCs with customer identity
+  derived from verified `sub`; self-history and administrator history are separate.
+- Display-device registration, credentials, revocation, and `device_id` are retired.
+  Logged-in `SUPER_ADMIN` display retrieval carries explicit `gym_id` as resource
+  context only.
+- Member `ValidateMembership` accepts `user_id` plus `gym_id` and returns canonical
+  `member_id`; Plans adds Check-in-only `ValidateCheckInGym`. Both remain workload-only.
+- Check-in timestamps use `google.protobuf.Timestamp`; removed field numbers and names
+  remain reserved.
+- `checkin.recorded.v1` uses canonical member ID as key and
+  `events.v1.CheckInRecordedEvent` with TopicNameStrategy, canonical headers, and
+  lookup-only production schema registration.
+
+## Expected source break against `v6.0.1`
+
+`scripts/verify-expected-breaking.py` requires exactly 24 approved Buf FILE
+violations: retired Check-in RPCs/messages, removed and reserved member/device fields,
+typed Check-in timestamps, and Member's user-based validation request. Any missing or
+additional diagnostic fails validation.
+
+## Stage 0 evidence status
+
+Passed locally on 2026-08-16:
+
+- Protobuf format and STANDARD lint;
+- exact 24-diagnostic approved break check against immutable `v6.0.1`;
+- 33-operation inline HTTP allowlist with no external YAML duplicate;
+- clean generation of 702 Java, Go, gRPC, and grpc-gateway files;
+- generated route and retired-symbol checks, including six exact Check-in routes and
+  workload-only Member/Plans methods absent from public output;
+- deterministic service and canonical OpenAPI generation with Identity 12, Member 7,
+  Plans 8, Check-in 6, and 33 total operations;
+- deterministic `kong-proto-7.0.0.tar.gz` packaging and Kong 3.8 startup smoke;
+- known Kong source-transcoding probe reproduced the recorded `buf/validate` parser
+  incompatibility for Member, Plans, and Check-in, preserving the generated-gateway
+  fallback;
+- generated Java and fixture-harness compilation on Java 26;
+- clean Confluent Schema Registry 7.7.1 generation of all eleven fixtures using
+  `kafka-protobuf-serializer:8.0.7`;
+- offline and live fixture verification, lookup-only serializer conformance, and live
+  BACKWARD additive/incompatible-type checks for Identity and the new Check-in subject;
+- full `./gradlew check --no-daemon`;
+- deterministic generation checksums, JSON/YAML and Python/shell syntax checks,
+  whitespace checks, and Gnostic `v0.7.1` source commit verification.
+
+Generated Kafka fixture artifact:
+
+```text
+e79341b996d5052c0e0e4a0fe2621fd5edab6ad3b2d3a8304678664cbb46b4ab  contracts/v1/kafka/confluent-7.7.1-fixtures.json
+```
+
+Pending before publication:
+
+- protected CI on the candidate source SHA;
+- external Java `7.0.0` and Go `v1.7.0` resolution, which cannot exist before
+  publication;
+- Stage 3 generated-gateway/Kong route, header, and error evidence;
+- accountable-owner approval.
+
+No publication, runtime implementation, protected-CI result, external artifact
+resolution, or owner acceptance is claimed here.

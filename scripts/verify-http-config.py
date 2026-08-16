@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify one HTTP binding source for every RPC."""
+"""Verify one HTTP binding source for every active RPC."""
 
 import re
 from pathlib import Path
@@ -11,11 +11,19 @@ ROOT = Path(__file__).resolve().parents[1]
 PROTO = ROOT / "proto"
 ACTIVE = ROOT / "contracts/v1/http/active-operations.yaml"
 METHODS = ("get", "put", "post", "delete", "patch")
+ACTIVE_PROTO_FILES = (
+    PROTO / "identity/v1/identity.proto",
+    PROTO / "member/v1/member.proto",
+    PROTO / "plans/v1/plans.proto",
+    PROTO / "checkin/v1/checkin.proto",
+)
+ACTIVE_SERVICES = {"identity", "member", "plans", "checkin"}
 WORKLOAD_ONLY = {
     "member.v1.MemberService.ValidateMembership",
     "member.v1.MemberService.ListMembersByStatus",
     "plans.v1.PlansService.GetActiveGym",
     "plans.v1.PlansService.ResolvePurchasablePlan",
+    "plans.v1.PlansService.ValidateCheckInGym",
 }
 RETIRED = {
     "member.v1.MemberService.GetPlans",
@@ -23,6 +31,9 @@ RETIRED = {
     "member.v1.MemberService.UpdateGymLocation",
     "member.v1.MemberService.ListGymLocations",
     "member.v1.MemberService.GetGymLocation",
+    "checkin.v1.CheckInService.GetCheckInHistory",
+    "checkin.v1.CheckInService.RegisterDevice",
+    "checkin.v1.CheckInService.RevokeDevice",
 }
 
 
@@ -77,16 +88,17 @@ def annotations_contain_only_allowlisted_options(path: Path, found: dict[str, di
 
 def given_active_annotations_when_verified_then_single_source_of_truth() -> None:
     expected = yaml.safe_load(ACTIVE.read_text())["operations"]
-    if len(expected) != 27:
-        raise SystemExit(f"expected 27 active operations, got {len(expected)}")
     expected_by_selector = {operation["selector"]: operation for operation in expected}
     if len(expected_by_selector) != len(expected):
         raise SystemExit("duplicate selector in active operations")
 
     inline = {}
-    for path in (PROTO / "identity/v1/identity.proto", PROTO / "member/v1/member.proto", PROTO / "plans/v1/plans.proto"):
+    for path in ACTIVE_PROTO_FILES:
         parsed = annotations(path)
         annotations_contain_only_allowlisted_options(path, parsed)
+        overlap = set(inline) & set(parsed)
+        if overlap:
+            raise SystemExit(f"duplicate inline selectors: {sorted(overlap)}")
         inline.update(parsed)
     if set(inline) != set(expected_by_selector):
         raise SystemExit(f"inline annotation selectors differ: expected={sorted(expected_by_selector)}, actual={sorted(inline)}")
@@ -108,12 +120,14 @@ def given_active_annotations_when_verified_then_single_source_of_truth() -> None
     active_mirrors = [
         path
         for path in PROTO.glob("*/v1/*_http.yaml")
-        if path.parent.parent.name in {"identity", "member", "plans"}
+        if path.parent.parent.name in ACTIVE_SERVICES
     ]
     if active_mirrors:
         raise SystemExit(f"active service HTTP YAML mirrors must not exist: {active_mirrors}")
-    print("given active annotations when HTTP mappings are verified then 27 canonical routes have no YAML duplicate")
-
+    print(
+        "given active annotations when HTTP mappings are verified then "
+        f"{len(expected)} canonical routes have no YAML duplicate"
+    )
 
 
 if __name__ == "__main__":

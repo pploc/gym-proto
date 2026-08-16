@@ -2,7 +2,7 @@
   "fixtureFormatVersion": 1,
   "generatedBy": {
     "tool": "gym-proto ConfluentFixtureGenerator",
-    "schemaRegistryClient": "7.7.1",
+    "schemaRegistryClient": "8.0.7",
     "schemaRegistryUrl": "http://localhost:8081"
   },
   "environment": {
@@ -271,6 +271,32 @@
             "schemaIdBigEndianHex": "00000003",
             "messageIndexesHex": "0206",
             "completeHex": "000000000302060a08757365722d3031301215757365722d303130406578616d706c652e746573741a0c466978747572652055736572223a687474703a2f2f6c6f63616c686f73743a333030302f7665726966792d656d61696c3f746f6b656e3d666978747572652d746f6b656e2d3031302880fca483bd3130b4e095ffbc31"
+          }
+        },
+        {
+          "name": "checkin-recorded",
+          "topic": "checkin.recorded.v1",
+          "keyUtf8": "member-011",
+          "subject": "checkin.recorded.v1-value",
+          "eventType": "events.v1.CheckInRecordedEvent",
+          "schema": {
+            "id": 6,
+            "version": 1,
+            "type": "PROTOBUF"
+          },
+          "headers": {
+          "event-type": "events.v1.CheckInRecordedEvent",
+          "source": "ms-gym-checkin",
+          "timestamp": "1700000003123",
+          "event-id": "fixture-checkin-recorded-011",
+          "traceparent": "00-0000000000000000000000000000000b-000000000000000b-01"
+          },
+          "payloadHex": "0a0a6d656d6265722d303131120767796d2d303034220b0883e2cfaa0610c0a9d33a",
+          "frame": {
+            "magicByteHex": "00",
+            "schemaIdBigEndianHex": "00000006",
+            "messageIndexesHex": "00",
+            "completeHex": "0000000006000a0a6d656d6265722d303131120767796d2d303034220b0883e2cfaa0610c0a9d33a"
           }
         }
   ]

@@ -117,3 +117,39 @@ Stage 0 is one coordinated pre-production break before Phase 9 gateway generatio
 - [x] Internal Member and Plans workload methods remain unbound.
 - [x] Java and Go artifacts must be published from one source SHA as Java `5.0.0`
       and Go `v1.5.0`; existing immutable artifacts remain unchanged.
+
+## v7.0.0 semantic review
+
+G10 is one coordinated pre-production major break against immutable `v6.0.1`.
+
+- [x] Check-in scan identity now comes from verified JWT `sub`; removed
+      `ProcessScanRequest.member_id = 1` is reserved by number and name.
+- [x] Customer self-history and `SUPER_ADMIN` member-history use separate RPCs.
+      Retired `GetCheckInHistory` RPC and message names are rejected by source and
+      generated-output checks.
+- [x] `RegisterDevice`, `RevokeDevice`, and their messages are retired. Removed
+      Check-in request, response, and event `device_id` fields are reserved by number
+      and name. No display-device identity remains in the Check-in contract.
+- [x] Display retrieval uses explicit `gym_id` and stable Bearer authentication.
+      Check-in exposes exactly six approved inline HTTP operations.
+- [x] Check-in record, QR-window, key-activation, and event times use
+      `google.protobuf.Timestamp`. Daily count keeps a validated UTC calendar date
+      with `[00:00:00Z, next 00:00:00Z)` semantics.
+- [x] Member `ValidateMembership` reserves its old request `member_id = 1`, accepts
+      new `user_id = 3` plus unchanged `gym_id = 2`, and returns canonical
+      `member_id = 3`; it remains workload-only for `ms-gym-checkin`.
+- [x] Plans adds workload-only `ValidateCheckInGym` for `ms-gym-checkin` without
+      changing Identifier `GetActiveGym` or Member `ResolvePurchasablePlan` access.
+- [x] `checkin.recorded.v1` uses canonical `member_id` as key,
+      `events.v1.CheckInRecordedEvent` as concrete value,
+      `checkin.recorded.v1-value` under `TopicNameStrategy`, canonical headers,
+      lookup-only production registration, and `checkin.recorded.v1.DLQ`.
+- [x] This is a deliberate major source, wire, JSON, domain, and generated-contract
+      change. `buf breaking` findings are expected and recorded; no removed field
+      number or name is reused.
+- [ ] Java `7.0.0` and Go `v1.7.0` artifacts must be generated from and published
+      for one approved source SHA. Immutable `v6.0.1` artifacts remain unchanged.
+- [x] Clean Schema Registry 7.7.1 fixture generation, offline/live fixture checks,
+      serializer conformance, and BACKWARD additive/incompatible-type checks pass for
+      the new Check-in subject. Publication and external artifact resolution remain
+      pending.

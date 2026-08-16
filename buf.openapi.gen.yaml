@@ -7,7 +7,7 @@ plugins:
     strategy: all
     opt:
       - title=Gym Active API
-      - version=6.0.1-candidate
+      - version=7.0.0-candidate
       - output_mode=source_relative
       - naming=json
       - fq_schema_naming=true

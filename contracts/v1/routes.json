@@ -1,20 +1,24 @@
 {
+  "contractVersion": "v7-candidate",
   "listeners": {
-    "nativeInternalGrpc": 50051,
-    "serviceLocalGrpcGatewayHttpJson": 8080
+    "generatedGatewayMtlsHttps": 8443,
+    "nativeInternalGrpc": 50051
   },
   "externalRouting": {
     "gateway": "Kong",
-    "target": "service-local-grpc-gateway-http-json",
-    "port": 8080,
-    "rawGrpcPathRoutingDoesNotTranscodeRest": true
+    "target": "generated-go-grpc-gateway",
+    "port": 8443,
+    "upstreamServiceProtocol": "mtls-grpc",
+    "upstreamServicePort": 50051,
+    "kongSourceProtoTranscoding": false
   },
   "httpMappingSourceOfTruth": {
     "activeFormat": "google.api.http annotations",
     "activeFiles": [
       "proto/identity/v1/identity.proto",
       "proto/member/v1/member.proto",
-      "proto/plans/v1/plans.proto"
+      "proto/plans/v1/plans.proto",
+      "proto/checkin/v1/checkin.proto"
     ],
     "deferredFormat": "google.api.Service",
     "deferredFile": "proto/http.yaml",
@@ -36,10 +40,15 @@
         "service": "plans",
         "path": "openapi/plans/v1/plans.openapi.yaml",
         "operations": 8
+      },
+      {
+        "service": "checkin",
+        "path": "openapi/checkin/v1/checkin.openapi.yaml",
+        "operations": 6
       }
     ],
     "openApiNaming": "protobuf-json-lowerCamel for schema, query, and URI placeholder names; runtime google.api.http paths remain snake_case",
-    "kongSourceBundle": "dist/kong-proto-6.0.0.tar.gz"
+    "kongSourceBundle": "dist/kong-proto-7.0.0.tar.gz"
   },
   "identity": {
     "public": [
@@ -127,7 +136,8 @@
     ],
     "internal": [
       "plans.v1.PlansService/GetActiveGym",
-      "plans.v1.PlansService/ResolvePurchasablePlan"
+      "plans.v1.PlansService/ResolvePurchasablePlan",
+      "plans.v1.PlansService/ValidateCheckInGym"
     ],
     "httpRoutes": {
       "plans.v1.PlansService/CreateGymLocation": "POST /api/v1/gyms",
@@ -157,8 +167,38 @@
       {
         "caller": "ms-gym-member",
         "allowedMethods": ["plans.v1.PlansService/ResolvePurchasablePlan"]
+      },
+      {
+        "caller": "ms-gym-checkin",
+        "allowedMethods": ["plans.v1.PlansService/ValidateCheckInGym"]
       }
     ]
+  },
+  "checkin": {
+    "public": [
+      "checkin.v1.CheckInService/ProcessScan",
+      "checkin.v1.CheckInService/GetMyCheckInHistory",
+      "checkin.v1.CheckInService/GetMemberCheckInHistory",
+      "checkin.v1.CheckInService/GetDailyCount",
+      "checkin.v1.CheckInService/GetDisplayQrPayload",
+      "checkin.v1.CheckInService/RotateGymQrRootKey"
+    ],
+    "httpRoutes": {
+      "checkin.v1.CheckInService/ProcessScan": "POST /api/v1/check-ins:scan",
+      "checkin.v1.CheckInService/GetMyCheckInHistory": "GET /api/v1/check-ins/me",
+      "checkin.v1.CheckInService/GetMemberCheckInHistory": "GET /api/v1/members/{member_id}/check-ins",
+      "checkin.v1.CheckInService/GetDailyCount": "GET /api/v1/gyms/{gym_id}/check-ins:daily-count",
+      "checkin.v1.CheckInService/GetDisplayQrPayload": "GET /api/v1/gyms/{gym_id}/check-in-qr",
+      "checkin.v1.CheckInService/RotateGymQrRootKey": "POST /api/v1/gyms/{gym_id}/check-in-qr:rotate"
+    },
+    "policies": {
+      "checkin.v1.CheckInService/ProcessScan": "customer-self-from-verified-sub",
+      "checkin.v1.CheckInService/GetMyCheckInHistory": "customer-self-from-verified-sub",
+      "checkin.v1.CheckInService/GetMemberCheckInHistory": "super-admin-only",
+      "checkin.v1.CheckInService/GetDailyCount": "super-admin-only",
+      "checkin.v1.CheckInService/GetDisplayQrPayload": "super-admin-only",
+      "checkin.v1.CheckInService/RotateGymQrRootKey": "super-admin-only"
+    }
   },
   "retiredSymbols": [
     "identity.v1.IdentityService/SelectGym",
@@ -166,6 +206,15 @@
     "identity.v1.SelectGymResponse",
     "member.v1.MemberService/GetMembershipStatusByUserId",
     "member.v1.GetMembershipStatusByUserIdRequest",
-    "member.v1.GetMembershipStatusByUserIdResponse"
+    "member.v1.GetMembershipStatusByUserIdResponse",
+    "checkin.v1.CheckInService/GetCheckInHistory",
+    "checkin.v1.GetCheckInHistoryRequest",
+    "checkin.v1.GetCheckInHistoryResponse",
+    "checkin.v1.CheckInService/RegisterDevice",
+    "checkin.v1.RegisterDeviceRequest",
+    "checkin.v1.RegisterDeviceResponse",
+    "checkin.v1.CheckInService/RevokeDevice",
+    "checkin.v1.RevokeDeviceRequest",
+    "checkin.v1.RevokeDeviceResponse"
   ]
 }

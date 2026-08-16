@@ -10,23 +10,24 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 OPERATIONS = ROOT / "contracts/v1/http/active-operations.yaml"
 CANONICAL_DOCUMENT = ROOT / "openapi/gym-active-api.openapi.yaml"
-CANDIDATE_VERSION = "6.0.1-candidate"
+CANDIDATE_VERSION = "7.0.0-candidate"
 METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
 SERVICE_DOCUMENTS = {
     "identity": {
         "path": ROOT / "openapi/identity/v1/identity.openapi.yaml",
         "selector_prefix": "identity.v1.",
-        "operation_count": 12,
     },
     "member": {
         "path": ROOT / "openapi/member/v1/member.openapi.yaml",
         "selector_prefix": "member.v1.",
-        "operation_count": 7,
     },
     "plans": {
         "path": ROOT / "openapi/plans/v1/plans.openapi.yaml",
         "selector_prefix": "plans.v1.",
-        "operation_count": 8,
+    },
+    "checkin": {
+        "path": ROOT / "openapi/checkin/v1/checkin.openapi.yaml",
+        "selector_prefix": "checkin.v1.",
     },
 }
 WORKLOAD_OPERATION_IDS = {
@@ -34,21 +35,24 @@ WORKLOAD_OPERATION_IDS = {
     "MemberService_ListMembersByStatus",
     "PlansService_GetActiveGym",
     "PlansService_ResolvePurchasablePlan",
+    "PlansService_ValidateCheckInGym",
 }
 
 
 def expected_operations() -> list[dict]:
     operations = yaml.safe_load(OPERATIONS.read_text())["operations"]
-    if len(operations) != 27:
-        raise ValueError(f"expected 27 active operations, got {len(operations)}")
     seen = set()
+    selectors = set()
     for operation in operations:
         key = (operation["method"].lower(), operation["path"])
         if operation["method"] not in METHODS:
             raise ValueError(f"unsupported HTTP method: {operation['method']}")
         if key in seen:
             raise ValueError(f"duplicate active operation: {operation['method']} {operation['path']}")
+        if operation["selector"] in selectors:
+            raise ValueError(f"duplicate active selector: {operation['selector']}")
         seen.add(key)
+        selectors.add(operation["selector"])
     return operations
 
 
@@ -63,8 +67,14 @@ def openapi_json_path(path: str) -> str:
 
 def resolve_schema(schemas: dict, schema: dict) -> dict:
     reference = schema.get("$ref")
-    if not reference:
-        return schema
+    if reference is None:
+        all_of = schema.get("allOf", [])
+        references = [entry.get("$ref") for entry in all_of if entry.get("$ref")]
+        if not references:
+            return schema
+        if len(references) != 1:
+            raise SystemExit(f"unsupported allOf schema references: {references}")
+        reference = references[0]
     prefix = "#/components/schemas/"
     if not reference.startswith(prefix):
         raise SystemExit(f"unsupported schema reference: {reference}")
@@ -104,10 +114,6 @@ def given_service_document_when_verified_then_match_partition(
         for operation in operations
         if operation["selector"].startswith(config["selector_prefix"])
     ]
-    if len(service_operations) != config["operation_count"]:
-        raise SystemExit(
-            f"wrong expected {service} operation count: {len(service_operations)}"
-        )
     expected = {
         (operation["method"].lower(), openapi_json_path(operation["path"])): operation
         for operation in service_operations
@@ -194,6 +200,7 @@ def given_service_document_when_verified_then_match_partition(
 def given_service_annotations_when_openapi_is_generated_then_documents_are_isolated() -> None:
     operations = expected_operations()
     all_operation_ids = set()
+    service_counts = {}
     for service, config in SERVICE_DOCUMENTS.items():
         operation_ids = given_service_document_when_verified_then_match_partition(
             service, config, operations
@@ -202,13 +209,16 @@ def given_service_annotations_when_openapi_is_generated_then_documents_are_isola
         if overlap:
             raise SystemExit(f"operations appear in multiple OpenAPI documents: {sorted(overlap)}")
         all_operation_ids.update(operation_ids)
+        service_counts[service] = len(operation_ids)
 
     if all_operation_ids & WORKLOAD_OPERATION_IDS:
         raise SystemExit(
             f"workload-only RPCs appear in OpenAPI: {sorted(all_operation_ids & WORKLOAD_OPERATION_IDS)}"
         )
-    if len(all_operation_ids) != 27:
-        raise SystemExit(f"expected 27 unique OpenAPI operations, got {len(all_operation_ids)}")
+    if len(all_operation_ids) != len(operations):
+        raise SystemExit(
+            f"expected {len(operations)} unique OpenAPI operations, got {len(all_operation_ids)}"
+        )
 
     canonical = yaml.safe_load(CANONICAL_DOCUMENT.read_text())
     if canonical.get("openapi") != "3.0.3":
@@ -227,12 +237,15 @@ def given_service_annotations_when_openapi_is_generated_then_documents_are_isola
             f"missing={sorted(all_operation_ids - canonical_operations)}, "
             f"extra={sorted(canonical_operations - all_operation_ids)}"
         )
-    if len(canonical_operations) != 27:
-        raise SystemExit(f"expected 27 canonical OpenAPI operations, got {len(canonical_operations)}")
+    if len(canonical_operations) != len(operations):
+        raise SystemExit(
+            f"expected {len(operations)} canonical OpenAPI operations, got {len(canonical_operations)}"
+        )
 
+    partition = ", ".join(f"{service} {count}" for service, count in service_counts.items())
     print(
         "given active annotations when service and canonical OpenAPI documents are generated "
-        "then Identity 12, Member 7, Plans 8, and canonical 27 operations match"
+        f"then {partition}, and canonical {len(operations)} operations match"
     )
 
 

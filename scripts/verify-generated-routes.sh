@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+readonly ACTIVE_OPERATIONS="contracts/v1/http/active-operations.yaml"
 readonly IDENTITY_GATEWAY="gen/go/identity/v1/identity.pb.gw.go"
 readonly MEMBER_GATEWAY="gen/go/member/v1/member.pb.gw.go"
 readonly PLANS_GATEWAY="gen/go/plans/v1/plans.pb.gw.go"
+readonly CHECKIN_GATEWAY="gen/go/checkin/v1/checkin.pb.gw.go"
 
-for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY"; do
+for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY"; do
   if [[ ! -f "$file" ]]; then
     printf 'missing generated gateway file: %s\n' "$file" >&2
     exit 1
@@ -37,8 +39,17 @@ reject_method() {
 
 assert_route_count() {
   local file=$1
-  local expected=$2
+  local service=$2
+  local expected
   local actual
+  expected=$(python3 - "$ACTIVE_OPERATIONS" "$service" <<'PY'
+import sys
+import yaml
+operations = yaml.safe_load(open(sys.argv[1]))["operations"]
+prefix = sys.argv[2] + ".v1."
+print(2 * sum(operation["selector"].startswith(prefix) for operation in operations))
+PY
+)
   actual=$(grep -c 'WithHTTPPathPattern' "$file" || true)
   if [[ "$actual" -ne "$expected" ]]; then
     printf 'unexpected generated route count in %s: expected %s, got %s\n' \
@@ -51,7 +62,7 @@ assert_unique_routes() {
   local file=$1
   local dups
   # grpc-gateway emits each method+path pair twice (unary + stream helpers).
-  dups=$(grep -oE '"/[^"]+", runtime.WithHTTPPathPattern\("[^"]*"\)' "$file" \
+  dups=$(grep -oE '"/[^\"]+", runtime.WithHTTPPathPattern\("[^\"]*"\)' "$file" \
     | sort | uniq -c | awk '$1 != 2 {print}')
   if [[ -n "$dups" ]]; then
     printf 'unexpected generated route multiplicity in %s:\n%s\n' "$file" "$dups" >&2
@@ -72,6 +83,7 @@ require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/CreateTrainerAcco
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/SuspendUser" "/api/v1/admin/users/{user_id}/suspend"
 require_route "$IDENTITY_GATEWAY" "identity.v1.IdentityService/ListUsers" "/api/v1/admin/users"
 reject_method "$IDENTITY_GATEWAY" "SelectGym"
+
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/GetMember" "/api/v1/members/{member_id}"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/UpdateProfile" "/api/v1/members/{member_id}"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/ListMembers" "/api/v1/gyms/{gym_id}/members"
@@ -79,6 +91,7 @@ require_route "$MEMBER_GATEWAY" "member.v1.MemberService/PurchaseMembership" "/a
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/PauseMembership" "/api/v1/gyms/{gym_id}/members/{member_id}/membership:pause"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/ResumeMembership" "/api/v1/gyms/{gym_id}/members/{member_id}/membership:resume"
 require_route "$MEMBER_GATEWAY" "member.v1.MemberService/GetMembershipStatus" "/api/v1/gyms/{gym_id}/members/{member_id}/membership"
+
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/CreateGymLocation" "/api/v1/gyms"
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/UpdateGymLocation" "/api/v1/gyms/{id}"
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/GetGymLocation" "/api/v1/gyms/{id}"
@@ -87,6 +100,13 @@ require_route "$PLANS_GATEWAY" "plans.v1.PlansService/CreateMembershipPlan" "/ap
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/UpdateMembershipPlan" "/api/v1/plans/{id}"
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/GetMembershipPlan" "/api/v1/plans/{id}"
 require_route "$PLANS_GATEWAY" "plans.v1.PlansService/ListMembershipPlans" "/api/v1/gyms/{gym_id}/plans"
+
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/ProcessScan" "/api/v1/check-ins:scan"
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetMyCheckInHistory" "/api/v1/check-ins/me"
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetMemberCheckInHistory" "/api/v1/members/{member_id}/check-ins"
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetDailyCount" "/api/v1/gyms/{gym_id}/check-ins:daily-count"
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetDisplayQrPayload" "/api/v1/gyms/{gym_id}/check-in-qr"
+require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/RotateGymQrRootKey" "/api/v1/gyms/{gym_id}/check-in-qr:rotate"
 
 reject_method "$MEMBER_GATEWAY" "GetMembershipStatusByUserId"
 reject_method "$MEMBER_GATEWAY" "ValidateMembership"
@@ -98,13 +118,18 @@ reject_method "$MEMBER_GATEWAY" "ListGymLocations"
 reject_method "$MEMBER_GATEWAY" "GetGymLocation"
 reject_method "$PLANS_GATEWAY" "GetActiveGym"
 reject_method "$PLANS_GATEWAY" "ResolvePurchasablePlan"
+reject_method "$PLANS_GATEWAY" "ValidateCheckInGym"
+reject_method "$CHECKIN_GATEWAY" "GetCheckInHistory"
+reject_method "$CHECKIN_GATEWAY" "RegisterDevice"
+reject_method "$CHECKIN_GATEWAY" "RevokeDevice"
 
-assert_route_count "$IDENTITY_GATEWAY" 24
-assert_route_count "$MEMBER_GATEWAY" 14
-assert_route_count "$PLANS_GATEWAY" 16
-for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY"; do
+assert_route_count "$IDENTITY_GATEWAY" identity
+assert_route_count "$MEMBER_GATEWAY" member
+assert_route_count "$PLANS_GATEWAY" plans
+assert_route_count "$CHECKIN_GATEWAY" checkin
+for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY"; do
   assert_unique_routes "$file"
 done
 
 python3 scripts/verify-retired-symbols.py
-printf 'generated Identifier, explicit-gym Member, and exact eight Plans routes match the frozen external surface\n'
+printf 'generated active-service routes match the frozen external surface\n'

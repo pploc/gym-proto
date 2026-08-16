@@ -63,23 +63,6 @@ http:
     body: '*'
   - selector: trainer.v1.TrainerService.GetCoachingHistory
     get: /api/v1/trainers/coaching/history
-  - selector: checkin.v1.CheckInService.ProcessScan
-    post: /api/v1/checkin/scan
-    body: '*'
-  - selector: checkin.v1.CheckInService.GetCheckInHistory
-    get: /api/v1/checkin/history/{member_id}
-  - selector: checkin.v1.CheckInService.GetDailyCount
-    get: /api/v1/checkin/daily-count
-  - selector: checkin.v1.CheckInService.RegisterDevice
-    post: /api/v1/checkin/devices
-    body: '*'
-  - selector: checkin.v1.CheckInService.GetDisplayQrPayload
-    get: /api/v1/checkin/display/qr
-  - selector: checkin.v1.CheckInService.RevokeDevice
-    delete: /api/v1/checkin/devices/{device_id}
-  - selector: checkin.v1.CheckInService.RotateGymQrRootKey
-    post: /api/v1/checkin/gyms/{gym_id}/qr-root-key:rotate
-    body: '*'
   - selector: notification.v1.NotificationService.GetMyNotifications
     get: /api/v1/notifications
   - selector: notification.v1.NotificationService.MarkAsRead

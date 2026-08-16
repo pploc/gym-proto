@@ -1,10 +1,12 @@
 package com.gym.proto.fixtures;
 
 import com.google.protobuf.Message;
+import com.google.protobuf.Timestamp;
 import com.gym.proto.common.v1.AuthProvider;
 import com.gym.proto.common.v1.PaymentType;
 import com.gym.proto.common.v1.PlanType;
 import com.gym.proto.common.v1.Role;
+import com.gym.proto.events.v1.CheckInRecordedEvent;
 import com.gym.proto.events.v1.EmailVerificationRequestedEvent;
 import com.gym.proto.events.v1.MembershipActivatedEvent;
 import com.gym.proto.events.v1.MembershipExpiredEvent;
@@ -18,17 +20,39 @@ import com.gym.proto.events.v1.UserSuspendedEvent;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 final class FixtureSupport {
     static final String SUBJECT_NAME_STRATEGY =
             "io.confluent.kafka.serializers.subject.TopicNameStrategy";
     static final String SCHEMA_TYPE = "PROTOBUF";
     static final String COMPATIBILITY = "BACKWARD";
+    static final String SCHEMA_REGISTRY_CLIENT_VERSION = "8.0.7";
 
     private FixtureSupport() {
+    }
+
+    static void requireSchemaRegistryClientVersion() {
+        Properties metadata = new Properties();
+        try (InputStream input = CachedSchemaRegistryClient.class.getResourceAsStream(
+                "/META-INF/maven/io.confluent/kafka-schema-registry-client/pom.properties")) {
+            Objects.requireNonNull(input, "Schema Registry client version metadata is missing");
+            metadata.load(input);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not read Schema Registry client version metadata", exception);
+        }
+        String runtimeVersion = metadata.getProperty("version");
+        if (!SCHEMA_REGISTRY_CLIENT_VERSION.equals(runtimeVersion)) {
+            throw new IllegalStateException(
+                    "Schema Registry client version differs: expected "
+                            + SCHEMA_REGISTRY_CLIENT_VERSION + ", got " + runtimeVersion);
+        }
     }
 
     static Map<String, FixtureCase> cases() {
@@ -222,6 +246,26 @@ final class FixtureSupport {
                         "1700000002100",
                         "fixture-email-verification-requested-010",
                         "00-0000000000000000000000000000000a-000000000000000a-01"
+                )
+        ));
+        fixtures.put("checkin-recorded", new FixtureCase(
+                "checkin.recorded.v1",
+                "member-011",
+                "events.v1.CheckInRecordedEvent",
+                CheckInRecordedEvent.newBuilder()
+                        .setMemberId("member-011")
+                        .setGymId("gym-004")
+                        .setCheckedInAt(Timestamp.newBuilder()
+                                .setSeconds(1_700_000_003L)
+                                .setNanos(123_000_000)
+                                .build())
+                        .build(),
+                canonicalHeaders(
+                        "events.v1.CheckInRecordedEvent",
+                        "ms-gym-checkin",
+                        "1700000003123",
+                        "fixture-checkin-recorded-011",
+                        "00-0000000000000000000000000000000b-000000000000000b-01"
                 )
         ));
         return fixtures;

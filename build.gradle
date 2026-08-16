@@ -4,7 +4,11 @@ plugins {
 }
 
 group = 'com.gym.proto'
-version = System.getenv('RELEASE_VERSION') ?: '6.0.1'
+version = System.getenv('RELEASE_VERSION') ?: '7.0.0'
+
+ext {
+    confluentVersion = '8.0.7'
+}
 
 java {
     toolchain {
@@ -50,7 +54,7 @@ dependencies {
 
     // Confluent 7.x protobuf provider is GeneratedMessageV3-era and VerifyError's on protobuf 4.
     // Confluent 8.x needs com.google.protobuf.GeneratedFile (protobuf-java ≥ 4.33).
-    fixturesImplementation('io.confluent:kafka-protobuf-serializer:8.0.7') {
+    fixturesImplementation("io.confluent:kafka-protobuf-serializer:${confluentVersion}") {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
         exclude group: 'com.google.protobuf', module: 'protobuf-java-util'
     }
@@ -140,14 +144,14 @@ tasks.register('verifyKongErrorRelease', Exec) {
 
 tasks.register('verifyGeneratedRoutes', Exec) {
     group = 'verification'
-    description = 'Verify generated Identifier and Member routes match the frozen external surface.'
+    description = 'Verify generated active-service routes match the frozen external surface.'
     dependsOn tasks.named('compileJava')
     commandLine 'bash', layout.projectDirectory.file('scripts/verify-generated-routes.sh').asFile.absolutePath
 }
 
 tasks.register('generateConfluentFixtures', JavaExec) {
     group = 'verification'
-    description = 'Generate Confluent Schema Registry 7.7.1 byte fixtures from a clean Registry.'
+    description = 'Generate pinned Confluent Schema Registry byte fixtures from a clean Registry.'
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(26)
     }
@@ -206,7 +210,7 @@ tasks.register('verifyEmailVerificationTokenCapture', JavaExec) {
 
 tasks.register('verifyConfluentFixtures', JavaExec) {
     group = 'verification'
-    description = 'Verify committed Confluent Schema Registry 7.7.1 byte fixtures without mutation.'
+    description = 'Verify committed Confluent Schema Registry byte fixtures without mutation.'
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(26)
     }

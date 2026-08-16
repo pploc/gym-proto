@@ -200,6 +200,10 @@ service PlansService {
   // Internal only. Requires the verified ms-gym-member workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
   rpc ResolvePurchasablePlan(ResolvePurchasablePlanRequest) returns (ResolvePurchasablePlanResponse);
+
+  // Internal only. Requires the verified ms-gym-checkin workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
+  rpc ValidateCheckInGym(ValidateCheckInGymRequest) returns (ValidateCheckInGymResponse);
 }
 
 message CreateGymLocationRequest {
@@ -468,4 +472,16 @@ message ResolvePurchasablePlanResponse {
   common.v1.PlanType plan_type = 3;
   optional int32 duration_days = 4;
   int64 price_vnd = 5;
+}
+
+message ValidateCheckInGymRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message ValidateCheckInGymResponse {
+  string gym_id = 1;
+  GymLocationStatus status = 2;
 }

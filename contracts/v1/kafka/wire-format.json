@@ -63,6 +63,12 @@
       "event": "events.v1.EmailVerificationRequestedEvent",
       "topic": "identity.email.verification-requested.v1",
       "subject": "identity.email.verification-requested.v1-value"
+    },
+    {
+      "event": "events.v1.CheckInRecordedEvent",
+      "topic": "checkin.recorded.v1",
+      "subject": "checkin.recorded.v1-value",
+      "key": "canonical-member-id-utf8"
     }
   ],
   "schema": {
@@ -71,6 +77,8 @@
     "compatibility": "BACKWARD",
     "schemaId": "assigned by Schema Registry; fixture IDs are generated only from a clean disposable Registry",
     "fixtureArtifact": "confluent-7.7.1-fixtures.json",
+    "fixtureRegistryVersion": "7.7.1",
+    "fixtureSerializerVersion": "8.0.7",
     "fixtureProcedure": "README.md",
     "enumBreakPolicy": "new-topic-and-subject-generation; never BACKWARD-revise old .v1-value subjects"
   },

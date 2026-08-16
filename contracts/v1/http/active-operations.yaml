@@ -1,5 +1,5 @@
 # Semantic allowlist only. Inline google.api.http options own runtime bindings.
-version: v6-candidate
+version: v7-candidate
 operations:
   - selector: identity.v1.IdentityService.Register
     operation_id: IdentityService_Register
@@ -154,3 +154,35 @@ operations:
     method: GET
     path: /api/v1/gyms/{gym_id}/plans
     auth: authenticated
+  - selector: checkin.v1.CheckInService.ProcessScan
+    operation_id: CheckInService_ProcessScan
+    method: POST
+    path: /api/v1/check-ins:scan
+    body: '*'
+    auth: customer-self-from-verified-sub
+  - selector: checkin.v1.CheckInService.GetMyCheckInHistory
+    operation_id: CheckInService_GetMyCheckInHistory
+    method: GET
+    path: /api/v1/check-ins/me
+    auth: customer-self-from-verified-sub
+  - selector: checkin.v1.CheckInService.GetMemberCheckInHistory
+    operation_id: CheckInService_GetMemberCheckInHistory
+    method: GET
+    path: /api/v1/members/{member_id}/check-ins
+    auth: super-admin-only
+  - selector: checkin.v1.CheckInService.GetDailyCount
+    operation_id: CheckInService_GetDailyCount
+    method: GET
+    path: /api/v1/gyms/{gym_id}/check-ins:daily-count
+    auth: super-admin-only
+  - selector: checkin.v1.CheckInService.GetDisplayQrPayload
+    operation_id: CheckInService_GetDisplayQrPayload
+    method: GET
+    path: /api/v1/gyms/{gym_id}/check-in-qr
+    auth: super-admin-only
+  - selector: checkin.v1.CheckInService.RotateGymQrRootKey
+    operation_id: CheckInService_RotateGymQrRootKey
+    method: POST
+    path: /api/v1/gyms/{gym_id}/check-in-qr:rotate
+    body: '*'
+    auth: super-admin-only

@@ -1,6 +1,6 @@
 # Confluent Protobuf fixture procedure
 
-`confluent-7.7.1-fixtures.json` is a generated, committed artifact. It does not exist until it is generated from a real clean Confluent Schema Registry 7.7.1 instance. Do not hand-author frame bytes, schema IDs, or message-index bytes.
+`confluent-7.7.1-fixtures.json` is a generated, committed artifact. It does not exist until it is generated from a real clean Confluent Schema Registry 7.7.1 instance. Fixture serialization uses the serializer version pinned by `build.gradle`; generated metadata records that runtime version. Do not hand-author frame bytes, schema IDs, or message-index bytes.
 
 ## Preconditions
 
@@ -37,7 +37,7 @@ The generator:
 1. sets subject compatibility to `BACKWARD`;
 2. uses `TopicNameStrategy`, yielding `<topic>-value` subjects;
 3. registers concrete Protobuf schemas only for this fixture-generation operation;
-4. serializes the nine fixed `events.v1` Identity, Payment, and Membership messages through Confluent's `kafka-protobuf-serializer:7.7.1`;
+4. serializes every fixed `events.v1` Identity, Payment, Membership, and Check-in fixture through the exact `kafka-protobuf-serializer` version pinned by `build.gradle`;
 5. records the complete Confluent frame, magic byte, big-endian Registry schema ID, Protobuf message-index bytes, raw payload, metadata, topic/key, and canonical headers.
 
 Production clients must set `auto.register.schemas=false`. Generation is the sole controlled exception.

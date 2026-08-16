@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v6-candidate",
+  "contractVersion": "v7-candidate",
   "identityVocabulary": {
     "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
     "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
@@ -14,17 +14,25 @@
     "generatedGoImports": "github.com/pploc/proto-go",
     "goModulePath": "github.com/pploc/proto-go",
     "sourcePackagesRemain": "*.v1",
+    "stableBaseline": "v6.0.1",
+    "releaseTarget": "v7.0.0",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "v6 candidate: Stage 1 moves active Identity, Member, and Plans HTTP mappings into inline annotations and produces unreleased OpenAPI/Kong source artifacts",
+    "currentReleaseClassification": "v7 candidate: coordinated G10 major break activates Check-in and replaces client-selected member/device identity with verified-user and logged-in-display contracts",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
     "expectedSourceBreak": [
-      "none against v5.0.0: Stage 1 preserves public RPC, message, field, verb, path, and body semantics",
-      "active Identity, Member, and Plans HTTP mapping source moves from external YAML into inline annotations",
-      "OpenAPI and Kong source bundle are unreleased candidate artifacts until Stage 2-3 compatibility evidence exists"
-    ]
+      "Check-in GetCheckInHistory, RegisterDevice, RevokeDevice, and their request/response messages are deleted",
+      "ProcessScanRequest member_id field 1 is deleted and reserved; verified JWT sub is authoritative",
+      "Check-in display request/response and CheckInRecordedEvent device_id fields are deleted and reserved",
+      "CheckInRecord.checked_in_at, SignedQrPayload.active_at/expires_at, RotateGymQrRootKeyResponse.activated_at, and CheckInRecordedEvent.checked_in_at change to google.protobuf.Timestamp",
+      "Member ValidateMembershipRequest member_id field 1 is deleted and reserved; user_id field 3 is added; canonical member_id field 3 is added to the response",
+      "Check-in adds split self/admin history RPCs and six active inline HTTP operations; Plans adds workload-only ValidateCheckInGym",
+      "OpenAPI and Kong source bundle remain unreleased candidate artifacts until G10 compatibility evidence exists"
+    ],
+    "expectedBufBreakingDiagnostics": 24,
+    "removedFieldPolicy": "reserve-number-and-name-never-reuse"
   },
   "schemaRegistry": {
     "subjectNameStrategy": "TopicNameStrategy",
@@ -38,14 +46,22 @@
     "envelope": false,
     "delivery": "at-least-once",
     "initialMemberGroup": "ms-gym-member-v2",
+    "checkInRecorded": {
+      "topic": "checkin.recorded.v1",
+      "key": "canonical-member-id-utf8",
+      "valueType": "events.v1.CheckInRecordedEvent",
+      "subject": "checkin.recorded.v1-value",
+      "dlq": "checkin.recorded.v1.DLQ"
+    },
     "incompatibleTopicHeaderSubjectRetryOrDlqChange": "new-contract-generation-and-topics"
   },
   "gateway": {
     "provesTrustedHeaderStrippingAndInjection": true,
-    "externalProtocol": "http-json-to-service-local-grpc-gateway-8080",
+    "externalProtocol": "kong-mtls-https-8443-to-generated-go-grpc-gateway-to-service-mtls-grpc-50051",
     "nativeInternalGrpcPort": 50051,
     "injectedTrustedHeaders": ["x-user-id", "x-user-role"],
-    "gymContextSource": "request-path-and-body"
+    "gymContextSource": "request-path-and-body",
+    "checkInNativeBusinessHttp": false
   },
   "jwt": {
     "algorithm": "RS256",

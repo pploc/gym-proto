@@ -1,0 +1,313 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Gym Active API
+    version: 7.0.0-candidate
+paths:
+    /api/v1/check-ins/me:
+        get:
+            tags:
+                - CheckInService
+            operationId: CheckInService_GetMyCheckInHistory
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.GetMyCheckInHistoryResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/check-ins:scan:
+        post:
+            tags:
+                - CheckInService
+            operationId: CheckInService_ProcessScan
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/checkin.v1.ProcessScanRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.ProcessScanResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/check-in-qr:
+        get:
+            tags:
+                - CheckInService
+            operationId: CheckInService_GetDisplayQrPayload
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.GetDisplayQrPayloadResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/check-in-qr:rotate:
+        post:
+            tags:
+                - CheckInService
+            operationId: CheckInService_RotateGymQrRootKey
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/checkin.v1.RotateGymQrRootKeyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.RotateGymQrRootKeyResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/gyms/{gymId}/check-ins:daily-count:
+        get:
+            tags:
+                - CheckInService
+            operationId: CheckInService_GetDailyCount
+            parameters:
+                - name: gymId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: date
+                  in: query
+                  description: |-
+                    UTC calendar date. The service rejects impossible dates with INVALID_ARGUMENT and
+                     counts valid dates in [00:00:00Z, next 00:00:00Z).
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.GetDailyCountResponse'
+            security:
+                - BearerAuth: []
+    /api/v1/members/{memberId}/check-ins:
+        get:
+            tags:
+                - CheckInService
+            operationId: CheckInService_GetMemberCheckInHistory
+            parameters:
+                - name: memberId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/checkin.v1.GetMemberCheckInHistoryResponse'
+            security:
+                - BearerAuth: []
+components:
+    schemas:
+        checkin.v1.CheckInRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                memberId:
+                    type: string
+                gymId:
+                    type: string
+                checkedInAt:
+                    type: string
+                    format: date-time
+        checkin.v1.GetDailyCountResponse:
+            example:
+                gymId: gym_example_01
+                date: '2026-08-16'
+                count: 42
+            type: object
+            properties:
+                gymId:
+                    type: string
+                date:
+                    type: string
+                count:
+                    type: integer
+                    format: int32
+        checkin.v1.GetDisplayQrPayloadResponse:
+            example:
+                gymId: gym_example_01
+                current:
+                    qrPayload: redacted-signed-qr-payload
+                    activeAt: '2026-08-16T10:00:00Z'
+                    expiresAt: '2026-08-16T10:01:00Z'
+                next:
+                    qrPayload: redacted-next-signed-qr-payload
+                    activeAt: '2026-08-16T10:01:00Z'
+                    expiresAt: '2026-08-16T10:02:00Z'
+                slotDurationSeconds: 60
+            type: object
+            properties:
+                gymId:
+                    type: string
+                current:
+                    $ref: '#/components/schemas/checkin.v1.SignedQrPayload'
+                next:
+                    allOf:
+                        - $ref: '#/components/schemas/checkin.v1.SignedQrPayload'
+                    description: Prefetched so the iPad app can switch at the next UTC slot boundary.
+                slotDurationSeconds:
+                    type: integer
+                    format: int32
+        checkin.v1.GetMemberCheckInHistoryResponse:
+            example:
+                records:
+                    - id: checkin_example_01
+                      memberId: member_example_01
+                      gymId: gym_example_01
+                      checkedInAt: '2026-08-16T10:00:00Z'
+                total: 1
+            type: object
+            properties:
+                records:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/checkin.v1.CheckInRecord'
+                total:
+                    type: integer
+                    format: int32
+        checkin.v1.GetMyCheckInHistoryResponse:
+            example:
+                records:
+                    - id: checkin_example_01
+                      memberId: member_example_01
+                      gymId: gym_example_01
+                      checkedInAt: '2026-08-16T10:00:00Z'
+                total: 1
+            type: object
+            properties:
+                records:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/checkin.v1.CheckInRecord'
+                total:
+                    type: integer
+                    format: int32
+        checkin.v1.ProcessScanRequest:
+            type: object
+            properties:
+                gymId:
+                    type: string
+                qrPayload:
+                    type: string
+                    description: |-
+                        Signed payload: v1.<gym_id>.<key_version>.<utc_slot>.<mac_base64url>.
+                         The service rejects a gym_id that differs from the signed payload.
+                idempotencyKey:
+                    type: string
+                    description: Unique per verified JWT subject. Exact canonical replay returns the stored result.
+        checkin.v1.ProcessScanResponse:
+            example:
+                success: true
+                message: Check-in recorded
+                record:
+                    id: checkin_example_01
+                    memberId: member_example_01
+                    gymId: gym_example_01
+                    checkedInAt: '2026-08-16T10:00:00Z'
+            type: object
+            properties:
+                success:
+                    type: boolean
+                message:
+                    type: string
+                record:
+                    $ref: '#/components/schemas/checkin.v1.CheckInRecord'
+        checkin.v1.RotateGymQrRootKeyRequest:
+            type: object
+            properties:
+                gymId:
+                    type: string
+                emergency:
+                    type: boolean
+                    description: Emergency rotation retires the previous key immediately. Normal rotation permits it for 120 seconds.
+        checkin.v1.RotateGymQrRootKeyResponse:
+            example:
+                gymId: gym_example_01
+                keyVersion: '2'
+                activatedAt: '2026-08-16T10:00:00Z'
+            type: object
+            properties:
+                gymId:
+                    type: string
+                keyVersion:
+                    type: string
+                activatedAt:
+                    type: string
+                    format: date-time
+        checkin.v1.SignedQrPayload:
+            type: object
+            properties:
+                qrPayload:
+                    type: string
+                activeAt:
+                    type: string
+                    format: date-time
+                expiresAt:
+                    type: string
+                    format: date-time
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+tags:
+    - name: CheckInService

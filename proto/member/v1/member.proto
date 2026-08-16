@@ -357,11 +357,13 @@ message GetMembershipStatusResponse {
 }
 
 message ValidateMembershipRequest {
-  string member_id = 1 [(buf.validate.field).string = {
+  reserved 1;
+  reserved "member_id";
+  string gym_id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
-  string gym_id = 2 [(buf.validate.field).string = {
+  string user_id = 3 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
@@ -370,6 +372,7 @@ message ValidateMembershipRequest {
 message ValidateMembershipResponse {
   bool valid = 1;
   common.v1.MembershipStatus status = 2;
+  string member_id = 3;
 }
 
 message ListMembersByStatusRequest {

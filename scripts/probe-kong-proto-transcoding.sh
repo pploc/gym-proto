@@ -36,6 +36,19 @@ services:
           - name: grpc-gateway
             config:
               proto: /proto/plans/v1/plans.proto
+  - name: checkin-source-proto
+    protocol: grpc
+    host: 127.0.0.1
+    port: 50051
+    routes:
+      - name: checkin-source-proto
+        protocols: [http]
+        methods: [POST]
+        paths: ["/api/v1/check-ins:scan"]
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /proto/checkin/v1/checkin.proto
 EOF
 
 docker run --detach --rm --name "$container" \
@@ -78,14 +91,15 @@ request_until_ready() {
 
 request_until_ready GET /api/v1/members/proto-smoke
 request_until_ready POST /api/v1/gyms '{"chainId":"chain-smoke","name":"Smoke","address":"1 Test Way","city":"Test"}'
+request_until_ready POST /api/v1/check-ins:scan '{"gymId":"gym-smoke","qrPayload":"redacted","idempotencyKey":"smoke"}'
 
 logs="$temp_dir/kong.log"
 docker logs "$container" >"$logs" 2>&1
 matches="$(grep -c 'buf/validate/validate.proto:535:9: field name expected' "$logs" || true)"
-if [ "$matches" -lt 2 ]; then
-  printf 'expected Member and Plans parser failures; observed %s\n' "$matches" >&2
+if [ "$matches" -lt 3 ]; then
+  printf 'expected Member, Plans, and Check-in parser failures; observed %s\n' "$matches" >&2
   docker logs "$container" >&2
   exit 1
 fi
 
-printf '%s\n' 'given current source protobufs when Kong 3.8 grpc-gateway parses Member and Plans routes then both reject buf/validate/validate.proto at line 535'
+printf '%s\n' 'given current source protobufs when Kong 3.8 grpc-gateway parses Member, Plans, and Check-in routes then all reject buf/validate/validate.proto at line 535'

@@ -23,9 +23,13 @@ public final class ConfluentFixtureVerifier {
             throw new IllegalArgumentException("Usage: <fixture-path> [schema-registry-url]");
         }
 
+        FixtureSupport.requireSchemaRegistryClientVersion();
         JsonNode document = JSON.readTree(Path.of(args[0]).toFile());
         String schemaRegistryUrl = args.length == 2 ? args[1] : null;
         require(document.path("fixtureFormatVersion").asInt() == 1, "Unsupported fixture format version");
+        require(FixtureSupport.SCHEMA_REGISTRY_CLIENT_VERSION.equals(
+                        document.path("generatedBy").path("schemaRegistryClient").asText()),
+                "Fixture Schema Registry client version does not match runtime");
         require(FixtureSupport.COMPATIBILITY.equals(document.path("environment").path("compatibility").asText()),
                 "Fixture compatibility must be BACKWARD");
         require("TopicNameStrategy".equals(document.path("environment").path("subjectNameStrategy").asText()),

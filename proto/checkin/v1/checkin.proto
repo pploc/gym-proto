@@ -3,44 +3,190 @@ syntax = "proto3";
 package checkin.v1;
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "openapiv3/annotations.proto";
 
 option go_package = "github.com/pploc/proto-go/checkin/v1;checkinv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.checkin.v1";
+option (openapi.v3.document) = {
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
 
 service CheckInService {
-  rpc ProcessScan(ProcessScanRequest) returns (ProcessScanResponse);
-  rpc GetCheckInHistory(GetCheckInHistoryRequest) returns (GetCheckInHistoryResponse);
-  rpc GetDailyCount(GetDailyCountRequest) returns (GetDailyCountResponse);
-  rpc RegisterDevice(RegisterDeviceRequest) returns (RegisterDeviceResponse);
-  rpc GetDisplayQrPayload(GetDisplayQrPayloadRequest) returns (GetDisplayQrPayloadResponse);
-  rpc RevokeDevice(RevokeDeviceRequest) returns (RevokeDeviceResponse);
-  rpc RotateGymQrRootKey(RotateGymQrRootKeyRequest) returns (RotateGymQrRootKeyResponse);
+  rpc ProcessScan(ProcessScanRequest) returns (ProcessScanResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/check-ins:scan"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetMyCheckInHistory(GetMyCheckInHistoryRequest) returns (GetMyCheckInHistoryResponse) {
+    option (google.api.http) = {get: "/api/v1/check-ins/me"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetMemberCheckInHistory(GetMemberCheckInHistoryRequest) returns (GetMemberCheckInHistoryResponse) {
+    option (google.api.http) = {get: "/api/v1/members/{member_id}/check-ins"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetDailyCount(GetDailyCountRequest) returns (GetDailyCountResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{gym_id}/check-ins:daily-count"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc GetDisplayQrPayload(GetDisplayQrPayloadRequest) returns (GetDisplayQrPayloadResponse) {
+    option (google.api.http) = {get: "/api/v1/gyms/{gym_id}/check-in-qr"};
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
+  rpc RotateGymQrRootKey(RotateGymQrRootKeyRequest) returns (RotateGymQrRootKeyResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/gyms/{gym_id}/check-in-qr:rotate"
+      body: "*"
+    };
+
+    option (openapi.v3.operation) = {
+      security: [
+        {
+          additional_properties: [
+            {
+              name: "BearerAuth"
+              value: {
+                value: []
+              }
+            }
+          ]
+        }
+      ]
+    };
+  }
 }
 
 message ProcessScanRequest {
-  string member_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
+  reserved 1;
+  reserved "member_id";
   string gym_id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
-  // Signed payload: v1.<gym_id>.<key_version>.<device_id>.<utc_slot>.<mac_base64url>.
+  // Signed payload: v1.<gym_id>.<key_version>.<utc_slot>.<mac_base64url>.
   // The service rejects a gym_id that differs from the signed payload.
   string qr_payload = 3 [(buf.validate.field).string = {
     min_len: 1
     max_len: 4096
   }];
+  // Unique per verified JWT subject. Exact canonical replay returns the stored result.
+  string idempotency_key = 4 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
 }
 
 message ProcessScanResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "success: true\nmessage: Check-in recorded\nrecord:\n  id: checkin_example_01\n  memberId: member_example_01\n  gymId: gym_example_01\n  checkedInAt: '2026-08-16T10:00:00Z'\n"}
+  };
   bool success = 1;
   string message = 2;
+  CheckInRecord record = 3;
 }
 
-message GetCheckInHistoryRequest {
+message GetMyCheckInHistoryRequest {
+  int32 page = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100000
+  }];
+  int32 limit = 2 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 100
+  }];
+}
+
+message GetMemberCheckInHistoryRequest {
   string member_id = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
@@ -59,10 +205,21 @@ message CheckInRecord {
   string id = 1;
   string member_id = 2;
   string gym_id = 3;
-  string checked_in_at = 4;
+  google.protobuf.Timestamp checked_in_at = 4 [(buf.validate.field).required = true];
 }
 
-message GetCheckInHistoryResponse {
+message GetMyCheckInHistoryResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "records:\n  - id: checkin_example_01\n    memberId: member_example_01\n    gymId: gym_example_01\n    checkedInAt: '2026-08-16T10:00:00Z'\ntotal: 1\n"}
+  };
+  repeated CheckInRecord records = 1;
+  int32 total = 2;
+}
+
+message GetMemberCheckInHistoryResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "records:\n  - id: checkin_example_01\n    memberId: member_example_01\n    gymId: gym_example_01\n    checkedInAt: '2026-08-16T10:00:00Z'\ntotal: 1\n"}
+  };
   repeated CheckInRecord records = 1;
   int32 total = 2;
 }
@@ -72,40 +229,27 @@ message GetDailyCountRequest {
     min_len: 1
     max_len: 128
   }];
+  // UTC calendar date. The service rejects impossible dates with INVALID_ARGUMENT and
+  // counts valid dates in [00:00:00Z, next 00:00:00Z).
   string date = 2 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 32
+    len: 10
     pattern: "^\\d{4}-\\d{2}-\\d{2}$"
   }];
 }
 
 message GetDailyCountResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "gymId: gym_example_01\ndate: '2026-08-16'\ncount: 42\n"}
+  };
   string gym_id = 1;
   string date = 2;
   int32 count = 3;
 }
 
-// Registers a display kiosk after Check-in verifies the gym through Member.GetGymLocation.
-message RegisterDeviceRequest {
-  string gym_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string device_name = 2 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 200
-  }];
-}
-
-message RegisterDeviceResponse {
-  string device_id = 1;
-  // One-time credential. Check-in persists only its password hash.
-  string api_secret = 2;
-}
-
 message GetDisplayQrPayloadRequest {
-  // Bound to the presented device credential and used as an explicit lookup key.
-  string device_id = 1 [(buf.validate.field).string = {
+  reserved 1;
+  reserved "device_id";
+  string gym_id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 128
   }];
@@ -113,29 +257,21 @@ message GetDisplayQrPayloadRequest {
 
 message SignedQrPayload {
   string qr_payload = 1;
-  int64 active_at = 2; // UTC Unix seconds, inclusive.
-  int64 expires_at = 3; // UTC Unix seconds, exclusive.
+  google.protobuf.Timestamp active_at = 2 [(buf.validate.field).required = true]; // Inclusive.
+  google.protobuf.Timestamp expires_at = 3 [(buf.validate.field).required = true]; // Exclusive.
 }
 
 message GetDisplayQrPayloadResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "gymId: gym_example_01\ncurrent:\n  qrPayload: redacted-signed-qr-payload\n  activeAt: '2026-08-16T10:00:00Z'\n  expiresAt: '2026-08-16T10:01:00Z'\nnext:\n  qrPayload: redacted-next-signed-qr-payload\n  activeAt: '2026-08-16T10:01:00Z'\n  expiresAt: '2026-08-16T10:02:00Z'\nslotDurationSeconds: 60\n"}
+  };
   string gym_id = 1;
-  string device_id = 2;
-  SignedQrPayload current = 3;
-  // Prefetched so the kiosk can switch at the next UTC slot boundary.
-  SignedQrPayload next = 4;
+  reserved 2;
+  reserved "device_id";
+  SignedQrPayload current = 3 [(buf.validate.field).required = true];
+  // Prefetched so the iPad app can switch at the next UTC slot boundary.
+  SignedQrPayload next = 4 [(buf.validate.field).required = true];
   int32 slot_duration_seconds = 5;
-}
-
-message RevokeDeviceRequest {
-  string device_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-}
-
-message RevokeDeviceResponse {
-  string device_id = 1;
-  bool revoked = 2;
 }
 
 message RotateGymQrRootKeyRequest {
@@ -143,12 +279,15 @@ message RotateGymQrRootKeyRequest {
     min_len: 1
     max_len: 128
   }];
-  // Emergency rotation retires the previous key immediately.
+  // Emergency rotation retires the previous key immediately. Normal rotation permits it for 120 seconds.
   bool emergency = 2;
 }
 
 message RotateGymQrRootKeyResponse {
+  option (openapi.v3.schema) = {
+    example: {yaml: "gymId: gym_example_01\nkeyVersion: '2'\nactivatedAt: '2026-08-16T10:00:00Z'\n"}
+  };
   string gym_id = 1;
   uint64 key_version = 2;
-  int64 activated_at = 3; // UTC Unix seconds.
+  google.protobuf.Timestamp activated_at = 3 [(buf.validate.field).required = true];
 }
