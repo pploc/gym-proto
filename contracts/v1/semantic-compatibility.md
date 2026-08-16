@@ -118,11 +118,11 @@ Stage 0 is one coordinated pre-production break before Phase 9 gateway generatio
 - [x] Java and Go artifacts must be published from one source SHA as Java `5.0.0`
       and Go `v1.5.0`; existing immutable artifacts remain unchanged.
 
-## v7.0.1 recovery semantic review
+## v7.0.2 recovery semantic review
 
 G10 remains one coordinated pre-production major break against immutable `v6.0.1`.
 Immutable `v7.0.0` exposed generated Java dependencies only at runtime, so clean
-Java API consumers cannot compile it. `v7.0.1` changes only publication metadata:
+Java API consumers cannot compile it. `v7.0.2` changes only publication metadata:
 the generated Java API dependencies become compile-visible. Protobuf schemas,
 generated source, Kafka fixtures, and public HTTP contract remain unchanged.
 
@@ -151,7 +151,7 @@ generated source, Kafka fixtures, and public HTTP contract remain unchanged.
 - [x] This is a deliberate major source, wire, JSON, domain, and generated-contract
       change. `buf breaking` findings are expected and recorded; no removed field
       number or name is reused.
-- [ ] Java `7.0.1` and Go `v1.7.1` artifacts must be generated from one approved
+- [ ] Java `7.0.2` and Go `v1.7.1` artifacts must be generated from one approved
       source SHA. Immutable `v6.0.1`, `v7.0.0`, Java `7.0.0`, and Go `v1.7.0`
       remain unchanged.
 - [x] Clean Schema Registry 7.7.1 fixture generation, offline/live fixture checks,

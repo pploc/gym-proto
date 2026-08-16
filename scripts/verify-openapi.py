@@ -10,7 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 OPERATIONS = ROOT / "contracts/v1/http/active-operations.yaml"
 CANONICAL_DOCUMENT = ROOT / "openapi/gym-active-api.openapi.yaml"
-CANDIDATE_VERSION = "7.0.1-candidate"
+CANDIDATE_VERSION = "7.0.2-candidate"
 METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
 SERVICE_DOCUMENTS = {
     "identity": {
