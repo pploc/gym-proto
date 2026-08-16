@@ -211,11 +211,12 @@ jobs:
           else
             release_ready=false
           fi
-          jq --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
+          jq -n --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \
             --arg generatorCommit "$GNOSTIC_COMMIT" \
             --argjson releaseReady "$release_ready" \
             '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, stableProtoTag: env.STABLE_PROTO_TAG, releaseTarget: env.RELEASE_TARGET, generator: $generator, generatorCommit: $generatorCommit, releaseReady: $releaseReady}' \
             > evidence/validation-report.json
+          test -s evidence/validation-report.json
 
       - name: Upload validation evidence
         if: always()
@@ -337,6 +338,7 @@ jobs:
             --arg generatorCommit "$GNOSTIC_COMMIT" \
             '{sourceSha: env.GITHUB_SHA, sourceRef: env.GITHUB_REF, releaseVersion: $version, generator: $generator, generatorCommit: $generatorCommit, releaseReady: true}' \
             > evidence/release-report.json
+          test -s evidence/release-report.json
 
       - name: Prepare immutable Go release commit
         env:
@@ -466,6 +468,7 @@ jobs:
             --arg protoGoSha "$PROTO_GO_SHA" \
             '{sourceSha: $sourceSha, sourceRef: "refs/tags/v1.1.0", releaseVersion: "1.1.0", protoGoCommit: $protoGoSha, recovery: true}' \
             > evidence/release-report.json
+          test -s evidence/release-report.json
           sha256sum proto-go-release.bundle > evidence/release-assets.sha256
 
       - name: Publish recovered release evidence

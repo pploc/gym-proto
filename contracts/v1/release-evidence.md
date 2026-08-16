@@ -228,13 +228,35 @@ Generated Kafka fixture artifact:
 e79341b996d5052c0e0e4a0fe2621fd5edab6ad3b2d3a8304678664cbb46b4ab  contracts/v1/kafka/confluent-7.7.1-fixtures.json
 ```
 
+### Gate 1 validation status
+
+Actions run [`31930988141`](https://github.com/pploc/gym-proto/actions/runs/31930988141)
+passed on 2026-08-16 for source SHA
+`80950af313306491029b8eff464698678fdda9ba`. It was an unprotected `develop`
+validation run, not protected CI or release evidence. Publication was correctly
+skipped because the ref was not `refs/tags/v7.0.0`.
+
+Its `gym-proto-validation-80950af313306491029b8eff464698678fdda9ba` artifact
+contained an empty `validation-report.json`: the validation workflow omitted
+`jq -n` when writing the report. That artifact is not valid Gate 1 report
+evidence. The repair requires a fresh validation run on a new source SHA.
+
+`develop` has no branch protection or ruleset, and the `release` environment has
+no required reviewer or deployment-branch restriction. Those missing protections
+remain a release blocker and must not be relabeled as protected CI.
+
+`verify-kong-errors.py --release` validates the committed G9 generated-gateway
+and Kong error-evidence contract. This validation run did not perform a fresh G10
+Stage 3 Check-in route, header, or error probe; that runtime work remains pending.
+
 Pending before publication:
 
-- protected CI on the candidate source SHA;
+- a fresh unprotected validation run on the report-repair source SHA with a
+  non-empty report;
+- configured and verified protection before any protected-release gate can pass;
 - external Java `7.0.0` and Go `v1.7.0` resolution, which cannot exist before
   publication;
-- Stage 3 generated-gateway/Kong route, header, and error evidence;
 - accountable-owner approval.
 
-No publication, runtime implementation, protected-CI result, external artifact
-resolution, or owner acceptance is claimed here.
+No tag, package, GitHub release, runtime implementation, protected-CI result,
+external artifact resolution, or owner acceptance is claimed here.
