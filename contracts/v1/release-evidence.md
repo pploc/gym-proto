@@ -169,11 +169,21 @@ Existing historical evidence above is preserved and not rewritten.
 
 - Source branch: `develop`
 - Last stable `gym-proto` tag: `v6.0.1`
-- Candidate source release: `v7.0.0`
-- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.0`
-- Candidate Go artifact: `github.com/pploc/proto-go@v1.7.0`
+- Superseded immutable source release: `v7.0.0`
+- Candidate source release: `v7.0.1`
+- Superseded immutable Java artifact: `com.gym.proto:gym-proto-java:7.0.0`
+- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.1`
+- Superseded immutable Go artifact: `github.com/pploc/proto-go@v1.7.0`
+- Candidate Go artifact: `github.com/pploc/proto-go@v1.7.1`
 - Publication status: not published
 - Human approval status: pending
+
+`gym-proto-java:7.0.0` publishes generated-type dependencies only in its runtime
+variant. Its Java API variant has no dependencies, so a clean Java 26 consumer
+cannot compile generated Protobuf types without declaring `protobuf-java`
+itself. Version `7.0.0` is immutable and remains available for reproducibility;
+`7.0.1` restores compile-visible generated-type dependencies from the same G10
+contract source, then pairs with a new immutable Go `v1.7.1` tag.
 
 ## Coordinated G10 contract change
 
@@ -209,7 +219,8 @@ Passed locally on 2026-08-16:
   workload-only Member/Plans methods absent from public output;
 - deterministic service and canonical OpenAPI generation with Identity 12, Member 7,
   Plans 8, Check-in 6, and 33 total operations;
-- deterministic `kong-proto-7.0.0.tar.gz` packaging and Kong 3.8 startup smoke;
+- deterministic `kong-proto-7.0.0.tar.gz` packaging and Kong 3.8 startup smoke; the
+  recovery repackages the unchanged contract as `kong-proto-7.0.1.tar.gz`;
 - known Kong source-transcoding probe reproduced the recorded `buf/validate` parser
   incompatibility for Member, Plans, and Check-in, preserving the generated-gateway
   fallback;
@@ -228,35 +239,44 @@ Generated Kafka fixture artifact:
 e79341b996d5052c0e0e4a0fe2621fd5edab6ad3b2d3a8304678664cbb46b4ab  contracts/v1/kafka/confluent-7.7.1-fixtures.json
 ```
 
-### Gate 1 validation status
+### Gate 1 publication and recovery status
 
-Actions run [`31930988141`](https://github.com/pploc/gym-proto/actions/runs/31930988141)
-passed on 2026-08-16 for source SHA
-`80950af313306491029b8eff464698678fdda9ba`. It was an unprotected `develop`
-validation run, not protected CI or release evidence. Publication was correctly
-skipped because the ref was not `refs/tags/v7.0.0`.
+Actions run [`31935390308`](https://github.com/pploc/gym-proto/actions/runs/31935390308)
+passed on 2026-08-16 for protected `develop` source SHA
+`2e1c6500d78602bc651d1942edf4573c05c87ac4`. Its non-empty validation report
+binds the report to that source SHA. `develop` requires `validate`, includes
+administrators, rejects force pushes/deletion, requires linear history and
+resolved conversations. The `release` environment requires reviewer `pploc` and
+has tag policy `v7.0.0`.
 
-Its `gym-proto-validation-80950af313306491029b8eff464698678fdda9ba` artifact
-contained an empty `validation-report.json`: the validation workflow omitted
-`jq -n` when writing the report. That artifact is not valid Gate 1 report
-evidence. The repair requires a fresh validation run on a new source SHA.
+`v7.0.0` was published from that SHA in
+[run `31944178211`](https://github.com/pploc/gym-proto/actions/runs/31944178211):
 
-`develop` has no branch protection or ruleset, and the `release` environment has
-no required reviewer or deployment-branch restriction. Those missing protections
-remain a release blocker and must not be relabeled as protected CI.
+- [GitHub release `v7.0.0`](https://github.com/pploc/gym-proto/releases/tag/v7.0.0)
+  contains release evidence;
+- `com.gym.proto:gym-proto-java:7.0.0` is published;
+- `github.com/pploc/proto-go@v1.7.0` resolves without `replace` to
+  `c51dda1954bfa8ef08fd2199566e3f3d3202e858`.
 
-`verify-kong-errors.py --release` validates the committed G9 generated-gateway
-and Kong error-evidence contract. This validation run did not perform a fresh G10
-Stage 3 Check-in route, header, or error probe; that runtime work remains pending.
+The Java `7.0.0` POM places generated-type dependencies at Maven `runtime`
+scope, and its Gradle `apiElements` variant has no dependencies. A Java 26
+consumer importing generated types fails with `class file for
+com.google.protobuf.MessageOrBuilder not found`. The package, source tag, Go
+tag, and release remain immutable. Recovery publishes only new `v7.0.1`, Java
+`7.0.1`, and Go `v1.7.1` artifacts after protected validation; schemas and wire
+contract do not change.
 
-Pending before publication:
+`verify-kong-errors.py --release` validates committed G9 generated-gateway and
+Kong error evidence. It does not claim fresh G10 Stage 3 Check-in runtime
+probing.
 
-- a fresh unprotected validation run on the report-repair source SHA with a
-  non-empty report;
-- configured and verified protection before any protected-release gate can pass;
-- external Java `7.0.0` and Go `v1.7.0` resolution, which cannot exist before
-  publication;
+Pending before Gate 1 completion:
+
+- protected merge and validation for recovery source SHA;
+- tag policy and release-environment policy for `v7.0.1`;
+- external Java 26 consumer compilation against `7.0.1` without explicit
+  generated-type dependencies;
+- external Go `v1.7.1` resolution and release checksum verification;
 - accountable-owner approval.
 
-No tag, package, GitHub release, runtime implementation, protected-CI result,
-external artifact resolution, or owner acceptance is claimed here.
+No Check-in runtime implementation or owner acceptance is claimed here.
