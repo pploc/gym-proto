@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v7-candidate",
+  "contractVersion": "v7.0.1-candidate",
   "identityVocabulary": {
     "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
     "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
@@ -15,10 +15,10 @@
     "goModulePath": "github.com/pploc/proto-go",
     "sourcePackagesRemain": "*.v1",
     "stableBaseline": "v6.0.1",
-    "releaseTarget": "v7.0.0",
+    "releaseTarget": "v7.0.1",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "v7 candidate: coordinated G10 major break activates Check-in and replaces client-selected member/device identity with verified-user and logged-in-display contracts",
+    "currentReleaseClassification": "v7.0.1 candidate: coordinated G10 major break activates Check-in and repairs Java compile metadata; 7.0.0 remains immutable",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",

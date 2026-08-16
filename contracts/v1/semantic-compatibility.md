@@ -118,9 +118,13 @@ Stage 0 is one coordinated pre-production break before Phase 9 gateway generatio
 - [x] Java and Go artifacts must be published from one source SHA as Java `5.0.0`
       and Go `v1.5.0`; existing immutable artifacts remain unchanged.
 
-## v7.0.0 semantic review
+## v7.0.1 recovery semantic review
 
-G10 is one coordinated pre-production major break against immutable `v6.0.1`.
+G10 remains one coordinated pre-production major break against immutable `v6.0.1`.
+Immutable `v7.0.0` exposed generated Java dependencies only at runtime, so clean
+Java API consumers cannot compile it. `v7.0.1` changes only publication metadata:
+the generated Java API dependencies become compile-visible. Protobuf schemas,
+generated source, Kafka fixtures, and public HTTP contract remain unchanged.
 
 - [x] Check-in scan identity now comes from verified JWT `sub`; removed
       `ProcessScanRequest.member_id = 1` is reserved by number and name.
@@ -147,8 +151,9 @@ G10 is one coordinated pre-production major break against immutable `v6.0.1`.
 - [x] This is a deliberate major source, wire, JSON, domain, and generated-contract
       change. `buf breaking` findings are expected and recorded; no removed field
       number or name is reused.
-- [ ] Java `7.0.0` and Go `v1.7.0` artifacts must be generated from and published
-      for one approved source SHA. Immutable `v6.0.1` artifacts remain unchanged.
+- [ ] Java `7.0.1` and Go `v1.7.1` artifacts must be generated from one approved
+      source SHA. Immutable `v6.0.1`, `v7.0.0`, Java `7.0.0`, and Go `v1.7.0`
+      remain unchanged.
 - [x] Clean Schema Registry 7.7.1 fixture generation, offline/live fixture checks,
       serializer conformance, and BACKWARD additive/incompatible-type checks pass for
       the new Check-in subject. Publication and external artifact resolution remain

@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v7-candidate",
+  "contractVersion": "v7.0.1-candidate",
   "listeners": {
     "generatedGatewayMtlsHttps": 8443,
     "nativeInternalGrpc": 50051
@@ -48,7 +48,7 @@
       }
     ],
     "openApiNaming": "protobuf-json-lowerCamel for schema, query, and URI placeholder names; runtime google.api.http paths remain snake_case",
-    "kongSourceBundle": "dist/kong-proto-7.0.0.tar.gz"
+    "kongSourceBundle": "dist/kong-proto-7.0.1.tar.gz"
   },
   "identity": {
     "public": [
