@@ -170,12 +170,12 @@ Existing historical evidence above is preserved and not rewritten.
 - Source branch: `develop`
 - Last stable `gym-proto` tag: `v6.0.1`
 - Superseded immutable source releases: `v7.0.0`, `v7.0.1`
-- Candidate source release: `v7.0.2`
+- Published source release: `v7.0.2`
 - Superseded immutable Java artifact: `com.gym.proto:gym-proto-java:7.0.0`
-- Candidate Java artifact: `com.gym.proto:gym-proto-java:7.0.2`
+- Published Java artifact: `com.gym.proto:gym-proto-java:7.0.2`
 - Superseded immutable Go artifact: `github.com/pploc/proto-go@v1.7.0`
-- Candidate Go artifact: `github.com/pploc/proto-go@v1.7.1`
-- Publication status: not published
+- Published Go artifact: `github.com/pploc/proto-go@v1.7.1`
+- Publication status: technically complete
 - Human approval status: pending
 
 `gym-proto-java:7.0.0` publishes generated-type dependencies only in its runtime
@@ -292,18 +292,35 @@ step referenced `evidence/kong-proto-7.0.0.tar.gz` after correctly creating the
 recovery archive `kong-proto-7.0.1.tar.gz`; it failed with `No such file or
 directory`.
 
-`v7.0.2` is the new immutable recovery candidate. It changes only release
-versioning and that stale evidence filename; it retains Go target `v1.7.1`
-because no `v1.7.1` tag exists.
+`v7.0.2` was protected and merged at source SHA
+`8da83a33411d10442a854fe1d05d34356fe85643`. PR validation and merged-source
+validation passed in runs
+[`31946583816`](https://github.com/pploc/gym-proto/actions/runs/31946583816)
+and
+[`31946799014`](https://github.com/pploc/gym-proto/actions/runs/31946799014).
+Tag ruleset `20909056` forbids tag update and deletion; release environment
+policy `57477971` permits `v7.0.2` and deployment `5930951881` was approved.
 
-Pending before Gate 1 completion:
+Publication run [`31946958954`](https://github.com/pploc/gym-proto/actions/runs/31946958954)
+passed from annotated tag `v7.0.2` at that SHA. It published:
 
-- protected merge and validation for recovery source;
-- tag policy and release-environment policy for `v7.0.2`;
-- successful `v7.0.2` Java `7.0.2` and Go `v1.7.1` publication;
-- external Java 26 consumer compilation against `7.0.2` without explicit
-  generated-type dependencies;
-- external Go `v1.7.1` resolution and release checksum verification;
-- accountable-owner approval.
+- [GitHub release `v7.0.2`](https://github.com/pploc/gym-proto/releases/tag/v7.0.2),
+  including the source, fixture, generated, OpenAPI, Kong, and Go-bundle evidence;
+- `com.gym.proto:gym-proto-java:7.0.2` from GitHub Packages;
+- `github.com/pploc/proto-go@v1.7.1`, whose peeled commit and `main` are
+  `554827e0d065aac4cc04439513c8eca6b8b1a5f0`.
+
+Clean external consumers proved `gym-proto-java:7.0.2` compiles Java 26 imports
+for representative Identity, Member, Plans, Check-in gRPC, and event types with
+no explicit generated-type dependencies. A separate `GOWORK=off` Go consumer
+resolved and tested representative Identity, Member, Plans, Check-in, and event
+packages from `github.com/pploc/proto-go@v1.7.1` without `replace`.
+
+Release evidence binds tag source SHA `8da83a33411d10442a854fe1d05d34356fe85643`,
+fixture SHA `e79341b996d5052c0e0e4a0fe2621fd5edab6ad3b2d3a8304678664cbb46b4ab`,
+702 generated entries, six candidate artifact checksums, and matching Kong
+archive SHA `859ee3f0269567d3b7501525366c91eb3e60e48a9307a3c400fb4eada54d269f`.
+
+Accountable-owner acceptance remains separate from technical publication.
 
 No Check-in runtime implementation or owner acceptance is claimed here.
