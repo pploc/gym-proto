@@ -151,10 +151,10 @@ generated source, Kafka fixtures, and public HTTP contract remain unchanged.
 - [x] This is a deliberate major source, wire, JSON, domain, and generated-contract
       change. `buf breaking` findings are expected and recorded; no removed field
       number or name is reused.
-- [ ] Java `7.0.2` and Go `v1.7.1` artifacts must be generated from one approved
-      source SHA. Immutable `v6.0.1`, `v7.0.0`, Java `7.0.0`, and Go `v1.7.0`
-      remain unchanged.
+- [x] Java `7.0.2` and Go `v1.7.1` artifacts were generated from source SHA
+      `8da83a33411d10442a854fe1d05d34356fe85643`. Immutable `v6.0.1`, `v7.0.0`,
+      Java `7.0.0`, and Go `v1.7.0` remain unchanged.
 - [x] Clean Schema Registry 7.7.1 fixture generation, offline/live fixture checks,
       serializer conformance, and BACKWARD additive/incompatible-type checks pass for
-      the new Check-in subject. Publication and external artifact resolution remain
-      pending.
+      the new Check-in subject. Publication and external artifact resolution completed
+      in the protected `v7.0.2` release flow.

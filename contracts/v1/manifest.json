@@ -1,24 +1,24 @@
 {
   "contractVersion": "v7.0.2",
-  "status": "release-candidate",
+  "status": "published",
   "versions": {
     "gymProto": {
-      "currentStable": "v6.0.1",
+      "currentStable": "v7.0.2",
       "releaseTarget": "v7.0.2",
-      "status": "release-candidate"
+      "status": "published"
     },
     "protoGo": {
-      "currentStable": "v1.6.1",
+      "currentStable": "v1.7.1",
       "releaseTarget": "v1.7.1",
       "modulePath": "github.com/pploc/proto-go",
-      "status": "release-candidate",
+      "status": "published",
       "note": "Keep module path github.com/pploc/proto-go (no /vN). Java artifact is independently versioned 7.0.2."
     },
     "gymProtoJava": {
       "coordinates": "com.gym.proto:gym-proto-java",
-      "currentStable": "6.0.1",
+      "currentStable": "7.0.2",
       "releaseTarget": "7.0.2",
-      "status": "release-candidate"
+      "status": "published"
     },
     "commonGo": "v0.4.0",
     "commonJava": "2.1.0",
@@ -47,7 +47,7 @@
   "technicalEvidence": {
     "previousStableRelease": "https://github.com/pploc/gym-proto/releases/tag/v6.0.1",
     "previousStableSourceSha": "7f887b99503353b3c6a3066361ff5b36d44b6811",
-    "publication": "v7.0.2 release candidate repairs the immutable Java 7.0.0 compile metadata; v6.0.1 and v7.0.0 remain immutable while coordinated G10 Check-in contracts are generated and verified",
+    "publication": "v7.0.2, Java 7.0.2, and Go v1.7.1 were published from source SHA 8da83a33411d10442a854fe1d05d34356fe85643; v6.0.1, v7.0.0, and v7.0.1 remain immutable",
     "releaseClassification": "deliberate-major-contract-change",
     "expectedBufBreakingDiagnostics": 24,
     "openApiGenerator": "github.com/google/gnostic/cmd/protoc-gen-openapi@v0.7.1 (39aedcfe9f00c4336420c8ed927fb0f803f921f2)",

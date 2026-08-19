@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v7.0.2-candidate",
+  "contractVersion": "v7.0.2",
   "identityVocabulary": {
     "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
     "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
@@ -18,7 +18,7 @@
     "releaseTarget": "v7.0.2",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "v7.0.2 candidate: coordinated G10 major break activates Check-in and repairs Java compile metadata; 7.0.0 remains immutable",
+    "currentReleaseClassification": "v7.0.2 published: coordinated G10 major break activates Check-in and repairs Java compile metadata; v7.0.0 and v7.0.1 remain immutable",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
@@ -29,7 +29,7 @@
       "CheckInRecord.checked_in_at, SignedQrPayload.active_at/expires_at, RotateGymQrRootKeyResponse.activated_at, and CheckInRecordedEvent.checked_in_at change to google.protobuf.Timestamp",
       "Member ValidateMembershipRequest member_id field 1 is deleted and reserved; user_id field 3 is added; canonical member_id field 3 is added to the response",
       "Check-in adds split self/admin history RPCs and six active inline HTTP operations; Plans adds workload-only ValidateCheckInGym",
-      "OpenAPI and Kong source bundle remain unreleased candidate artifacts until G10 compatibility evidence exists"
+      "OpenAPI and Kong source bundle were published with v7.0.2 after G10 contract compatibility evidence passed"
     ],
     "expectedBufBreakingDiagnostics": 24,
     "removedFieldPolicy": "reserve-number-and-name-never-reuse"

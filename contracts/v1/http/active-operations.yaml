@@ -1,5 +1,5 @@
 # Semantic allowlist only. Inline google.api.http options own runtime bindings.
-version: v7-candidate
+version: v7.0.2
 operations:
   - selector: identity.v1.IdentityService.Register
     operation_id: IdentityService_Register
