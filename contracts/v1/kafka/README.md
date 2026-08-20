@@ -13,7 +13,7 @@ Start the pinned local environment when Docker is available:
 docker compose -f contracts/v1/kafka/compose.confluent-7.7.1.yml up -d
 until curl --fail --silent http://localhost:8081/subjects >/dev/null; do sleep 2; done
 ```
-- The checked-out schema source is the exact candidate being released.
+- The checked-out schema source is the exact published `v7.0.2` source.
 - The Java fixture harness compiles with the repository's Java 26 target.
 - Use the repository Gradle wrapper (`./gradlew`); Gradle provisions the Java 26 toolchain when needed.
 
@@ -66,7 +66,7 @@ The offline verifier decodes every raw Protobuf payload, checks deterministic me
 
 ## Release evidence
 
-The release gate requires the generated artifact, command output from fixture generation and verification, a real Registry `BACKWARD` positive and negative compatibility result, Java producer/consumer fixture conformance, and a released `github.com/pploc/proto-go` tag. Keep `contracts/v1/manifest.json` pending until those facts and named approvals exist.
+The release gate requires the generated artifact, command output from fixture generation and verification, a real Registry `BACKWARD` positive and negative compatibility result, Java producer/consumer fixture conformance, and a released `github.com/pploc/proto-go` tag. `contracts/v1/manifest.json` records technical publication separately from accountable-owner acceptance.
 
 Stop and remove the disposable environment after capturing evidence:
 

@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v7.0.2-candidate",
+  "contractVersion": "v7.0.2",
   "listeners": {
     "generatedGatewayMtlsHttps": 8443,
     "nativeInternalGrpc": 50051
