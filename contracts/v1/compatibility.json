@@ -1,12 +1,36 @@
 {
-  "contractVersion": "v7.0.2",
+  "contractVersion": "v8.0.0",
   "identityVocabulary": {
-    "roles": ["ROLE_CUSTOMER", "ROLE_TRAINER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"],
-    "membershipStatuses": ["MEMBERSHIP_STATUS_NONE", "MEMBERSHIP_STATUS_ACTIVE", "MEMBERSHIP_STATUS_PAUSED", "MEMBERSHIP_STATUS_EXPIRED"],
-    "authProviders": ["AUTH_PROVIDER_LOCAL", "AUTH_PROVIDER_GOOGLE"],
-    "planTypes": ["PLAN_TYPE_MONTHLY", "PLAN_TYPE_YEARLY", "PLAN_TYPE_LIFETIME"],
-    "paymentTypes": ["PAYMENT_TYPE_MEMBERSHIP", "PAYMENT_TYPE_TRAINER_BOOKING"],
-    "riskLevels": ["RISK_LEVEL_AT_RISK", "RISK_LEVEL_INACTIVE", "RISK_LEVEL_GHOST"]
+    "roles": [
+      "ROLE_CUSTOMER",
+      "ROLE_TRAINER",
+      "ROLE_ADMIN",
+      "ROLE_SUPER_ADMIN"
+    ],
+    "membershipStatuses": [
+      "MEMBERSHIP_STATUS_NONE",
+      "MEMBERSHIP_STATUS_ACTIVE",
+      "MEMBERSHIP_STATUS_PAUSED",
+      "MEMBERSHIP_STATUS_EXPIRED"
+    ],
+    "authProviders": [
+      "AUTH_PROVIDER_LOCAL",
+      "AUTH_PROVIDER_GOOGLE"
+    ],
+    "planTypes": [
+      "PLAN_TYPE_MONTHLY",
+      "PLAN_TYPE_YEARLY",
+      "PLAN_TYPE_LIFETIME"
+    ],
+    "paymentTypes": [
+      "PAYMENT_TYPE_MEMBERSHIP",
+      "PAYMENT_TYPE_TRAINER_BOOKING"
+    ],
+    "riskLevels": [
+      "RISK_LEVEL_AT_RISK",
+      "RISK_LEVEL_INACTIVE",
+      "RISK_LEVEL_GHOST"
+    ]
   },
   "go": "must-pass-auth-error-kafka-dlq-fixtures",
   "java": "must-pass-auth-error-kafka-dlq-fixtures",
@@ -14,24 +38,21 @@
     "generatedGoImports": "github.com/pploc/proto-go",
     "goModulePath": "github.com/pploc/proto-go",
     "sourcePackagesRemain": "*.v1",
-    "stableBaseline": "v6.0.1",
-    "releaseTarget": "v7.0.2",
+    "stableBaseline": "v7.0.2",
+    "releaseTarget": "v8.0.0",
     "additiveFieldOrRpc": "minor-release",
     "fieldRemovalRenameNumberReuseOrIncompatibleType": "major-contract-change",
-    "currentReleaseClassification": "v7.0.2 published: coordinated G10 major break activates Check-in and repairs Java compile metadata; v7.0.0 and v7.0.1 remain immutable",
+    "currentReleaseClassification": "v8.0.0 candidate: coordinated G12 major break retires Trainer booking/coaching/payment fields and adds profile/availability-only surface plus workload-only account and gym validation.",
     "semanticReviewRequired": true,
     "semanticReviewChecklist": "semantic-compatibility.md",
     "recordedIncident": "v1.0.1-emergency-contact-became-date-of-birth-at-the-same-field-number",
     "expectedSourceBreak": [
-      "Check-in GetCheckInHistory, RegisterDevice, RevokeDevice, and their request/response messages are deleted",
-      "ProcessScanRequest member_id field 1 is deleted and reserved; verified JWT sub is authoritative",
-      "Check-in display request/response and CheckInRecordedEvent device_id fields are deleted and reserved",
-      "CheckInRecord.checked_in_at, SignedQrPayload.active_at/expires_at, RotateGymQrRootKeyResponse.activated_at, and CheckInRecordedEvent.checked_in_at change to google.protobuf.Timestamp",
-      "Member ValidateMembershipRequest member_id field 1 is deleted and reserved; user_id field 3 is added; canonical member_id field 3 is added to the response",
-      "Check-in adds split self/admin history RPCs and six active inline HTTP operations; Plans adds workload-only ValidateCheckInGym",
-      "OpenAPI and Kong source bundle were published with v7.0.2 after G10 contract compatibility evidence passed"
+      "Trainer BookingStatus, booking/coaching RPCs, messages, price fields, availability is_recurring, and suspend affected_booking_count are removed; reusable fields are reserved by number and name.",
+      "Trainer exposes exactly eight profile, availability, and SUPER_ADMIN operations; booking, paid coaching, refunds, events, Kafka, Notification, Analytics, and Member membership validation remain absent.",
+      "Identifier adds workload-only ValidateTrainerAccount and Plans adds workload-only ValidateTrainerGym for ms-gym-trainer; neither has HTTP/OpenAPI/Kong exposure.",
+      "OpenAPI and Kong source bundle are candidate-only until v8.0.0 release evidence is accepted."
     ],
-    "expectedBufBreakingDiagnostics": 24,
+    "expectedBufBreakingDiagnostics": 29,
     "removedFieldPolicy": "reserve-number-and-name-never-reuse"
   },
   "schemaRegistry": {
@@ -59,7 +80,10 @@
     "provesTrustedHeaderStrippingAndInjection": true,
     "externalProtocol": "kong-mtls-https-8443-to-generated-go-grpc-gateway-to-service-mtls-grpc-50051",
     "nativeInternalGrpcPort": 50051,
-    "injectedTrustedHeaders": ["x-user-id", "x-user-role"],
+    "injectedTrustedHeaders": [
+      "x-user-id",
+      "x-user-role"
+    ],
     "gymContextSource": "request-path-and-body",
     "checkInNativeBusinessHttp": false
   },
@@ -67,8 +91,21 @@
     "algorithm": "RS256",
     "issuer": "gym-identifier",
     "audience": "gym-api",
-    "requiredClaims": ["sub", "role", "iss", "aud", "iat", "exp", "jti"],
-    "requiredProtectedHeaders": ["kid"],
-    "forbiddenClaims": ["gym_id", "membership_status"]
+    "requiredClaims": [
+      "sub",
+      "role",
+      "iss",
+      "aud",
+      "iat",
+      "exp",
+      "jti"
+    ],
+    "requiredProtectedHeaders": [
+      "kid"
+    ],
+    "forbiddenClaims": [
+      "gym_id",
+      "membership_status"
+    ]
   }
 }

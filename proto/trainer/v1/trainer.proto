@@ -3,46 +3,88 @@ syntax = "proto3";
 package trainer.v1;
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
 
 option go_package = "github.com/pploc/proto-go/trainer/v1;trainerv1";
 option java_multiple_files = true;
 option java_package = "com.gym.proto.trainer.v1";
+option (openapi.v3.document) = {
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            security_scheme: {
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+  security: [
+    {
+      additional_properties: [
+        {
+          name: "BearerAuth"
+          value: {
+            value: []
+          }
+        }
+      ]
+    }
+  ]
+};
 
 enum TrainerStatus {
   TRAINER_STATUS_UNSPECIFIED = 0;
   TRAINER_STATUS_ACTIVE = 1;
-  TRAINER_STATUS_SUSPENDED = 2;
+  reserved 2;
+  reserved "TRAINER_STATUS_SUSPENDED";
   TRAINER_STATUS_INACTIVE = 3;
 }
 
-enum BookingStatus {
-  BOOKING_STATUS_UNSPECIFIED = 0;
-  BOOKING_STATUS_PENDING_PAYMENT = 1;
-  BOOKING_STATUS_REQUESTED = 2;
-  BOOKING_STATUS_ACCEPTED = 3;
-  BOOKING_STATUS_REJECTED = 4;
-  BOOKING_STATUS_COMPLETED = 5;
-  BOOKING_STATUS_CANCELLED = 6;
-}
-
 service TrainerService {
-  rpc SearchTrainers(SearchTrainersRequest) returns (SearchTrainersResponse);
-  rpc GetTrainerProfile(GetTrainerProfileRequest) returns (GetTrainerProfileResponse);
-  rpc GetAvailableSlots(GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse);
-  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
-  rpc CancelBooking(CancelBookingRequest) returns (CancelBookingResponse);
-  rpc GetMyBookings(GetMyBookingsRequest) returns (GetMyBookingsResponse);
-
-  rpc UpdateMyProfile(UpdateMyProfileRequest) returns (UpdateMyProfileResponse);
-  rpc SetAvailability(SetAvailabilityRequest) returns (SetAvailabilityResponse);
-  rpc AcceptBooking(AcceptBookingRequest) returns (AcceptBookingResponse);
-  rpc RejectBooking(RejectBookingRequest) returns (RejectBookingResponse);
-  rpc CompleteBooking(CompleteBookingRequest) returns (CompleteBookingResponse);
-  rpc GetCoachingHistory(GetCoachingHistoryRequest) returns (GetCoachingHistoryResponse);
-
-  rpc CreateTrainer(CreateTrainerRequest) returns (CreateTrainerResponse);
-  rpc SuspendTrainer(SuspendTrainerRequest) returns (SuspendTrainerResponse);
-  rpc ListTrainers(ListTrainersRequest) returns (ListTrainersResponse);
+  rpc SearchTrainers(SearchTrainersRequest) returns (SearchTrainersResponse) {
+    option (google.api.http) = {get: "/api/v1/trainers"};
+  }
+  rpc GetTrainerProfile(GetTrainerProfileRequest) returns (GetTrainerProfileResponse) {
+    option (google.api.http) = {get: "/api/v1/trainers/{id}"};
+  }
+  rpc GetAvailableSlots(GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse) {
+    option (google.api.http) = {get: "/api/v1/trainers/slots"};
+  }
+  rpc UpdateMyProfile(UpdateMyProfileRequest) returns (UpdateMyProfileResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/trainers/profile"
+      body: "*"
+    };
+  }
+  rpc SetAvailability(SetAvailabilityRequest) returns (SetAvailabilityResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/trainers/availability"
+      body: "*"
+    };
+  }
+  rpc CreateTrainer(CreateTrainerRequest) returns (CreateTrainerResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/trainer-profiles"
+      body: "*"
+    };
+  }
+  rpc SuspendTrainer(SuspendTrainerRequest) returns (SuspendTrainerResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/trainers/{trainer_id}/suspend"
+      body: "*"
+    };
+  }
+  rpc ListTrainers(ListTrainersRequest) returns (ListTrainersResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/trainers"};
+  }
 }
 
 message SearchTrainersRequest {
@@ -55,6 +97,10 @@ message SearchTrainersRequest {
 
 message SearchTrainersResponse {
   repeated GetTrainerProfileResponse trainers = 1;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "trainers:\n  - id: trainer_example_01\n    userId: user_example_01\n    gymId: gym_example_01\n    displayName: Trainer Example\n    avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png\n    bio: Strength coach\n    specialties:\n      - strength\n    certifications:\n      - CPT\n    status: TRAINER_STATUS_ACTIVE\n"}
+  };
 }
 
 message GetTrainerProfileRequest {
@@ -73,8 +119,13 @@ message GetTrainerProfileResponse {
   string bio = 6;
   repeated string specialties = 7;
   repeated string certifications = 8;
-  int64 hourly_rate_vnd = 9;
+  reserved 9;
+  reserved "hourly_rate_vnd";
   TrainerStatus status = 10;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: trainer_example_01\nuserId: user_example_01\ngymId: gym_example_01\ndisplayName: Trainer Example\navatarUrl: https://images.example.invalid/trainers/trainer_example_01.png\nbio: Strength coach\nspecialties:\n  - strength\ncertifications:\n  - CPT\nstatus: TRAINER_STATUS_ACTIVE\n"}
+  };
 }
 
 message GetAvailableSlotsRequest {
@@ -91,65 +142,10 @@ message GetAvailableSlotsRequest {
 
 message GetAvailableSlotsResponse {
   repeated string available_slots = 1;
-}
 
-message CreateBookingRequest {
-  string trainer_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string slot = 2 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 64
-  }];
-  string notes = 3 [(buf.validate.field).string = {max_len: 1000}];
-}
-
-message CreateBookingResponse {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string scheduled_at = 4;
-  int32 duration_minutes = 5;
-  int64 price_vnd = 6;
-  BookingStatus status = 7;
-  string payment_id = 8;
-  string customer_notes = 9;
-  string trainer_notes = 10;
-  string rejection_reason = 11;
-}
-
-message CancelBookingRequest {
-  string booking_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string reason = 2 [(buf.validate.field).string = {max_len: 500}];
-}
-
-message CancelBookingResponse {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string scheduled_at = 4;
-  int32 duration_minutes = 5;
-  int64 price_vnd = 6;
-  BookingStatus status = 7;
-  string payment_id = 8;
-  string customer_notes = 9;
-  string trainer_notes = 10;
-  string rejection_reason = 11;
-}
-
-message GetMyBookingsRequest {
-  string customer_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-}
-
-message GetMyBookingsResponse {
-  repeated CreateBookingResponse bookings = 1;
+  option (openapi.v3.schema) = {
+    example: {yaml: "availableSlots:\n  - 09:00-10:00\n  - 10:00-11:00\n"}
+  };
 }
 
 message UpdateMyProfileRequest {
@@ -188,8 +184,13 @@ message UpdateMyProfileResponse {
   string bio = 6;
   repeated string specialties = 7;
   repeated string certifications = 8;
-  int64 hourly_rate_vnd = 9;
+  reserved 9;
+  reserved "hourly_rate_vnd";
   TrainerStatus status = 10;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: trainer_example_01\nuserId: user_example_01\ngymId: gym_example_01\ndisplayName: Trainer Example\navatarUrl: https://images.example.invalid/trainers/trainer_example_01.png\nbio: Strength coach\nspecialties:\n  - strength\ncertifications:\n  - CPT\nstatus: TRAINER_STATUS_ACTIVE\n"}
+  };
 }
 
 message AvailabilitySlot {
@@ -207,17 +208,13 @@ message AvailabilitySlot {
     max_len: 8
     pattern: "^\\d{2}:\\d{2}$"
   }];
-  bool is_recurring = 4;
+  reserved 4;
+  reserved "is_recurring";
   string specific_date = 5 [(buf.validate.field).string = {
     max_len: 32
     pattern: "^$|^\\d{4}-\\d{2}-\\d{2}$"
   }];
   bool is_blocked = 6;
-  option (buf.validate.message).cel = {
-    id: "availability_window"
-    message: "end_time must be after start_time; non-recurring slots require specific_date"
-    expression: "this.start_time < this.end_time && (this.is_recurring || this.specific_date.size() > 0)"
-  };
 }
 
 message SetAvailabilityRequest {
@@ -229,85 +226,10 @@ message SetAvailabilityRequest {
 
 message SetAvailabilityResponse {
   repeated AvailabilitySlot slots = 1;
-}
 
-message AcceptBookingRequest {
-  string booking_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-}
-
-message AcceptBookingResponse {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string scheduled_at = 4;
-  int32 duration_minutes = 5;
-  int64 price_vnd = 6;
-  BookingStatus status = 7;
-  string payment_id = 8;
-  string customer_notes = 9;
-  string trainer_notes = 10;
-  string rejection_reason = 11;
-}
-
-message RejectBookingRequest {
-  string booking_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string reason = 2 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 500
-  }];
-}
-
-message RejectBookingResponse {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string scheduled_at = 4;
-  int32 duration_minutes = 5;
-  int64 price_vnd = 6;
-  BookingStatus status = 7;
-  string payment_id = 8;
-  string customer_notes = 9;
-  string trainer_notes = 10;
-  string rejection_reason = 11;
-}
-
-message CompleteBookingRequest {
-  string booking_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-  string notes = 2 [(buf.validate.field).string = {max_len: 1000}];
-}
-
-message CompleteBookingResponse {
-  string booking_id = 1;
-  string customer_id = 2;
-  string trainer_id = 3;
-  string scheduled_at = 4;
-  int32 duration_minutes = 5;
-  int64 price_vnd = 6;
-  BookingStatus status = 7;
-  string payment_id = 8;
-  string customer_notes = 9;
-  string trainer_notes = 10;
-  string rejection_reason = 11;
-}
-
-message GetCoachingHistoryRequest {
-  string trainer_id = 1 [(buf.validate.field).string = {
-    min_len: 1
-    max_len: 128
-  }];
-}
-
-message GetCoachingHistoryResponse {
-  repeated CreateBookingResponse bookings = 1;
+  option (openapi.v3.schema) = {
+    example: {yaml: "slots:\n  - dayOfWeek: 1\n    startTime: 09:00\n    endTime: 10:00\n    specificDate: ''\n    isBlocked: false\n"}
+  };
 }
 
 message CreateTrainerRequest {
@@ -325,10 +247,6 @@ message CreateTrainerRequest {
       string: {max_len: 100}
     }
   }];
-  int64 hourly_rate = 4 [(buf.validate.field).int64 = {
-    gte: 0
-    lte: 100000000000
-  }];
 }
 
 message CreateTrainerResponse {
@@ -340,8 +258,13 @@ message CreateTrainerResponse {
   string bio = 6;
   repeated string specialties = 7;
   repeated string certifications = 8;
-  int64 hourly_rate_vnd = 9;
+  reserved 9;
+  reserved "hourly_rate_vnd";
   TrainerStatus status = 10;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "id: trainer_example_01\nuserId: user_example_01\ngymId: gym_example_01\ndisplayName: Trainer Example\navatarUrl: https://images.example.invalid/trainers/trainer_example_01.png\nbio: Strength coach\nspecialties:\n  - strength\ncertifications:\n  - CPT\nstatus: TRAINER_STATUS_ACTIVE\n"}
+  };
 }
 
 message SuspendTrainerRequest {
@@ -353,13 +276,24 @@ message SuspendTrainerRequest {
 
 message SuspendTrainerResponse {
   string trainer_id = 1;
-  int32 affected_booking_count = 2;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "trainerId: trainer_example_01\n"}
+  };
 }
 
 message ListTrainersRequest {
   string gym_id = 1 [(buf.validate.field).string = {max_len: 128}];
+  TrainerStatus status = 2 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    enum: {defined_only: true}
+  }];
 }
 
 message ListTrainersResponse {
   repeated GetTrainerProfileResponse trainers = 1;
+
+  option (openapi.v3.schema) = {
+    example: {yaml: "trainers:\n  - id: trainer_example_01\n    userId: user_example_01\n    gymId: gym_example_01\n    displayName: Trainer Example\n    avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png\n    bio: Strength coach\n    specialties:\n      - strength\n    certifications:\n      - CPT\n    status: TRAINER_STATUS_ACTIVE\n"}
+  };
 }

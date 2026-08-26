@@ -26,11 +26,26 @@ retired = {
         r"\bmessage\s+RevokeDeviceResponse\b",
         r"\b(?:string|bytes|int32|int64|uint32|uint64)\s+device_id\s*=",
     ),
+    root / "proto/trainer/v1/trainer.proto": (
+        r"\brpc\s+(?:CreateBooking|CancelBooking|GetMyBookings|AcceptBooking|RejectBooking|CompleteBooking|GetCoachingHistory)\b",
+        r"\bmessage\s+(?:AcceptBooking|CancelBooking|CompleteBooking|CreateBooking|GetCoachingHistory|GetMyBookings|RejectBooking)(?:Request|Response)\b",
+        r"\benum\s+BookingStatus\b",
+    ),
 }
 generated_retired = {
     "identity/v1": ("SelectGym",),
     "member/v1": ("GetMembershipStatusByUserId",),
     "checkin/v1": ("GetCheckInHistory", "RegisterDevice", "RevokeDevice"),
+    "trainer/v1": (
+        "AcceptBooking",
+        "CancelBooking",
+        "CompleteBooking",
+        "CreateBooking",
+        "GetCoachingHistory",
+        "GetMyBookings",
+        "RejectBooking",
+        "BookingStatus",
+    ),
 }
 
 for path, patterns in retired.items():

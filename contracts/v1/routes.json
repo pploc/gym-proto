@@ -1,5 +1,5 @@
 {
-  "contractVersion": "v7.0.2",
+  "contractVersion": "v8.0.0",
   "listeners": {
     "generatedGatewayMtlsHttps": 8443,
     "nativeInternalGrpc": 50051
@@ -18,7 +18,8 @@
       "proto/identity/v1/identity.proto",
       "proto/member/v1/member.proto",
       "proto/plans/v1/plans.proto",
-      "proto/checkin/v1/checkin.proto"
+      "proto/checkin/v1/checkin.proto",
+      "proto/trainer/v1/trainer.proto"
     ],
     "deferredFormat": "google.api.Service",
     "deferredFile": "proto/http.yaml",
@@ -45,10 +46,15 @@
         "service": "checkin",
         "path": "openapi/checkin/v1/checkin.openapi.yaml",
         "operations": 6
+      },
+      {
+        "service": "trainer",
+        "path": "openapi/trainer/v1/trainer.openapi.yaml",
+        "operations": 8
       }
     ],
     "openApiNaming": "protobuf-json-lowerCamel for schema, query, and URI placeholder names; runtime google.api.http paths remain snake_case",
-    "kongSourceBundle": "dist/kong-proto-7.0.2.tar.gz"
+    "kongSourceBundle": "dist/kong-proto-8.0.0.tar.gz"
   },
   "identity": {
     "public": [
@@ -71,6 +77,17 @@
       "identity.v1.IdentityService/CreateTrainerAccount",
       "identity.v1.IdentityService/SuspendUser",
       "identity.v1.IdentityService/ListUsers"
+    ],
+    "internal": [
+      "identity.v1.IdentityService/ValidateTrainerAccount"
+    ],
+    "workloadAuthorization": [
+      {
+        "caller": "ms-gym-trainer",
+        "allowedMethods": [
+          "identity.v1.IdentityService/ValidateTrainerAccount"
+        ]
+      }
     ]
   },
   "member": {
@@ -108,11 +125,15 @@
     "workloadAuthorization": [
       {
         "caller": "ms-gym-checkin",
-        "allowedMethods": ["member.v1.MemberService/ValidateMembership"]
+        "allowedMethods": [
+          "member.v1.MemberService/ValidateMembership"
+        ]
       },
       {
         "caller": "ms-gym-notification",
-        "allowedMethods": ["member.v1.MemberService/ListMembersByStatus"]
+        "allowedMethods": [
+          "member.v1.MemberService/ListMembersByStatus"
+        ]
       }
     ],
     "removedExternalMethods": [
@@ -137,7 +158,8 @@
     "internal": [
       "plans.v1.PlansService/GetActiveGym",
       "plans.v1.PlansService/ResolvePurchasablePlan",
-      "plans.v1.PlansService/ValidateCheckInGym"
+      "plans.v1.PlansService/ValidateCheckInGym",
+      "plans.v1.PlansService/ValidateTrainerGym"
     ],
     "httpRoutes": {
       "plans.v1.PlansService/CreateGymLocation": "POST /api/v1/gyms",
@@ -162,15 +184,27 @@
     "workloadAuthorization": [
       {
         "caller": "ms-gym-identifier",
-        "allowedMethods": ["plans.v1.PlansService/GetActiveGym"]
+        "allowedMethods": [
+          "plans.v1.PlansService/GetActiveGym"
+        ]
       },
       {
         "caller": "ms-gym-member",
-        "allowedMethods": ["plans.v1.PlansService/ResolvePurchasablePlan"]
+        "allowedMethods": [
+          "plans.v1.PlansService/ResolvePurchasablePlan"
+        ]
       },
       {
         "caller": "ms-gym-checkin",
-        "allowedMethods": ["plans.v1.PlansService/ValidateCheckInGym"]
+        "allowedMethods": [
+          "plans.v1.PlansService/ValidateCheckInGym"
+        ]
+      },
+      {
+        "caller": "ms-gym-trainer",
+        "allowedMethods": [
+          "plans.v1.PlansService/ValidateTrainerGym"
+        ]
       }
     ]
   },
@@ -215,6 +249,46 @@
     "checkin.v1.RegisterDeviceResponse",
     "checkin.v1.CheckInService/RevokeDevice",
     "checkin.v1.RevokeDeviceRequest",
-    "checkin.v1.RevokeDeviceResponse"
-  ]
+    "checkin.v1.RevokeDeviceResponse",
+    "trainer.v1.TrainerService/CreateBooking",
+    "trainer.v1.TrainerService/CancelBooking",
+    "trainer.v1.TrainerService/GetMyBookings",
+    "trainer.v1.TrainerService/AcceptBooking",
+    "trainer.v1.TrainerService/RejectBooking",
+    "trainer.v1.TrainerService/CompleteBooking",
+    "trainer.v1.TrainerService/GetCoachingHistory",
+    "trainer.v1.BookingStatus"
+  ],
+  "trainer": {
+    "public": [
+      "trainer.v1.TrainerService/SearchTrainers",
+      "trainer.v1.TrainerService/GetTrainerProfile",
+      "trainer.v1.TrainerService/GetAvailableSlots",
+      "trainer.v1.TrainerService/UpdateMyProfile",
+      "trainer.v1.TrainerService/SetAvailability",
+      "trainer.v1.TrainerService/CreateTrainer",
+      "trainer.v1.TrainerService/SuspendTrainer",
+      "trainer.v1.TrainerService/ListTrainers"
+    ],
+    "httpRoutes": {
+      "trainer.v1.TrainerService/SearchTrainers": "GET /api/v1/trainers",
+      "trainer.v1.TrainerService/GetTrainerProfile": "GET /api/v1/trainers/{id}",
+      "trainer.v1.TrainerService/GetAvailableSlots": "GET /api/v1/trainers/slots",
+      "trainer.v1.TrainerService/UpdateMyProfile": "PUT /api/v1/trainers/profile",
+      "trainer.v1.TrainerService/SetAvailability": "POST /api/v1/trainers/availability",
+      "trainer.v1.TrainerService/CreateTrainer": "POST /api/v1/admin/trainer-profiles",
+      "trainer.v1.TrainerService/SuspendTrainer": "POST /api/v1/admin/trainers/{trainer_id}/suspend",
+      "trainer.v1.TrainerService/ListTrainers": "GET /api/v1/admin/trainers"
+    },
+    "policies": {
+      "trainer.v1.TrainerService/SearchTrainers": "authenticated",
+      "trainer.v1.TrainerService/GetTrainerProfile": "authenticated",
+      "trainer.v1.TrainerService/GetAvailableSlots": "authenticated",
+      "trainer.v1.TrainerService/UpdateMyProfile": "trainer-self-from-verified-sub",
+      "trainer.v1.TrainerService/SetAvailability": "trainer-self-from-verified-sub",
+      "trainer.v1.TrainerService/CreateTrainer": "super-admin-only",
+      "trainer.v1.TrainerService/SuspendTrainer": "super-admin-only",
+      "trainer.v1.TrainerService/ListTrainers": "super-admin-only"
+    }
+  }
 }

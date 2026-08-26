@@ -1,0 +1,435 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Gym Active API
+    version: 8.0.0-candidate
+paths:
+    /api/v1/admin/trainer-profiles:
+        post:
+            tags:
+                - TrainerService
+            operationId: TrainerService_CreateTrainer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/trainer.v1.CreateTrainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.CreateTrainerResponse'
+    /api/v1/admin/trainers:
+        get:
+            tags:
+                - TrainerService
+            operationId: TrainerService_ListTrainers
+            parameters:
+                - name: gymId
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - TRAINER_STATUS_UNSPECIFIED
+                        - TRAINER_STATUS_ACTIVE
+                        - TRAINER_STATUS_INACTIVE
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.ListTrainersResponse'
+    /api/v1/admin/trainers/{trainerId}/suspend:
+        post:
+            tags:
+                - TrainerService
+            operationId: TrainerService_SuspendTrainer
+            parameters:
+                - name: trainerId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/trainer.v1.SuspendTrainerRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.SuspendTrainerResponse'
+    /api/v1/trainers:
+        get:
+            tags:
+                - TrainerService
+            operationId: TrainerService_SearchTrainers
+            parameters:
+                - name: gymId
+                  in: query
+                  schema:
+                    type: string
+                - name: specialty
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.SearchTrainersResponse'
+    /api/v1/trainers/availability:
+        post:
+            tags:
+                - TrainerService
+            operationId: TrainerService_SetAvailability
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/trainer.v1.SetAvailabilityRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.SetAvailabilityResponse'
+    /api/v1/trainers/profile:
+        put:
+            tags:
+                - TrainerService
+            operationId: TrainerService_UpdateMyProfile
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/trainer.v1.UpdateMyProfileRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.UpdateMyProfileResponse'
+    /api/v1/trainers/slots:
+        get:
+            tags:
+                - TrainerService
+            operationId: TrainerService_GetAvailableSlots
+            parameters:
+                - name: trainerId
+                  in: query
+                  schema:
+                    type: string
+                - name: date
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.GetAvailableSlotsResponse'
+    /api/v1/trainers/{id}:
+        get:
+            tags:
+                - TrainerService
+            operationId: TrainerService_GetTrainerProfile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/trainer.v1.GetTrainerProfileResponse'
+components:
+    schemas:
+        trainer.v1.AvailabilitySlot:
+            type: object
+            properties:
+                dayOfWeek:
+                    type: integer
+                    format: int32
+                startTime:
+                    type: string
+                endTime:
+                    type: string
+                specificDate:
+                    type: string
+                isBlocked:
+                    type: boolean
+        trainer.v1.CreateTrainerRequest:
+            type: object
+            properties:
+                userId:
+                    type: string
+                gymId:
+                    type: string
+                specialties:
+                    type: array
+                    items:
+                        type: string
+        trainer.v1.CreateTrainerResponse:
+            example:
+                id: trainer_example_01
+                userId: user_example_01
+                gymId: gym_example_01
+                displayName: Trainer Example
+                avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png
+                bio: Strength coach
+                specialties:
+                    - strength
+                certifications:
+                    - CPT
+                status: TRAINER_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                userId:
+                    type: string
+                gymId:
+                    type: string
+                displayName:
+                    type: string
+                avatarUrl:
+                    type: string
+                bio:
+                    type: string
+                specialties:
+                    type: array
+                    items:
+                        type: string
+                certifications:
+                    type: array
+                    items:
+                        type: string
+                status:
+                    enum:
+                        - TRAINER_STATUS_UNSPECIFIED
+                        - TRAINER_STATUS_ACTIVE
+                        - TRAINER_STATUS_INACTIVE
+                    type: string
+                    format: enum
+        trainer.v1.GetAvailableSlotsResponse:
+            example:
+                availableSlots:
+                    - 09:00-10:00
+                    - 10:00-11:00
+            type: object
+            properties:
+                availableSlots:
+                    type: array
+                    items:
+                        type: string
+        trainer.v1.GetTrainerProfileResponse:
+            example:
+                id: trainer_example_01
+                userId: user_example_01
+                gymId: gym_example_01
+                displayName: Trainer Example
+                avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png
+                bio: Strength coach
+                specialties:
+                    - strength
+                certifications:
+                    - CPT
+                status: TRAINER_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                userId:
+                    type: string
+                gymId:
+                    type: string
+                displayName:
+                    type: string
+                avatarUrl:
+                    type: string
+                bio:
+                    type: string
+                specialties:
+                    type: array
+                    items:
+                        type: string
+                certifications:
+                    type: array
+                    items:
+                        type: string
+                status:
+                    enum:
+                        - TRAINER_STATUS_UNSPECIFIED
+                        - TRAINER_STATUS_ACTIVE
+                        - TRAINER_STATUS_INACTIVE
+                    type: string
+                    format: enum
+        trainer.v1.ListTrainersResponse:
+            example:
+                trainers:
+                    - id: trainer_example_01
+                      userId: user_example_01
+                      gymId: gym_example_01
+                      displayName: Trainer Example
+                      avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png
+                      bio: Strength coach
+                      specialties:
+                        - strength
+                      certifications:
+                        - CPT
+                      status: TRAINER_STATUS_ACTIVE
+            type: object
+            properties:
+                trainers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/trainer.v1.GetTrainerProfileResponse'
+        trainer.v1.SearchTrainersResponse:
+            example:
+                trainers:
+                    - id: trainer_example_01
+                      userId: user_example_01
+                      gymId: gym_example_01
+                      displayName: Trainer Example
+                      avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png
+                      bio: Strength coach
+                      specialties:
+                        - strength
+                      certifications:
+                        - CPT
+                      status: TRAINER_STATUS_ACTIVE
+            type: object
+            properties:
+                trainers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/trainer.v1.GetTrainerProfileResponse'
+        trainer.v1.SetAvailabilityRequest:
+            type: object
+            properties:
+                slots:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/trainer.v1.AvailabilitySlot'
+        trainer.v1.SetAvailabilityResponse:
+            example:
+                slots:
+                    - dayOfWeek: 1
+                      startTime: 09:00
+                      endTime: 10:00
+                      specificDate: ''
+                      isBlocked: false
+            type: object
+            properties:
+                slots:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/trainer.v1.AvailabilitySlot'
+        trainer.v1.SuspendTrainerRequest:
+            type: object
+            properties:
+                trainerId:
+                    type: string
+        trainer.v1.SuspendTrainerResponse:
+            example:
+                trainerId: trainer_example_01
+            type: object
+            properties:
+                trainerId:
+                    type: string
+        trainer.v1.UpdateMyProfileRequest:
+            type: object
+            properties:
+                displayName:
+                    type: string
+                avatarUrl:
+                    type: string
+                bio:
+                    type: string
+                specialties:
+                    type: array
+                    items:
+                        type: string
+                certifications:
+                    type: array
+                    items:
+                        type: string
+        trainer.v1.UpdateMyProfileResponse:
+            example:
+                id: trainer_example_01
+                userId: user_example_01
+                gymId: gym_example_01
+                displayName: Trainer Example
+                avatarUrl: https://images.example.invalid/trainers/trainer_example_01.png
+                bio: Strength coach
+                specialties:
+                    - strength
+                certifications:
+                    - CPT
+                status: TRAINER_STATUS_ACTIVE
+            type: object
+            properties:
+                id:
+                    type: string
+                userId:
+                    type: string
+                gymId:
+                    type: string
+                displayName:
+                    type: string
+                avatarUrl:
+                    type: string
+                bio:
+                    type: string
+                specialties:
+                    type: array
+                    items:
+                        type: string
+                certifications:
+                    type: array
+                    items:
+                        type: string
+                status:
+                    enum:
+                        - TRAINER_STATUS_UNSPECIFIED
+                        - TRAINER_STATUS_ACTIVE
+                        - TRAINER_STATUS_INACTIVE
+                    type: string
+                    format: enum
+    securitySchemes:
+        BearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+security:
+    - BearerAuth: []
+tags:
+    - name: TrainerService

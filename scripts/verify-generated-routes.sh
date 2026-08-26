@@ -6,8 +6,9 @@ readonly IDENTITY_GATEWAY="gen/go/identity/v1/identity.pb.gw.go"
 readonly MEMBER_GATEWAY="gen/go/member/v1/member.pb.gw.go"
 readonly PLANS_GATEWAY="gen/go/plans/v1/plans.pb.gw.go"
 readonly CHECKIN_GATEWAY="gen/go/checkin/v1/checkin.pb.gw.go"
+readonly TRAINER_GATEWAY="gen/go/trainer/v1/trainer.pb.gw.go"
 
-for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY"; do
+for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY" "$TRAINER_GATEWAY"; do
   if [[ ! -f "$file" ]]; then
     printf 'missing generated gateway file: %s\n' "$file" >&2
     exit 1
@@ -108,6 +109,15 @@ require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetDailyCount" "/api
 require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/GetDisplayQrPayload" "/api/v1/gyms/{gym_id}/check-in-qr"
 require_route "$CHECKIN_GATEWAY" "checkin.v1.CheckInService/RotateGymQrRootKey" "/api/v1/gyms/{gym_id}/check-in-qr:rotate"
 
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/SearchTrainers" "/api/v1/trainers"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/GetTrainerProfile" "/api/v1/trainers/{id}"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/GetAvailableSlots" "/api/v1/trainers/slots"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/UpdateMyProfile" "/api/v1/trainers/profile"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/SetAvailability" "/api/v1/trainers/availability"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/CreateTrainer" "/api/v1/admin/trainer-profiles"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/SuspendTrainer" "/api/v1/admin/trainers/{trainer_id}/suspend"
+require_route "$TRAINER_GATEWAY" "trainer.v1.TrainerService/ListTrainers" "/api/v1/admin/trainers"
+
 reject_method "$MEMBER_GATEWAY" "GetMembershipStatusByUserId"
 reject_method "$MEMBER_GATEWAY" "ValidateMembership"
 reject_method "$MEMBER_GATEWAY" "ListMembersByStatus"
@@ -119,6 +129,8 @@ reject_method "$MEMBER_GATEWAY" "GetGymLocation"
 reject_method "$PLANS_GATEWAY" "GetActiveGym"
 reject_method "$PLANS_GATEWAY" "ResolvePurchasablePlan"
 reject_method "$PLANS_GATEWAY" "ValidateCheckInGym"
+reject_method "$PLANS_GATEWAY" "ValidateTrainerGym"
+reject_method "$IDENTITY_GATEWAY" "ValidateTrainerAccount"
 reject_method "$CHECKIN_GATEWAY" "GetCheckInHistory"
 reject_method "$CHECKIN_GATEWAY" "RegisterDevice"
 reject_method "$CHECKIN_GATEWAY" "RevokeDevice"
@@ -127,7 +139,8 @@ assert_route_count "$IDENTITY_GATEWAY" identity
 assert_route_count "$MEMBER_GATEWAY" member
 assert_route_count "$PLANS_GATEWAY" plans
 assert_route_count "$CHECKIN_GATEWAY" checkin
-for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY"; do
+assert_route_count "$TRAINER_GATEWAY" trainer
+for file in "$IDENTITY_GATEWAY" "$MEMBER_GATEWAY" "$PLANS_GATEWAY" "$CHECKIN_GATEWAY" "$TRAINER_GATEWAY"; do
   assert_unique_routes "$file"
 done
 

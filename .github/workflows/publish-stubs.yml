@@ -1,20 +1,21 @@
 name: Validate and Publish Stubs
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [develop]
   push:
     branches: [develop]
-    tags: ["v7.0.2"]
+    tags: ["v8.0.0"]
 
 permissions:
   contents: read
 
 env:
-  STABLE_PROTO_TAG: v6.0.1
-  RELEASE_TARGET: v7.0.2
+  STABLE_PROTO_TAG: v7.0.2
+  RELEASE_TARGET: v8.0.0
   # Go module stays github.com/pploc/proto-go (no /vN).
-  PROTO_GO_RELEASE_TARGET: v1.7.1
+  PROTO_GO_RELEASE_TARGET: v1.8.0
   GNOSTIC_VERSION: v0.7.1
   GNOSTIC_COMMIT: 39aedcfe9f00c4336420c8ed927fb0f803f921f2
   SCHEMA_REGISTRY_URL: http://localhost:8081
@@ -125,8 +126,9 @@ jobs:
             openapi/member/v1/member.openapi.yaml \
             openapi/plans/v1/plans.openapi.yaml \
             openapi/checkin/v1/checkin.openapi.yaml \
+            openapi/trainer/v1/trainer.openapi.yaml \
             openapi/gym-active-api.openapi.yaml \
-            dist/kong-proto-7.0.2.tar.gz > /tmp/candidate-before.sha256
+            dist/kong-proto-8.0.0.tar.gz > /tmp/candidate-before.sha256
           rm -rf gen dist
           buf generate
           ./scripts/generate-openapi.sh
@@ -137,8 +139,9 @@ jobs:
             openapi/member/v1/member.openapi.yaml \
             openapi/plans/v1/plans.openapi.yaml \
             openapi/checkin/v1/checkin.openapi.yaml \
+            openapi/trainer/v1/trainer.openapi.yaml \
             openapi/gym-active-api.openapi.yaml \
-            dist/kong-proto-7.0.2.tar.gz > /tmp/candidate-after.sha256
+            dist/kong-proto-8.0.0.tar.gz > /tmp/candidate-after.sha256
           diff -u /tmp/generated-before.sha256 /tmp/generated-after.sha256
           diff -u /tmp/candidate-before.sha256 /tmp/candidate-after.sha256
           git diff --exit-code -- openapi
@@ -196,15 +199,17 @@ jobs:
                 -f openapi/member/v1/member.openapi.yaml && \
                 -f openapi/plans/v1/plans.openapi.yaml && \
                 -f openapi/checkin/v1/checkin.openapi.yaml && \
+                -f openapi/trainer/v1/trainer.openapi.yaml && \
                 -f openapi/gym-active-api.openapi.yaml && \
-                -f dist/kong-proto-7.0.2.tar.gz ]]; then
+                -f dist/kong-proto-8.0.0.tar.gz ]]; then
             sha256sum \
               openapi/identity/v1/identity.openapi.yaml \
               openapi/member/v1/member.openapi.yaml \
               openapi/plans/v1/plans.openapi.yaml \
               openapi/checkin/v1/checkin.openapi.yaml \
+              openapi/trainer/v1/trainer.openapi.yaml \
               openapi/gym-active-api.openapi.yaml \
-              dist/kong-proto-7.0.2.tar.gz > evidence/candidate-artifacts.sha256
+              dist/kong-proto-8.0.0.tar.gz > evidence/candidate-artifacts.sha256
           fi
           if python3 ./scripts/verify-kong-errors.py --release; then
             release_ready=true
@@ -316,22 +321,25 @@ jobs:
             openapi/member/v1/member.openapi.yaml \
             openapi/plans/v1/plans.openapi.yaml \
             openapi/checkin/v1/checkin.openapi.yaml \
+            openapi/trainer/v1/trainer.openapi.yaml \
             openapi/gym-active-api.openapi.yaml \
-            dist/kong-proto-7.0.2.tar.gz > evidence/candidate-artifacts.sha256
+            dist/kong-proto-8.0.0.tar.gz > evidence/candidate-artifacts.sha256
           cp openapi/identity/v1/identity.openapi.yaml evidence/identity.openapi.yaml
           cp openapi/member/v1/member.openapi.yaml evidence/member.openapi.yaml
           cp openapi/plans/v1/plans.openapi.yaml evidence/plans.openapi.yaml
           cp openapi/checkin/v1/checkin.openapi.yaml evidence/checkin.openapi.yaml
+          cp openapi/trainer/v1/trainer.openapi.yaml evidence/trainer.openapi.yaml
           cp openapi/gym-active-api.openapi.yaml evidence/gym-active-api.openapi.yaml
-          cp dist/kong-proto-7.0.2.tar.gz evidence/
-          cp dist/kong-proto-7.0.2.tar.gz.sha256 evidence/
+          cp dist/kong-proto-8.0.0.tar.gz evidence/
+          cp dist/kong-proto-8.0.0.tar.gz.sha256 evidence/
           sha256sum \
             evidence/identity.openapi.yaml \
             evidence/member.openapi.yaml \
             evidence/plans.openapi.yaml \
             evidence/checkin.openapi.yaml \
+            evidence/trainer.openapi.yaml \
             evidence/gym-active-api.openapi.yaml \
-            evidence/kong-proto-7.0.2.tar.gz \
+            evidence/kong-proto-8.0.0.tar.gz \
             > evidence/release-assets.sha256
           jq -n --arg version "$RELEASE_VERSION" \
             --arg generator "github.com/google/gnostic/cmd/protoc-gen-openapi@${GNOSTIC_VERSION}" \

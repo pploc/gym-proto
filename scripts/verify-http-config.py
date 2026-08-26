@@ -16,14 +16,17 @@ ACTIVE_PROTO_FILES = (
     PROTO / "member/v1/member.proto",
     PROTO / "plans/v1/plans.proto",
     PROTO / "checkin/v1/checkin.proto",
+    PROTO / "trainer/v1/trainer.proto",
 )
-ACTIVE_SERVICES = {"identity", "member", "plans", "checkin"}
+ACTIVE_SERVICES = {"identity", "member", "plans", "checkin", "trainer"}
 WORKLOAD_ONLY = {
     "member.v1.MemberService.ValidateMembership",
     "member.v1.MemberService.ListMembersByStatus",
     "plans.v1.PlansService.GetActiveGym",
     "plans.v1.PlansService.ResolvePurchasablePlan",
     "plans.v1.PlansService.ValidateCheckInGym",
+    "plans.v1.PlansService.ValidateTrainerGym",
+    "identity.v1.IdentityService.ValidateTrainerAccount",
 }
 RETIRED = {
     "member.v1.MemberService.GetPlans",
