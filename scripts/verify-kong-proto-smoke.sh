@@ -36,6 +36,13 @@ services:
           - name: grpc-gateway
             config:
               proto: /proto/checkin/v1/checkin.proto
+      - name: trainer-source-proto
+        protocols: [http]
+        paths: ["/trainer"]
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /proto/trainer/v1/trainer.proto
 EOF
 
 docker run --detach --rm --name "$container" \
@@ -51,7 +58,7 @@ docker run --detach --rm --name "$container" \
 
 for _ in {1..30}; do
   if docker exec "$container" kong health >/dev/null 2>&1; then
-    printf 'given source protobuf bundle when Kong 3.8 starts then Member, Plans, and Check-in roots parse\n'
+    printf 'given source protobuf bundle when Kong 3.8 starts then Member, Plans, Check-in, and Trainer roots parse\n'
     exit 0
   fi
   sleep 1

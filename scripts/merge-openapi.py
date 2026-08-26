@@ -15,6 +15,7 @@ DOCUMENTS = (
     ROOT / "openapi/member/v1/member.openapi.yaml",
     ROOT / "openapi/plans/v1/plans.openapi.yaml",
     ROOT / "openapi/checkin/v1/checkin.openapi.yaml",
+    ROOT / "openapi/trainer/v1/trainer.openapi.yaml",
 )
 OUTPUT = ROOT / "openapi/gym-active-api.openapi.yaml"
 HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options", "trace"}

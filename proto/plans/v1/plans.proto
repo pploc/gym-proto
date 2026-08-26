@@ -204,6 +204,10 @@ service PlansService {
   // Internal only. Requires the verified ms-gym-checkin workload identity.
   // This RPC is intentionally absent from the external HTTP configuration.
   rpc ValidateCheckInGym(ValidateCheckInGymRequest) returns (ValidateCheckInGymResponse);
+
+  // Internal only. Requires the verified ms-gym-trainer workload identity.
+  // This RPC is intentionally absent from the external HTTP configuration.
+  rpc ValidateTrainerGym(ValidateTrainerGymRequest) returns (ValidateTrainerGymResponse);
 }
 
 message CreateGymLocationRequest {
@@ -482,6 +486,18 @@ message ValidateCheckInGymRequest {
 }
 
 message ValidateCheckInGymResponse {
+  string gym_id = 1;
+  GymLocationStatus status = 2;
+}
+
+message ValidateTrainerGymRequest {
+  string gym_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message ValidateTrainerGymResponse {
   string gym_id = 1;
   GymLocationStatus status = 2;
 }

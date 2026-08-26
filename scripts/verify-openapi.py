@@ -10,7 +10,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 OPERATIONS = ROOT / "contracts/v1/http/active-operations.yaml"
 CANONICAL_DOCUMENT = ROOT / "openapi/gym-active-api.openapi.yaml"
-CANDIDATE_VERSION = "7.0.2-candidate"
+CANDIDATE_VERSION = "8.0.0-candidate"
 METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
 SERVICE_DOCUMENTS = {
     "identity": {
@@ -29,6 +29,10 @@ SERVICE_DOCUMENTS = {
         "path": ROOT / "openapi/checkin/v1/checkin.openapi.yaml",
         "selector_prefix": "checkin.v1.",
     },
+    "trainer": {
+        "path": ROOT / "openapi/trainer/v1/trainer.openapi.yaml",
+        "selector_prefix": "trainer.v1.",
+    },
 }
 WORKLOAD_OPERATION_IDS = {
     "MemberService_ValidateMembership",
@@ -36,6 +40,8 @@ WORKLOAD_OPERATION_IDS = {
     "PlansService_GetActiveGym",
     "PlansService_ResolvePurchasablePlan",
     "PlansService_ValidateCheckInGym",
+    "PlansService_ValidateTrainerGym",
+    "IdentityService_ValidateTrainerAccount",
 }
 
 
@@ -144,8 +150,9 @@ def given_service_document_when_verified_then_match_partition(
         if operation_id != expected_operation["operation_id"]:
             raise SystemExit(f"wrong operationId for {service} {key}: {operation_id}")
         expected_security = [] if expected_operation["auth"] == "public" else [{"BearerAuth": []}]
-        if operation.get("security", []) != expected_security:
-            raise SystemExit(f"wrong security for {service} {key}: {operation.get('security')}")
+        actual_security = operation.get("security", document.get("security", []))
+        if actual_security != expected_security:
+            raise SystemExit(f"wrong security for {service} {key}: {actual_security}")
         path_parameters = re.findall(r"{([^}]+)}", key[1])
         actual_parameters = [
             parameter.get("name")

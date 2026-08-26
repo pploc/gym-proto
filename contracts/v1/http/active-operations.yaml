@@ -1,5 +1,5 @@
 # Semantic allowlist only. Inline google.api.http options own runtime bindings.
-version: v7.0.2
+version: v8.0.0
 operations:
   - selector: identity.v1.IdentityService.Register
     operation_id: IdentityService_Register
@@ -185,4 +185,48 @@ operations:
     method: POST
     path: /api/v1/gyms/{gym_id}/check-in-qr:rotate
     body: '*'
+    auth: super-admin-only
+  - selector: trainer.v1.TrainerService.SearchTrainers
+    operation_id: TrainerService_SearchTrainers
+    method: GET
+    path: /api/v1/trainers
+    auth: authenticated
+  - selector: trainer.v1.TrainerService.GetTrainerProfile
+    operation_id: TrainerService_GetTrainerProfile
+    method: GET
+    path: /api/v1/trainers/{id}
+    auth: authenticated
+  - selector: trainer.v1.TrainerService.GetAvailableSlots
+    operation_id: TrainerService_GetAvailableSlots
+    method: GET
+    path: /api/v1/trainers/slots
+    auth: authenticated
+  - selector: trainer.v1.TrainerService.UpdateMyProfile
+    operation_id: TrainerService_UpdateMyProfile
+    method: PUT
+    path: /api/v1/trainers/profile
+    body: '*'
+    auth: trainer-self-from-verified-sub
+  - selector: trainer.v1.TrainerService.SetAvailability
+    operation_id: TrainerService_SetAvailability
+    method: POST
+    path: /api/v1/trainers/availability
+    body: '*'
+    auth: trainer-self-from-verified-sub
+  - selector: trainer.v1.TrainerService.CreateTrainer
+    operation_id: TrainerService_CreateTrainer
+    method: POST
+    path: /api/v1/admin/trainer-profiles
+    body: '*'
+    auth: super-admin-only
+  - selector: trainer.v1.TrainerService.SuspendTrainer
+    operation_id: TrainerService_SuspendTrainer
+    method: POST
+    path: /api/v1/admin/trainers/{trainer_id}/suspend
+    body: '*'
+    auth: super-admin-only
+  - selector: trainer.v1.TrainerService.ListTrainers
+    operation_id: TrainerService_ListTrainers
+    method: GET
+    path: /api/v1/admin/trainers
     auth: super-admin-only

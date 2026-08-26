@@ -185,6 +185,10 @@ service IdentityService {
       ]
     };
   }
+
+  // Internal only. Requires verified ms-gym-trainer workload identity.
+  // This RPC is intentionally absent from HTTP/OpenAPI/Kong routing.
+  rpc ValidateTrainerAccount(ValidateTrainerAccountRequest) returns (ValidateTrainerAccountResponse);
 }
 
 message RegisterRequest {
@@ -295,6 +299,19 @@ message ListUsersRequest {
     lte: 100
   }];
   string gym_id = 3 [(buf.validate.field).string = {max_len: 128}];
+}
+
+message ValidateTrainerAccountRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 128
+  }];
+}
+
+message ValidateTrainerAccountResponse {
+  string user_id = 1;
+  common.v1.Role role = 2;
+  common.v1.UserStatus status = 3;
 }
 
 message RegisterResponse {

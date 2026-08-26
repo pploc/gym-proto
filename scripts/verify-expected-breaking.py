@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Require exactly the approved v7 break against immutable v6.0.1."""
+"""Require exactly the approved G12 break against immutable v7.0.2."""
 
 import argparse
 import json
@@ -9,37 +9,29 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED = Counter(
-    {
-        ("MESSAGE_NO_DELETE", 'Previously present message "GetCheckInHistoryRequest" was deleted from file.'): 1,
-        ("MESSAGE_NO_DELETE", 'Previously present message "GetCheckInHistoryResponse" was deleted from file.'): 1,
-        ("MESSAGE_NO_DELETE", 'Previously present message "RegisterDeviceRequest" was deleted from file.'): 1,
-        ("MESSAGE_NO_DELETE", 'Previously present message "RegisterDeviceResponse" was deleted from file.'): 1,
-        ("MESSAGE_NO_DELETE", 'Previously present message "RevokeDeviceRequest" was deleted from file.'): 1,
-        ("MESSAGE_NO_DELETE", 'Previously present message "RevokeDeviceResponse" was deleted from file.'): 1,
-        ("RPC_NO_DELETE", 'Previously present RPC "GetCheckInHistory" on service "CheckInService" was deleted.'): 1,
-        ("RPC_NO_DELETE", 'Previously present RPC "RegisterDevice" on service "CheckInService" was deleted.'): 1,
-        ("RPC_NO_DELETE", 'Previously present RPC "RevokeDevice" on service "CheckInService" was deleted.'): 1,
-        ("FIELD_NO_DELETE", 'Previously present field "1" with name "member_id" on message "ProcessScanRequest" was deleted.'): 1,
-        ("FIELD_SAME_CARDINALITY", 'Field "4" with name "checked_in_at" on message "CheckInRecord" changed cardinality from "optional with implicit presence" to "optional with explicit presence".'): 1,
-        ("FIELD_SAME_TYPE", 'Field "4" with name "checked_in_at" on message "CheckInRecord" changed type from "string" to "message".'): 1,
-        ("FIELD_NO_DELETE", 'Previously present field "1" with name "device_id" on message "GetDisplayQrPayloadRequest" was deleted.'): 1,
-        ("FIELD_SAME_CARDINALITY", 'Field "2" with name "active_at" on message "SignedQrPayload" changed cardinality from "optional with implicit presence" to "optional with explicit presence".'): 1,
-        ("FIELD_SAME_TYPE", 'Field "2" with name "active_at" on message "SignedQrPayload" changed type from "int64" to "message".'): 1,
-        ("FIELD_SAME_CARDINALITY", 'Field "3" with name "expires_at" on message "SignedQrPayload" changed cardinality from "optional with implicit presence" to "optional with explicit presence".'): 1,
-        ("FIELD_SAME_TYPE", 'Field "3" with name "expires_at" on message "SignedQrPayload" changed type from "int64" to "message".'): 1,
-        ("FIELD_NO_DELETE", 'Previously present field "2" with name "device_id" on message "GetDisplayQrPayloadResponse" was deleted.'): 1,
-        ("FIELD_SAME_CARDINALITY", 'Field "3" with name "activated_at" on message "RotateGymQrRootKeyResponse" changed cardinality from "optional with implicit presence" to "optional with explicit presence".'): 1,
-        ("FIELD_SAME_TYPE", 'Field "3" with name "activated_at" on message "RotateGymQrRootKeyResponse" changed type from "int64" to "message".'): 1,
-        ("FIELD_NO_DELETE", 'Previously present field "3" with name "device_id" on message "CheckInRecordedEvent" was deleted.'): 1,
-        ("FIELD_SAME_CARDINALITY", 'Field "4" with name "checked_in_at" on message "CheckInRecordedEvent" changed cardinality from "optional with implicit presence" to "optional with explicit presence".'): 1,
-        ("FIELD_SAME_TYPE", 'Field "4" with name "checked_in_at" on message "CheckInRecordedEvent" changed type from "int64" to "message".'): 1,
-        ("FIELD_NO_DELETE", 'Previously present field "1" with name "member_id" on message "ValidateMembershipRequest" was deleted.'): 1,
-    }
-)
+EXPECTED = Counter([
+    ("ENUM_NO_DELETE", 'Previously present enum "BookingStatus" was deleted from file.'),
+    ("ENUM_VALUE_NO_DELETE", 'Previously present enum value "2" on enum "TrainerStatus" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "2" with name "affected_booking_count" on message "SuspendTrainerResponse" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "4" with name "hourly_rate" on message "CreateTrainerRequest" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "4" with name "is_recurring" on message "AvailabilitySlot" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "9" with name "hourly_rate_vnd" on message "CreateTrainerResponse" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "9" with name "hourly_rate_vnd" on message "GetTrainerProfileResponse" was deleted.'),
+    ("FIELD_NO_DELETE", 'Previously present field "9" with name "hourly_rate_vnd" on message "UpdateMyProfileResponse" was deleted.'),
+    *[("MESSAGE_NO_DELETE", f'Previously present message "{name}" was deleted from file.') for name in (
+        "AcceptBookingRequest", "AcceptBookingResponse", "CancelBookingRequest", "CancelBookingResponse",
+        "CompleteBookingRequest", "CompleteBookingResponse", "CreateBookingRequest", "CreateBookingResponse",
+        "GetCoachingHistoryRequest", "GetCoachingHistoryResponse", "GetMyBookingsRequest", "GetMyBookingsResponse",
+        "RejectBookingRequest", "RejectBookingResponse",
+    )],
+    *[("RPC_NO_DELETE", f'Previously present RPC "{name}" on service "TrainerService" was deleted.') for name in (
+        "AcceptBooking", "CancelBooking", "CompleteBooking", "CreateBooking", "GetCoachingHistory",
+        "GetMyBookings", "RejectBooking",
+    )],
+])
 
 
-def given_v7_candidate_when_compared_then_only_approved_breaks_exist(stable_tag: str) -> None:
+def given_v8_candidate_when_compared_then_only_approved_breaks_exist(stable_tag: str) -> None:
     command = [
         "buf",
         "breaking",
@@ -61,12 +53,12 @@ def given_v7_candidate_when_compared_then_only_approved_breaks_exist(stable_tag:
     if diagnostics != EXPECTED:
         missing = list((EXPECTED - diagnostics).elements())
         extra = list((diagnostics - EXPECTED).elements())
-        raise SystemExit(f"v7 breaking diagnostics differ: missing={missing}, extra={extra}")
-    print(f"given v7 candidate when compared with {stable_tag} then exactly {sum(EXPECTED.values())} approved breaks remain")
+        raise SystemExit(f"v8 breaking diagnostics differ: missing={missing}, extra={extra}")
+    print(f"given v8 candidate when compared with {stable_tag} then exactly {sum(EXPECTED.values())} approved breaks remain")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--against-tag", default="v6.0.1")
+    parser.add_argument("--against-tag", default="v7.0.2")
     arguments = parser.parse_args()
-    given_v7_candidate_when_compared_then_only_approved_breaks_exist(arguments.against_tag)
+    given_v8_candidate_when_compared_then_only_approved_breaks_exist(arguments.against_tag)
